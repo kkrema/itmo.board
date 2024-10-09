@@ -128,3 +128,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Idea
+.idea
+
+# macOS
+*.DS_Store
+.AppleDouble
+
+# Env
+.env
