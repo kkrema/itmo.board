@@ -1,3 +1,5 @@
+"use client";
+
 import { useAppStore } from '../store/useAppStore';
 
 export default function HomePage() {
