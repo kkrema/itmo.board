@@ -21,7 +21,7 @@ export default function BoardPage() {
     return (
         <div>
             <Toolbar onSelectTool={handleToolSelect} onColorChange={handleColorChange} currentColor={color} />
-            <Canvas width={800} height={600} backgroundColor="#f0f0f0" />
+            <Canvas width={800} height={600} backgroundColor="#f0f0f0" color={color} tool={tool} />
         </div>
     );
 }

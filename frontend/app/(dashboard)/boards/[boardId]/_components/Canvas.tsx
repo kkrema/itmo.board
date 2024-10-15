@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 interface CanvasProps {
     width: number;
@@ -10,8 +10,9 @@ interface CanvasProps {
     tool: string;
 }
 
-const Canvas: React.FC<CanvasProps> = ({ width, height, backgroundColor = "#ffffff" }) => {
+const Canvas: React.FC<CanvasProps> = ({ width, height, backgroundColor = "#ffffff", color, tool }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [isDrawing, setIsDrawing] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -38,6 +39,16 @@ const Canvas: React.FC<CanvasProps> = ({ width, height, backgroundColor = "#ffff
         setIsDrawing(true);
     };
 
+    const draw = (e: React.MouseEvent) => {
+        if (!isDrawing || tool !== 'brush') return;
+        const canvas = canvasRef.current;
+        const context = canvas?.getContext("2d");
+        if (context) {
+            context.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+            context.stroke();
+        }
+    };
+
     const stopDrawing = () => {
         if (!isDrawing) return;
         const canvas = canvasRef.current;
@@ -53,12 +64,13 @@ const Canvas: React.FC<CanvasProps> = ({ width, height, backgroundColor = "#ffff
             ref={canvasRef}
             width={width}
             height={height}
-            style={{border: "1px solid #ddd"}}
+            style={{ border: "1px solid #ddd" }}
             onMouseDown={startDrawing}
+            onMouseMove={draw}
             onMouseUp={stopDrawing}
             onMouseLeave={stopDrawing}
         />
     );
-}
+};
 
 export default Canvas;
