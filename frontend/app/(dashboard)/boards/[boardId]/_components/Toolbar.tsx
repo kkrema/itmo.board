@@ -1,13 +1,15 @@
 "use client";
 
 import React from 'react';
+import ColorPicker from './ColorPicker';
 
 interface ToolbarProps {
     onSelectTool: (tool: string) => void;
     onColorChange: (color: string) => void;
+    currentColor: string;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ onSelectTool, onColorChange }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ onSelectTool, onColorChange, currentColor }) => {
     return (
         <div className="toolbar">
             <button onClick={() => onSelectTool('brush')} className="tool-button">
@@ -16,11 +18,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ onSelectTool, onColorChange }) => {
             <button onClick={() => onSelectTool('eraser')} className="tool-button">
                 🧽
             </button>
-            <input
-                type="color"
-                onChange={(e) => onColorChange(e.target.value)}
-                className="color-picker"
-            />
+            <ColorPicker color={currentColor} onChange={onColorChange} />
         </div>
     );
 };
