@@ -1,17 +1,26 @@
-"use client";
+import { auth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
-import { useAppStore } from '../store/useAppStore';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
 
-export default function HomePage() {
-    const { user, setUser } = useAppStore();
+import dynamic from "next/dynamic";
+import { Loader } from "lucide-react";
+
+const HomePage = () => {
+    const { userId } = auth();
+
+    if (userId)
+        redirect (`/${userId}`)
+    else redirect(`/sign-in`)
 
     return (
-        <div>
-            <h1>Главная страница</h1>
-            <p>Пользователь: {user ? user : 'Не авторизован'}</p>
-            <button onClick={() => setUser(user ? null : 'Пользователь')}>
-                {user ? 'Выйти' : 'Войти'}
-            </button>
+        <div className="w-full h-full flex items-center justify-center">
+            <Loader className="animate-spin "/>
         </div>
-    );
+    )
 }
+
+export default dynamic(() => Promise.resolve(HomePage), {ssr: false})
