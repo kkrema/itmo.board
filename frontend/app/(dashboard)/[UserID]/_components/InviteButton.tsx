@@ -5,7 +5,7 @@ import {
     Dialog,
     DialogContent,
     DialogTrigger
-} from "@/components/ui/dialog";
+} from "@/components/ui/Dialog";
 
 import { Button } from "@/components/ui/Button";
 
