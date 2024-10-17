@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { CreateOrganization } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
     Dialog,
     DialogContent,
     DialogTrigger
-} from "@/components/ui/dialog"
+} from "@/components/ui/Dialog"
 
 export const EmptyOrg = () => {
     return (

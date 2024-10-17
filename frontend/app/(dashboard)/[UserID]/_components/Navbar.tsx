@@ -6,8 +6,8 @@ import {
     useOrganization
 } from "@clerk/nextjs"
 
-import { SearchInput } from "./search-input"
-import { InviteButton } from "./invite-button";
+import { SearchInput } from "./SearchInput"
+import { InviteButton } from "./InviteButton";
 import Link from "next/link";
 import {cn} from "@/lib/utils";
 import {Poppins} from "next/font/google";
