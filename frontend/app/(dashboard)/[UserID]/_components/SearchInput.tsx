@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { usePathname, useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 
 export const SearchInput = () => {
     const pathname = usePathname();
