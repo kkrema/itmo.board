@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useRef, useEffect, useState } from 'react';
 
 interface CanvasProps {
@@ -65,6 +63,7 @@ const Canvas: React.FC<CanvasProps> = ({ width, height, backgroundColor = "#ffff
             width={width}
             height={height}
             style={{ border: "1px solid #ddd" }}
+            id="drawing-canvas"
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}
