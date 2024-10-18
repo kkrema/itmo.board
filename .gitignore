@@ -138,3 +138,6 @@ dist
 
 # Env
 .env
+
+# Tests
+test-results
