@@ -22,14 +22,24 @@ jobs:
         working-directory: frontend
         run: npx playwright install
 
-      - name: Build frontend
+      - name: Build and start frontend
         working-directory: frontend
-        run: npm run build
-
-      - name: Start frontend in the background
-        working-directory: frontend
-        run: nohup npm start &
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ vars.CLERK_SECRET_KEY }}
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ vars.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+          NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${{ vars.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: ${{ vars.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL }}
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: ${{ vars.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          PORT: ${{ vars.PORT }}
+        run: |
+          npm run build
+          nohup npm start &      
 
       - name: Run Playwright tests
         working-directory: frontend
+        env:
+          TEST_USERNAME: ${{ vars.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ vars.TEST_PASSWORD }}
         run: npm run test:e2e
