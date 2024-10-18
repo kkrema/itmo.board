@@ -1,4 +1,10 @@
-module.exports = {
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({
+    dir: './',
+});
+
+const customJestConfig = {
     preset: 'ts-jest',
     testEnvironment: 'jest-environment-jsdom',
     testMatch: ['**/?(*.)+(spec|test).[tj]s?(x)'],
@@ -16,3 +22,5 @@ module.exports = {
     coverageDirectory: 'coverage',
     coverageReporters: ['json', 'lcov', 'text', 'clover'],
 };
+
+module.exports = createJestConfig(customJestConfig);
