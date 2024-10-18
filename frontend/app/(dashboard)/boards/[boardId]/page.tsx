@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import Toolbar from './_components/Toolbar';
@@ -20,8 +20,18 @@ export default function BoardPage() {
 
     return (
         <div>
-            <Toolbar onSelectTool={handleToolSelect} onColorChange={handleColorChange} currentColor={color} />
-            <Canvas width={800} height={600} backgroundColor="#f0f0f0" color={color} tool={tool} />
+            <Toolbar
+                onSelectTool={handleToolSelect}
+                onColorChange={handleColorChange}
+                currentColor={color}
+            />
+            <Canvas
+                width={800}
+                height={600}
+                backgroundColor="#f0f0f0"
+                color={color}
+                tool={tool}
+            />
         </div>
     );
 }

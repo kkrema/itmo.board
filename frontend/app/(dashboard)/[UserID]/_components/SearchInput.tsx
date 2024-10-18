@@ -1,16 +1,16 @@
-"use client"
+'use client';
 
-import qs from "query-string";
-import { Search } from "lucide-react";
-import { useDebounce } from "@uidotdev/usehooks";
-import { usePathname, useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
-import { Input } from "@/components/ui/Input";
+import qs from 'query-string';
+import { Search } from 'lucide-react';
+import { useDebounce } from '@uidotdev/usehooks';
+import { usePathname, useRouter } from 'next/navigation';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { Input } from '@/components/ui/Input';
 
 export const SearchInput = () => {
     const pathname = usePathname();
     const router = useRouter();
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     const debouncedValue = useDebounce(value, 500);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -18,12 +18,15 @@ export const SearchInput = () => {
     };
 
     useEffect(() => {
-        const url = qs.stringifyUrl({
-            url: pathname,
-            query: {
-                search: debouncedValue,
+        const url = qs.stringifyUrl(
+            {
+                url: pathname,
+                query: {
+                    search: debouncedValue,
+                },
             },
-        }, { skipEmptyString: true, skipNull: true });
+            { skipEmptyString: true, skipNull: true },
+        );
 
         router.replace(url);
     }, [debouncedValue, pathname, router]);

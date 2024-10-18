@@ -1,14 +1,14 @@
-"use client"
+'use client';
 
-import {clerkClient} from "@clerk/nextjs";
-import {formatDistanceToNow} from "date-fns";
+import { clerkClient } from '@clerk/nextjs';
+import { formatDistanceToNow } from 'date-fns';
 
-import {Skeleton} from "@/components/ui/Skeleton";
+import { Skeleton } from '@/components/ui/Skeleton';
 
-import {Overlay} from "./Overlay";
-import {Footer} from "./Footer";
-import {useEffect, useState} from "react";
-import {useParams, usePathname, useRouter} from "next/navigation";
+import { Overlay } from './Overlay';
+import { Footer } from './Footer';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
 interface BoardCardProps {
     id: string;
@@ -19,29 +19,31 @@ interface BoardCardProps {
 }
 
 export const BoardCard = ({
-                              id,
-                              title,
-                              authorId,
-                              createdAt,
-                              orgId,
-                          }: BoardCardProps) => {
+    id,
+    title,
+    authorId,
+    createdAt,
+}: BoardCardProps) => {
     const router = useRouter();
     const params = useParams();
-    const [authorLabel, setAuthorLabel] = useState(params.UserID === authorId ? "You" : "Another");
+    const [authorLabel, setAuthorLabel] = useState(
+        params.UserID === authorId ? 'You' : 'Another',
+    );
     const [loading, setLoading] = useState(false);
-    const pathname = usePathname();
 
     useEffect(() => {
-        const getFirstName = async(userID: string) => {
+        const getFirstName = async (userID: string) => {
             const user = await clerkClient.users?.getUser(userID);
-            setAuthorLabel(userID === authorId ? "You" : (user?.firstName|| "Teammate"))
-        }
+            setAuthorLabel(
+                userID === authorId ? 'You' : user?.firstName || 'Teammate',
+            );
+        };
         getFirstName(params.UserID as string);
     });
 
     const createdAtLabel = formatDistanceToNow(new Date(createdAt), {
         addSuffix: true,
-    })
+    });
 
     const onClick = () => {
         try {
@@ -52,13 +54,16 @@ export const BoardCard = ({
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
-        <div className="group aspect-[100/127] border rounded-lg flex cursor-pointer
-            flex-col justify-between overflow-hidden relative" onClick={onClick}>
+        <div
+            className="group aspect-[100/127] border rounded-lg flex cursor-pointer
+            flex-col justify-between overflow-hidden relative"
+            onClick={onClick}
+        >
             <div className="relative flex-1 bg-white">
-                <Overlay/>
+                <Overlay />
             </div>
             <Footer
                 title={title}
@@ -73,7 +78,7 @@ export const BoardCard = ({
 BoardCard.Skeleton = function BoardCardSkeleton() {
     return (
         <div className="aspect-[100/127] rounded-lg overflow-hidden">
-            <Skeleton className="h-full w-full"/>
+            <Skeleton className="h-full w-full" />
         </div>
     );
 };

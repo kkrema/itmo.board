@@ -1,7 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/Dialog';
+import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogTitle,
+    DialogDescription,
+    DialogClose,
+} from '@/components/ui/Dialog';
 
 describe('Dialog Component', () => {
     test('renders Dialog with Trigger and opens content on click', () => {
@@ -10,9 +17,11 @@ describe('Dialog Component', () => {
                 <DialogTrigger>Open Dialog</DialogTrigger>
                 <DialogContent>
                     <DialogTitle>Dialog Title</DialogTitle>
-                    <DialogDescription>Dialog description text.</DialogDescription>
+                    <DialogDescription>
+                        Dialog description text.
+                    </DialogDescription>
                 </DialogContent>
-            </Dialog>
+            </Dialog>,
         );
 
         const triggerButton = screen.getByText('Open Dialog');
@@ -24,7 +33,9 @@ describe('Dialog Component', () => {
         // Open dialog
         fireEvent.click(triggerButton);
         expect(screen.getByText('Dialog Title')).toBeInTheDocument();
-        expect(screen.getByText('Dialog description text.')).toBeInTheDocument();
+        expect(
+            screen.getByText('Dialog description text.'),
+        ).toBeInTheDocument();
     });
 
     test('closes Dialog when Close button is clicked', () => {
@@ -33,10 +44,12 @@ describe('Dialog Component', () => {
                 <DialogTrigger>Open Dialog</DialogTrigger>
                 <DialogContent>
                     <DialogTitle>Dialog Title</DialogTitle>
-                    <DialogDescription>Dialog description text.</DialogDescription>
+                    <DialogDescription>
+                        Dialog description text.
+                    </DialogDescription>
                     <DialogClose>Close</DialogClose>
                 </DialogContent>
-            </Dialog>
+            </Dialog>,
         );
 
         // Open dialog
@@ -57,9 +70,11 @@ describe('Dialog Component', () => {
                 <DialogTrigger>Open Dialog</DialogTrigger>
                 <DialogContent className="custom-content">
                     <DialogTitle>Dialog Title</DialogTitle>
-                    <DialogDescription>Dialog description text.</DialogDescription>
+                    <DialogDescription>
+                        Dialog description text.
+                    </DialogDescription>
                 </DialogContent>
-            </Dialog>
+            </Dialog>,
         );
 
         fireEvent.click(screen.getByText('Open Dialog'));
@@ -72,10 +87,14 @@ describe('Dialog Component', () => {
             <Dialog>
                 <DialogTrigger>Open Dialog</DialogTrigger>
                 <DialogContent>
-                    <DialogTitle className="custom-title">Dialog Title</DialogTitle>
-                    <DialogDescription className="custom-description">Dialog description text.</DialogDescription>
+                    <DialogTitle className="custom-title">
+                        Dialog Title
+                    </DialogTitle>
+                    <DialogDescription className="custom-description">
+                        Dialog description text.
+                    </DialogDescription>
                 </DialogContent>
-            </Dialog>
+            </Dialog>,
         );
 
         fireEvent.click(screen.getByText('Open Dialog'));
@@ -93,9 +112,11 @@ describe('Dialog Component', () => {
                 <DialogTrigger>Open Dialog</DialogTrigger>
                 <DialogContent>
                     <DialogTitle>Accessible Dialog</DialogTitle>
-                    <DialogDescription>This dialog is accessible.</DialogDescription>
+                    <DialogDescription>
+                        This dialog is accessible.
+                    </DialogDescription>
                 </DialogContent>
-            </Dialog>
+            </Dialog>,
         );
 
         fireEvent.click(screen.getByText('Open Dialog'));

@@ -1,8 +1,8 @@
-"use client";
-import {useOrganization} from "@clerk/nextjs";
-import {EmptyOrg} from "./_components/EmptyOrg";
-import {BoardList} from "./_components/BoardList";
-import dynamic from "next/dynamic";
+'use client';
+import { useOrganization } from '@clerk/nextjs';
+import { EmptyOrg } from './_components/EmptyOrg';
+import { BoardList } from './_components/BoardList';
+import dynamic from 'next/dynamic';
 
 interface DashboardPageProps {
     searchParams: {
@@ -11,8 +11,8 @@ interface DashboardPageProps {
 }
 
 const DashboardPage = ({
-                           searchParams = { search: "" },
-                       }: DashboardPageProps) => {
+    searchParams = { search: '' },
+}: DashboardPageProps) => {
     const { organization } = useOrganization();
 
     return (

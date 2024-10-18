@@ -9,10 +9,12 @@ describe('EmptyOrg Component', () => {
         expect(screen.getByText('Welcome to itmo.board')).toBeInTheDocument();
 
         expect(
-            screen.getByText('Create an organization to get started!')
+            screen.getByText('Create an organization to get started!'),
         ).toBeInTheDocument();
 
-        const createButton = screen.getByRole('button', { name: /Create an Organization!/i });
+        const createButton = screen.getByRole('button', {
+            name: /Create an Organization!/i,
+        });
         expect(createButton).toBeInTheDocument();
     });
 });

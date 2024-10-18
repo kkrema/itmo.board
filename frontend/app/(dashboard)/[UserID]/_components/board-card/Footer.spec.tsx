@@ -38,8 +38,8 @@ describe('Footer Component', () => {
         render(<Footer {...defaultProps} />);
 
         const authorInfo = screen.getByText('John Doe, 2023-01-01');
-        expect(authorInfo).toHaveClass('opacity-0 group-hover:opacity-100 transition-opacity');
+        expect(authorInfo).toHaveClass(
+            'opacity-0 group-hover:opacity-100 transition-opacity',
+        );
     });
-
-
 });

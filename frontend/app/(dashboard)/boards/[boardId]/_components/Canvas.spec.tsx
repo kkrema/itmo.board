@@ -29,16 +29,33 @@ describe('Canvas Component', () => {
     });
 
     test('renders canvas with correct dimensions and background color', () => {
-        render(<Canvas width={width} height={height} color={color} tool="brush" backgroundColor={backgroundColor} />);
+        render(
+            <Canvas
+                width={width}
+                height={height}
+                color={color}
+                tool="brush"
+                backgroundColor={backgroundColor}
+            />,
+        );
 
-        const canvas = document.getElementById('drawing-canvas') as HTMLCanvasElement;
+        const canvas = document.getElementById(
+            'drawing-canvas',
+        ) as HTMLCanvasElement;
         expect(canvas).toBeInTheDocument();
         expect(canvas).toHaveAttribute('width', width.toString());
         expect(canvas).toHaveAttribute('height', height.toString());
     });
 
     test('does not draw when tool is not brush', () => {
-        const { container } = render(<Canvas width={width} height={height} color={color} tool="eraser" />);
+        const { container } = render(
+            <Canvas
+                width={width}
+                height={height}
+                color={color}
+                tool="eraser"
+            />,
+        );
         const canvas = container.querySelector('canvas') as HTMLCanvasElement;
         const context = canvas.getContext('2d')!;
 
@@ -46,8 +63,12 @@ describe('Canvas Component', () => {
         jest.spyOn(context, 'lineTo');
         jest.spyOn(context, 'stroke');
 
-        fireEvent.mouseDown(canvas, { nativeEvent: { offsetX: 50, offsetY: 50 } });
-        fireEvent.mouseMove(canvas, { nativeEvent: { offsetX: 60, offsetY: 60 } });
+        fireEvent.mouseDown(canvas, {
+            nativeEvent: { offsetX: 50, offsetY: 50 },
+        });
+        fireEvent.mouseMove(canvas, {
+            nativeEvent: { offsetX: 60, offsetY: 60 },
+        });
         fireEvent.mouseUp(canvas);
 
         expect(context.beginPath).not.toHaveBeenCalled();

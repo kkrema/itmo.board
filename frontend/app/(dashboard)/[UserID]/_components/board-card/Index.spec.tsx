@@ -1,9 +1,9 @@
-import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {BoardCard} from '@/app/(dashboard)/[UserID]/_components/board-card/Index';
-import {clerkClient} from '@clerk/nextjs';
-import {useRouter} from 'next/navigation';
-import {act} from "react";
+import { BoardCard } from '@/app/(dashboard)/[UserID]/_components/board-card/Index';
+import { clerkClient } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { act } from 'react';
 
 jest.mock('@clerk/nextjs', () => ({
     clerkClient: {
@@ -58,7 +58,9 @@ describe('BoardCard Component', () => {
         render(<BoardCard {...defaultProps} authorId="123" />);
 
         await waitFor(() => {
-            expect(screen.getByText((content) => content.includes('You,'))).toBeInTheDocument();
+            expect(
+                screen.getByText((content) => content.includes('You,')),
+            ).toBeInTheDocument();
         });
     });
 });

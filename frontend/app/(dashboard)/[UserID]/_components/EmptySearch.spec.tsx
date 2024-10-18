@@ -7,6 +7,8 @@ describe('EmptySearch Component', () => {
         render(<EmptySearch />);
 
         expect(screen.getByText('No results found!')).toBeInTheDocument();
-        expect(screen.getByText('Try searching for something else!')).toBeInTheDocument();
+        expect(
+            screen.getByText('Try searching for something else!'),
+        ).toBeInTheDocument();
     });
 });
