@@ -9,6 +9,13 @@ describe('Overlay Component', () => {
         const overlayElement = document.getElementById('overlay');
 
         expect(overlayElement).toBeInTheDocument();
-        expect(overlayElement).toHaveClass('opacity-0', 'group-hover:opacity-50', 'transition-opacity', 'h-full', 'w-full', 'bg-black');
+        expect(overlayElement).toHaveClass(
+            'opacity-0',
+            'group-hover:opacity-50',
+            'transition-opacity',
+            'h-full',
+            'w-full',
+            'bg-black',
+        );
     });
 });

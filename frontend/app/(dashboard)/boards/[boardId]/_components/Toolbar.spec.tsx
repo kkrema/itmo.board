@@ -18,7 +18,7 @@ describe('Toolbar Component', () => {
                 onSelectTool={onSelectToolMock}
                 onColorChange={onColorChangeMock}
                 currentColor={initialColor}
-            />
+            />,
         );
 
         const brushButton = screen.getByRole('button', { name: '🖌️' });
@@ -36,7 +36,7 @@ describe('Toolbar Component', () => {
                 onSelectTool={onSelectToolMock}
                 onColorChange={onColorChangeMock}
                 currentColor={initialColor}
-            />
+            />,
         );
 
         const brushButton = screen.getByRole('button', { name: '🖌️' });
@@ -51,7 +51,7 @@ describe('Toolbar Component', () => {
                 onSelectTool={onSelectToolMock}
                 onColorChange={onColorChangeMock}
                 currentColor={initialColor}
-            />
+            />,
         );
 
         const eraserButton = screen.getByRole('button', { name: '🧽' });
@@ -66,7 +66,7 @@ describe('Toolbar Component', () => {
                 onSelectTool={onSelectToolMock}
                 onColorChange={onColorChangeMock}
                 currentColor={initialColor}
-            />
+            />,
         );
 
         const newColor = '#00ff00';

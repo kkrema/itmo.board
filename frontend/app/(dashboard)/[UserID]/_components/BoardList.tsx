@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { EmptySearch } from "./EmptySearch";
-import { NewBoardButton } from "./NewBoardButton";
-import { useParams, useSearchParams } from "next/navigation";
-import { BoardCard } from "./board-card/Index";
+import { useEffect, useState, useCallback } from 'react';
+import { EmptySearch } from './EmptySearch';
+import { NewBoardButton } from './NewBoardButton';
+import { useParams, useSearchParams } from 'next/navigation';
+import { BoardCard } from './board-card/Index';
 
 interface BoardListProps {
     orgId: string;
@@ -23,29 +23,32 @@ export interface Board {
 
 const mockBoards: Board[] = [
     {
-        _id: "1",
-        title: "Test Board 1",
-        authorId: "user1",
-        createdAt: "2023-11-01T10:00:00Z",
-        orgId: "org1",
-        imageUrl: "/images/board1.png",
+        _id: '1',
+        title: 'Test Board 1',
+        authorId: 'user1',
+        createdAt: '2023-11-01T10:00:00Z',
+        orgId: 'org1',
+        imageUrl: '/images/board1.png',
     },
     {
-        _id: "2",
-        title: "Test Board 2",
-        authorId: "user2",
-        createdAt: "2023-11-02T11:00:00Z",
-        orgId: "org1",
-        imageUrl: "/images/board2.png",
+        _id: '2',
+        title: 'Test Board 2',
+        authorId: 'user2',
+        createdAt: '2023-11-02T11:00:00Z',
+        orgId: 'org1',
+        imageUrl: '/images/board2.png',
     },
 ];
 
-export const getAllBoards = async (userId: string, orgId: string): Promise<Board[]> => {
+export const getAllBoards = async (
+    userId: string,
+    orgId: string,
+): Promise<Board[]> => {
     console.log(`Mocking getAllBoards for user ${userId} and org ${orgId}`);
     return mockBoards;
 };
 
-export const BoardList = ({ orgId, query }: BoardListProps) => {
+export const BoardList = ({ orgId }: BoardListProps) => {
     const [data, setData] = useState<Board[]>([]);
     const [filteredData, setFilteredData] = useState<Board[]>([]);
     const [loading, setLoading] = useState(true);
@@ -58,7 +61,7 @@ export const BoardList = ({ orgId, query }: BoardListProps) => {
             const boards = await getAllBoards(userId, orgId);
             setData(boards);
         } catch (error) {
-            console.error("Error fetching boards:", error);
+            console.error('Error fetching boards:', error);
         } finally {
             setLoading(false);
         }
@@ -71,9 +74,9 @@ export const BoardList = ({ orgId, query }: BoardListProps) => {
     }, [orgId, params.UserID, fetchBoards]);
 
     const filterBoards = useCallback(() => {
-        const searchQuery = searchParams.get("search")?.toLowerCase() || "";
+        const searchQuery = searchParams.get('search')?.toLowerCase() || '';
         const filteredBoards = data.filter((board) =>
-            board.title.toLowerCase().includes(searchQuery)
+            board.title.toLowerCase().includes(searchQuery),
         );
         setFilteredData(filteredBoards);
     }, [data, searchParams]);
@@ -81,10 +84,6 @@ export const BoardList = ({ orgId, query }: BoardListProps) => {
     useEffect(() => {
         filterBoards();
     }, [data, searchParams, filterBoards]);
-
-    const handleBoardCreated = (newBoard: Board) => {
-        setData((prevData) => [newBoard, ...prevData]);
-    };
 
     if (loading) {
         return (
@@ -97,7 +96,7 @@ export const BoardList = ({ orgId, query }: BoardListProps) => {
         );
     }
 
-    if (!filteredData.length && searchParams.get("search")) {
+    if (!filteredData.length && searchParams.get('search')) {
         return <EmptySearch />;
     }
 
@@ -110,7 +109,7 @@ export const BoardList = ({ orgId, query }: BoardListProps) => {
                     id={board._id}
                     title={board.title}
                     authorId={board.authorId}
-                    createdAt={new Date(board.createdAt || "")}
+                    createdAt={new Date(board.createdAt || '')}
                     orgId={board.orgId}
                 />
             ))}

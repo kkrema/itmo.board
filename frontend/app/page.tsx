@@ -1,7 +1,7 @@
 // app/page.tsx
-import { auth } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
-import { Loader } from "lucide-react";
+import { auth } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
+import { Loader } from 'lucide-react';
 
 export default function HomePage() {
     const { userId } = auth();

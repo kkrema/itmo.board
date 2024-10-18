@@ -2,14 +2,16 @@ import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { Input, InputProps } from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
 
 describe('Input Component', () => {
     test('renders an input element with default properties', () => {
         render(<Input />);
         const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        expect(input).toHaveClass('flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm');
+        expect(input).toHaveClass(
+            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
+        );
     });
 
     test('applies custom className', () => {
@@ -35,7 +37,9 @@ describe('Input Component', () => {
         render(<Input disabled />);
         const input = screen.getByRole('textbox');
         expect(input).toBeDisabled();
-        expect(input).toHaveClass('disabled:cursor-not-allowed disabled:opacity-50');
+        expect(input).toHaveClass(
+            'disabled:cursor-not-allowed disabled:opacity-50',
+        );
     });
 
     test('forwards ref correctly', () => {
