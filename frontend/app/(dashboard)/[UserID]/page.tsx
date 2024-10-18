@@ -3,14 +3,25 @@ import { useOrganization } from '@clerk/nextjs';
 import { EmptyOrg } from './_components/EmptyOrg';
 import { BoardList } from './_components/BoardList';
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 
 interface DashboardPageProps {
     searchParams: Promise<{ search?: string }>;
 }
 
-const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
-    const resolvedParams = await searchParams;
+const DashboardPage = ({ searchParams }: DashboardPageProps) => {
     const { organization } = useOrganization();
+    const [resolvedSearchParams, setResolvedSearchParams] = useState<{
+        search?: string;
+    } | null>(null);
+
+    useEffect(() => {
+        const resolveParams = async () => {
+            const params = await searchParams;
+            setResolvedSearchParams(params);
+        };
+        resolveParams();
+    }, [searchParams]);
 
     return (
         <div className="flex-1 h-[calc(100%-80px)] p-6">
@@ -19,7 +30,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
             ) : (
                 <BoardList
                     orgId={organization.id}
-                    query={resolvedParams}
+                    query={resolvedSearchParams || {}}
                 />
             )}
         </div>
