@@ -4,10 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index",
-    "lint": "eslint ./src/**/*.{ts,js}",
-    "lint:fix": "eslint ./src/**/*.{ts,js} --fix",
-    "format": "prettier --check ./src/**/*.{js,ts}",
-    "format:fix": "prettier --write ./src/**/*.{js,ts}",
+    "lint": "eslint ./**/*.{ts,js}",
+    "lint:fix": "eslint ./**/*.{ts,js} --fix",
+    "format": "prettier --check ./**/*.{js,ts}",
+    "format:fix": "prettier --write ./**/*.{js,ts}",
     "test": "jest",
     "test:coverage": "jest --coverage || exit 0"
   },
