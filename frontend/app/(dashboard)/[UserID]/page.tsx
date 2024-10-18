@@ -7,26 +7,23 @@ import dynamic from "next/dynamic";
 interface DashboardPageProps {
     searchParams: {
         search?: string;
-    }
+    };
 }
 
-const DashboardPage=({
-                         searchParams,
-                     }: DashboardPageProps) => {
+const DashboardPage = ({
+                           searchParams = { search: "" },
+                       }: DashboardPageProps) => {
     const { organization } = useOrganization();
 
-    return(
+    return (
         <div className="flex-1 h-[calc(100%-80px)] p-6">
             {!organization ? (
-                <EmptyOrg/>
-            ): (
-                <BoardList
-                    orgId={organization.id}
-                    query={searchParams}
-                />
+                <EmptyOrg />
+            ) : (
+                <BoardList orgId={organization.id} query={searchParams} />
             )}
         </div>
     );
 };
 
-export default dynamic(() => Promise.resolve(DashboardPage), {ssr: false})
+export default dynamic(() => Promise.resolve(DashboardPage), { ssr: false });
