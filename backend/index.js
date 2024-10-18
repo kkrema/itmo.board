@@ -1,11 +1,13 @@
-const express = require("express");
+const express = require('express');
 
-require('dotenv').config()
+require('dotenv').config();
 
 const app = express();
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server is running at site: http://localhost:${port}`);
 });
+
+module.exports = server;
