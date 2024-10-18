@@ -19,7 +19,7 @@ export const EmptyOrg = () => {
 
             <div className="mt-6 ">
                 <Dialog>
-                    <DialogTrigger>
+                    <DialogTrigger asChild>
                         <Button size="lg">
                             Create an Organization!
                         </Button>
