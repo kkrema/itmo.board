@@ -5,14 +5,11 @@ import { BoardList } from './_components/BoardList';
 import dynamic from 'next/dynamic';
 
 interface DashboardPageProps {
-    searchParams: {
-        search?: string;
-    };
+    searchParams: Promise<{ search?: string }>;
 }
 
-const DashboardPage = ({
-    searchParams = { search: '' },
-}: DashboardPageProps) => {
+const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
+    const resolvedParams = await searchParams;
     const { organization } = useOrganization();
 
     return (
@@ -20,7 +17,10 @@ const DashboardPage = ({
             {!organization ? (
                 <EmptyOrg />
             ) : (
-                <BoardList orgId={organization.id} query={searchParams} />
+                <BoardList
+                    orgId={organization.id}
+                    query={resolvedParams}
+                />
             )}
         </div>
     );
