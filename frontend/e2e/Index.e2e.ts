@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test('should log in and access page', async ({ page }) => {
-    console.log('Environment Variables:', JSON.stringify(process.env, null, 2));
-
     const username = process.env.TEST_USERNAME;
     const password = process.env.TEST_PASSWORD;
 
@@ -13,7 +11,6 @@ test('should log in and access page', async ({ page }) => {
     }
 
     await page.goto('http://localhost:3000/');
-    console.log('Initial page content:', await page.content());
 
     await page.fill('input[name="identifier"]', username);
     await page.fill('input[name="password"]', password);
