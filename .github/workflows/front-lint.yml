@@ -1,0 +1,27 @@
+name: Frontend lint
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+
+      - name: Install dependencies for frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Check formatting with Prettier (Frontend)
+        working-directory: frontend
+        run: npm run format

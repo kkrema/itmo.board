@@ -1,3 +1,17 @@
 {
-  "extends": ["next/core-web-vitals"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "plugins": [
+    "no-only-tests"
+  ],
+  "rules": {
+    "no-only-tests/no-only-tests": "error"
+  },
+  "overrides": [
+    {
+      "files": ["src/tests/**/*.ts", "src/tests/**/*.js"],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    }
+  ]
 }
