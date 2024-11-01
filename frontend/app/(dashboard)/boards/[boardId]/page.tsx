@@ -1,17 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import Toolbar from './_components/Toolbar';
+import { ToolBar } from './_components/Toolbar';
 import Canvas from './_components/Canvas';
 
 export default function BoardPage() {
-    const [tool, setTool] = useState('brush');
     const [color, setColor] = useState('#000000');
-
-    const handleToolSelect = (selectedTool: string) => {
-        setTool(selectedTool);
-        console.log('Выбранный инструмент:', selectedTool);
-    };
 
     const handleColorChange = (selectedColor: string) => {
         setColor(selectedColor);
@@ -20,17 +14,22 @@ export default function BoardPage() {
 
     return (
         <div>
-            <Toolbar
-                onSelectTool={handleToolSelect}
+            <ToolBar
                 onColorChange={handleColorChange}
                 currentColor={color}
+                editable={true} // example prop
+                deleteSelected={() => console.log('Delete selected')} // example function
+                moveToFront={() => console.log('Move to front')} // example function
+                moveToBack={() => console.log('Move to back')} // example function
+                moveForward={() => console.log('Move forward')} // example function
+                moveBackward={() => console.log('Move backward')} // example function
             />
             <Canvas
                 width={800}
                 height={600}
                 backgroundColor="#f0f0f0"
                 color={color}
-                tool={tool}
+                tool="brush"
             />
         </div>
     );

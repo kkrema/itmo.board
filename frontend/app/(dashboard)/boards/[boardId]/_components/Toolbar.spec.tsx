@@ -1,78 +1,115 @@
-// Toolbar.spec.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Toolbar from './Toolbar';
+import React from 'react';
+import { render, fireEvent, screen } from '@testing-library/react';
+import { ToolBar } from './Toolbar';
 
-describe('Toolbar Component', () => {
-    const onSelectToolMock = jest.fn();
-    const onColorChangeMock = jest.fn();
-    const initialColor = '#ff0000';
+jest.mock('./ToolButton', () => ({
+    ToolButton: ({ label, onClick, isDisabled }: any) => (
+        <button
+            data-testid={`tool-button-${label}`}
+            onClick={isDisabled ? undefined : onClick}
+            disabled={isDisabled}
+        >
+            {label}
+        </button>
+    ),
+}));
 
-    beforeEach(() => {
+describe('ToolBar Component', () => {
+    const mockOnColorChange = jest.fn();
+    const mockDeleteSelected = jest.fn();
+    const mockMoveToFront = jest.fn();
+    const mockMoveToBack = jest.fn();
+    const mockMoveForward = jest.fn();
+    const mockMoveBackward = jest.fn();
+
+    const setup = (props = {}) => {
+        const defaultProps = {
+            onColorChange: mockOnColorChange,
+            currentColor: '#FF5733',
+            editable: true,
+            deleteSelected: mockDeleteSelected,
+            moveToFront: mockMoveToFront,
+            moveToBack: mockMoveToBack,
+            moveForward: mockMoveForward,
+            moveBackward: mockMoveBackward,
+        };
+        return render(<ToolBar {...defaultProps} {...props} />);
+    };
+
+    afterEach(() => {
         jest.clearAllMocks();
     });
 
-    test('renders toolbar with brush, eraser buttons, and color picker', () => {
-        render(
-            <Toolbar
-                onSelectTool={onSelectToolMock}
-                onColorChange={onColorChangeMock}
-                currentColor={initialColor}
-            />,
-        );
+    it('calls onColorChange when the Pen button is clicked', () => {
+        setup();
 
-        const brushButton = screen.getByRole('button', { name: '🖌️' });
-        const eraserButton = screen.getByRole('button', { name: '🧽' });
-        const colorPicker = screen.getByDisplayValue(initialColor);
+        const penButton = screen.getByTestId('tool-button-Pen');
+        fireEvent.click(penButton);
 
-        expect(brushButton).toBeInTheDocument();
-        expect(eraserButton).toBeInTheDocument();
-        expect(colorPicker).toBeInTheDocument();
+        expect(mockOnColorChange).toHaveBeenCalledWith('#FF5733');
     });
 
-    test('calls onSelectTool with "brush" when brush button is clicked', () => {
-        render(
-            <Toolbar
-                onSelectTool={onSelectToolMock}
-                onColorChange={onColorChangeMock}
-                currentColor={initialColor}
-            />,
-        );
+    it('does not trigger actions for disabled buttons', () => {
+        setup({ editable: false });
 
-        const brushButton = screen.getByRole('button', { name: '🖌️' });
-        fireEvent.click(brushButton);
+        const deleteButton = screen.getByTestId('tool-button-Delete');
+        fireEvent.click(deleteButton);
 
-        expect(onSelectToolMock).toHaveBeenCalledWith('brush');
+        expect(mockDeleteSelected).not.toHaveBeenCalled();
     });
 
-    test('calls onSelectTool with "eraser" when eraser button is clicked', () => {
-        render(
-            <Toolbar
-                onSelectTool={onSelectToolMock}
-                onColorChange={onColorChangeMock}
-                currentColor={initialColor}
-            />,
-        );
+    it('calls deleteSelected when the Delete button is clicked', () => {
+        setup();
 
-        const eraserButton = screen.getByRole('button', { name: '🧽' });
-        fireEvent.click(eraserButton);
+        const deleteButton = screen.getByTestId('tool-button-Delete');
+        fireEvent.click(deleteButton);
 
-        expect(onSelectToolMock).toHaveBeenCalledWith('eraser');
+        expect(mockDeleteSelected).toHaveBeenCalledTimes(1);
     });
 
-    test('calls onColorChange with new color when color picker value changes', () => {
-        render(
-            <Toolbar
-                onSelectTool={onSelectToolMock}
-                onColorChange={onColorChangeMock}
-                currentColor={initialColor}
-            />,
+    it('calls moveToFront when the Bring to Front button is clicked', () => {
+        setup();
+
+        fireEvent.click(screen.getByTestId('tool-button-More'));
+        const bringToFrontButton = screen.getByTestId(
+            'tool-button-Bring to Front',
         );
+        fireEvent.click(bringToFrontButton);
 
-        const newColor = '#00ff00';
-        const colorPicker = screen.getByDisplayValue(initialColor);
+        expect(mockMoveToFront).toHaveBeenCalledTimes(1);
+    });
 
-        fireEvent.change(colorPicker, { target: { value: newColor } });
-        expect(onColorChangeMock).toHaveBeenCalledWith(newColor);
+    it('calls moveToBack when the Send to Back button is clicked', () => {
+        setup();
+
+        fireEvent.click(screen.getByTestId('tool-button-More'));
+        const sendToBackButton = screen.getByTestId('tool-button-Send to Back');
+        fireEvent.click(sendToBackButton);
+
+        expect(mockMoveToBack).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls moveForward when the Move Forward button is clicked', () => {
+        setup();
+
+        fireEvent.click(screen.getByTestId('tool-button-More'));
+        const moveForwardButton = screen.getByTestId(
+            'tool-button-Move Forward',
+        );
+        fireEvent.click(moveForwardButton);
+
+        expect(mockMoveForward).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls moveBackward when the Move Backward button is clicked', () => {
+        setup();
+
+        fireEvent.click(screen.getByTestId('tool-button-More'));
+        const moveBackwardButton = screen.getByTestId(
+            'tool-button-Move Backward',
+        );
+        fireEvent.click(moveBackwardButton);
+
+        expect(mockMoveBackward).toHaveBeenCalledTimes(1);
     });
 });

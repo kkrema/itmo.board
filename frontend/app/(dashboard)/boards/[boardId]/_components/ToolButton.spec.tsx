@@ -13,7 +13,7 @@ describe('ToolButton', () => {
                 label="Test Button"
                 icon={Plus}
                 onClick={mockOnClick}
-            />
+            />,
         );
         fireEvent.click(screen.getByRole('button'));
         expect(mockOnClick).toHaveBeenCalledTimes(1);
@@ -25,7 +25,7 @@ describe('ToolButton', () => {
                 icon={Plus}
                 onClick={mockOnClick}
                 isDisabled={true}
-            />
+            />,
         );
         const button = screen.getByRole('button');
         expect(button).toBeDisabled();
@@ -39,7 +39,7 @@ describe('ToolButton', () => {
                 icon={Plus}
                 onClick={mockOnClick}
                 isActive={true}
-            />
+            />,
         );
         const button = screen.getByRole('button');
         expect(button).toHaveClass('bg-blue-500/20');
@@ -52,7 +52,7 @@ describe('ToolButton', () => {
                 icon={Plus}
                 onClick={mockOnClick}
                 isActive={false}
-            />
+            />,
         );
         const button = screen.getByRole('button');
         expect(button).toHaveClass('hover:bg-blue-500/20');
