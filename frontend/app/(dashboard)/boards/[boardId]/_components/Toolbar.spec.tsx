@@ -3,7 +3,7 @@ import { render, fireEvent, screen } from '@testing-library/react';
 import { ToolBar } from './Toolbar';
 
 jest.mock('./ToolButton', () => ({
-    ToolButton: ({ label, onClick, isDisabled }: any) => (
+    ToolButton: ({ label, onClick, isDisabled }: never) => (
         <button
             data-testid={`tool-button-${label}`}
             onClick={isDisabled ? undefined : onClick}
