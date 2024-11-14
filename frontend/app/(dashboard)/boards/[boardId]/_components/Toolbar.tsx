@@ -28,6 +28,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
             >
                 🧽
             </button>
+            <button onClick={() => onSelectTool('pan')} className="tool-button">
+                🖱️
+            </button>
             <ColorPicker color={currentColor} onChange={onColorChange} />
         </div>
     );
