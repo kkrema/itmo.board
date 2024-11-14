@@ -26,8 +26,8 @@ export default function BoardPage() {
                 currentColor={color}
             />
             <Canvas
-                width={800}
-                height={600}
+                initialWidth={800}
+                initialHeight={600}
                 backgroundColor="#f0f0f0"
                 color={color}
                 tool={tool}
