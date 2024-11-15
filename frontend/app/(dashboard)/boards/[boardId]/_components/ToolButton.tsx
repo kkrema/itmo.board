@@ -9,8 +9,13 @@ interface ToolButtonProps {
     isActive?: boolean;
     isDisabled?: boolean;
 }
-export const ToolButton = (props: ToolButtonProps) => {
-    const { label, icon: Icon, onClick, isActive, isDisabled } = props;
+export const ToolButton = ({
+    label,
+    icon: Icon,
+    onClick,
+    isActive,
+    isDisabled,
+}: ToolButtonProps) => {
     return (
         <Hint label={label} side="right" sideOffset={14}>
             <Button

@@ -13,8 +13,14 @@ export interface HintProps {
     sideOffset?: number;
     alignOffset?: number;
 }
-export const Hint = (props: HintProps) => {
-    const { label, children, side, align, sideOffset, alignOffset } = props;
+export const Hint = ({
+    label,
+    children,
+    side,
+    align,
+    sideOffset,
+    alignOffset,
+}: HintProps) => {
     return (
         <TooltipProvider>
             <Tooltip delayDuration={100}>
