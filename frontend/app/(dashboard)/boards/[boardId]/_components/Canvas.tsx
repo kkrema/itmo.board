@@ -1,208 +1,149 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useCanvasStore } from '@/store/useCanvasStore';
+import { LayerPreview } from './LayerPreview';
+import { CanvasMode } from '@/types/canvas';
+import { cn } from '@/lib/utils';
 
-interface CanvasProps {
-    initialWidth: number;
-    initialHeight: number;
-    backgroundColor?: string;
-    color: string;
-    tool: string;
-}
+const Canvas: React.FC = () => {
+    const [camera, setCamera] = useState({ x: 0, y: 0 });
 
-const Canvas: React.FC<CanvasProps> = ({
-    initialWidth,
-    initialHeight,
-    backgroundColor = '#ffffff',
-    color,
-    tool,
-}) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    const [isDrawing, setIsDrawing] = useState(false);
     const [isPanning, setIsPanning] = useState(false);
-    const [scale, setScale] = useState(1);
-    const [offset, setOffset] = useState({ x: 0, y: 0 });
-    const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+    const [lastPointerPosition, setLastPointerPosition] = useState({
+        x: 0,
+        y: 0,
+    });
 
-    // Resize canvas to fit container
-    const [canvasSize, setCanvasSize] = useState({ width: initialWidth, height: initialHeight });
-    // Resize canvas when window is resized
-    useEffect(() => {
-        const handleResize = () => {
-            if (containerRef.current) {
-                setCanvasSize({
-                    width: containerRef.current.clientWidth,
-                    height: containerRef.current.clientHeight,
-                });
-            }
-        };
+    const [selection, setSelection] = useState<string[]>([]);
 
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+    const [canvasState, setCanvasState] = useState<{
+        mode: CanvasMode;
+        origin: { x: number; y: number } | null;
+        current: { x: number; y: number } | null;
+    }>({
+        mode: CanvasMode.None,
+        origin: null,
+        current: null,
+    });
+
+    const layerIds = useCanvasStore((state) => state.layerIds);
+
+    // Map of layer IDs to selection colors
+    const layerIdsToColorSelection: Record<string, string> = {};
+    selection.forEach((layerId) => {
+        layerIdsToColorSelection[layerId] = 'blue';
+    });
+
+    // Event handlers
+    const onWheel = useCallback((e: React.WheelEvent) => {
+        e.preventDefault();
+        setCamera((prev) => ({
+            x: prev.x - e.deltaX,
+            y: prev.y - e.deltaY,
+        }));
     }, []);
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const context = canvas.getContext('2d');
-            if (context) {
-                context.setTransform(scale, 0, 0, scale, offset.x, offset.y);
-                context.fillStyle = backgroundColor;
-                context.fillRect(0, 0, canvas.width, canvas.height);
+    const onPointerDown = useCallback(
+        (e: React.PointerEvent) => {
+            if (e.button === 0) {
+                setIsPanning(true);
+                setLastPointerPosition({ x: e.clientX, y: e.clientY });
             }
-        }
-    }, [canvasSize.width, canvasSize.height, backgroundColor]);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const context = canvas.getContext('2d');
-            if (context) {
-                // Clear and reset transformations
-                context.setTransform(1, 0, 0, 1, 0, 0);
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                context.setTransform(scale, 0, 0, scale, offset.x, offset.y);
-                context.fillStyle = backgroundColor;
-                context.fillRect(0, 0, canvas.width, canvas.height);
-                // TODO: To persist drawings, implement a drawing history or off-screen canvas
-            }
-        }
-    }, [scale, offset, backgroundColor, canvasSize]);
-
-    const getCanvasCoordinates = useCallback(
-        (e: React.MouseEvent) => {
-            const canvas = canvasRef.current;
-            if (!canvas) return { x: 0, y: 0 };
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left - offset.x) / scale;
-            const y = (e.clientY - rect.top - offset.y) / scale;
-            return { x, y };
         },
-        [scale, offset]
+        [],
     );
 
-    const startDrawing = (e: React.MouseEvent) => {
-        if (tool !== 'brush') return;
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
-        if (!canvas || !context) return;
+    const onPointerMove = useCallback(
+        (e: React.PointerEvent) => {
+            if (isPanning) {
+                const dx = e.clientX - lastPointerPosition.x;
+                const dy = e.clientY - lastPointerPosition.y;
+                setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+                setLastPointerPosition({ x: e.clientX, y: e.clientY });
+            }
+        },
+        [isPanning, lastPointerPosition],
+    );
 
-        const { x, y } = getCanvasCoordinates(e);
+    const onPointerUp = useCallback(() => {
+        setIsPanning(false);
+    }, []);
 
-        context.strokeStyle = color;
-        context.lineWidth = 2;
-        context.lineCap = 'round';
-        context.beginPath();
-        context.moveTo(x, y);
-        setIsDrawing(true);
-    };
+    const onPointerLeave = useCallback(() => {
+        setIsPanning(false);
+    }, []);
 
-    const draw = (e: React.MouseEvent) => {
-        if (!isDrawing || tool !== 'brush') return;
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
-        if (!canvas || !context) return;
-
-        const { x, y } = getCanvasCoordinates(e);
-        context.lineTo(x, y);
-        context.stroke();
-    };
-
-    const stopDrawing = () => {
-        if (!isDrawing) return;
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
-        if (canvas && context) {
-            context.closePath();
-        }
-        setIsDrawing(false);
-    };
-
-    const handleWheel = (e: React.WheelEvent) => {
-        e.preventDefault();
-        const scaleAmount = 0.1;
-        let newScale = scale;
-        if (e.deltaY < 0) {
-            // Zoom in
-            newScale = Math.min(scale + scaleAmount, 3);
-        } else {
-            // Zoom out
-            newScale = Math.max(scale - scaleAmount, 0.5);
-        }
-
-        // To zoom towards the mouse position, adjust the offset accordingly
-        const { clientX, clientY } = e;
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const rect = canvas.getBoundingClientRect();
-            const x = (clientX - rect.left - offset.x) / scale;
-            const y = (clientY - rect.top - offset.y) / scale;
-
-            const newOffset = {
-                x: clientX - x * newScale,
-                y: clientY - y * newScale,
-            };
-            setScale(newScale);
-            setOffset(newOffset);
-        }
-    };
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (tool === 'pan') {
-            setLastPos({ x: e.clientX, y: e.clientY });
-            setIsPanning(true);
-        } else if (tool === 'brush') {
-            startDrawing(e);
-        }
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (tool === 'pan' && isPanning) {
-            const dx = e.clientX - lastPos.x;
-            const dy = e.clientY - lastPos.y;
-            setOffset((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-            setLastPos({ x: e.clientX, y: e.clientY });
-        } else if (tool === 'brush') {
-            draw(e);
-        }
-    };
-
-    const handleMouseUp = () => {
-        if (tool === 'pan') {
-            setIsPanning(false);
-        } else if (tool === 'brush') {
-            stopDrawing();
-        }
-    };
+    const onLayerPointerDown = useCallback(
+        (e: React.PointerEvent, layerId: string) => {
+            e.stopPropagation();
+            setSelection((prevSelection) =>
+                prevSelection.includes(layerId)
+                    ? prevSelection.filter((id) => id !== layerId)
+                    : [...prevSelection, layerId],
+            );
+        },
+        [],
+    );
 
     return (
-        <div
-            ref={containerRef}
-            style={{
-                overflow: 'hidden',
-                width: '100%',
-                height: '100%',
-                position: 'relative',
-                cursor: tool === 'pan' ? (isPanning ? 'grabbing' : 'grab') : 'crosshair',
-                backgroundColor,
-            }}
-            onWheel={handleWheel}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+        <main
+            className={cn(
+                'h-full w-full relative bg-neutral-100 touch-none',
+                "bg-[url('/graph-paper.svg')] bg-opacity-20 bg-white",
+            )}
         >
-            <canvas
-                ref={canvasRef}
-                width={canvasSize.width}
-                height={canvasSize.height}
-                style={{
-                    border: '1px solid #ddd',
-                }}
-                id="drawing-canvas"
-            />
-        </div>
+            {/* Container for aligning buttons in the top-right corner */}
+            <div className="absolute top-2 right-2 flex items-center gap-2">
+                {/* Add buttons here if needed */}
+            </div>
+            <svg
+                className="h-[100vh] w-[100vw]"
+                onWheel={onWheel}
+                onPointerMove={onPointerMove}
+                onPointerLeave={onPointerLeave}
+                onPointerDown={onPointerDown}
+                onPointerUp={onPointerUp}
+                tabIndex={0}
+            >
+                <g
+                    style={{
+                        transform: `translate(${camera.x}px, ${camera.y}px)`,
+                    }}
+                >
+                    {layerIds?.map((layerId) => (
+                        <LayerPreview
+                            key={layerId}
+                            id={layerId}
+                            onLayerPointerDown={onLayerPointerDown}
+                            selectionColor={layerIdsToColorSelection[layerId]}
+                        />
+                    ))}
+
+                    {canvasState.mode === CanvasMode.SelectionNet &&
+                        canvasState.current != null &&
+                        canvasState.origin != null && (
+                            <rect
+                                className="fill-blue-500/5 stroke-blue-500 stroke-1"
+                                x={Math.min(
+                                    canvasState.origin.x,
+                                    canvasState.current.x,
+                                )}
+                                y={Math.min(
+                                    canvasState.origin.y,
+                                    canvasState.current.y,
+                                )}
+                                width={Math.abs(
+                                    canvasState.origin.x -
+                                        canvasState.current.x,
+                                )}
+                                height={Math.abs(
+                                    canvasState.origin.y -
+                                        canvasState.current.y,
+                                )}
+                            />
+                        )}
+                </g>
+            </svg>
+        </main>
     );
 };
 
