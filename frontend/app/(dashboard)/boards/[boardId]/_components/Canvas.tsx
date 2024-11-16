@@ -51,16 +51,14 @@ const Canvas: React.FC = () => {
             const offsetY = clientY - rect.top;
 
             // Calculate the new camera position to zoom towards the mouse
-            const dx = (offsetX / scale - offsetX / newScale);
-            const dy = (offsetY / scale - offsetY / newScale);
+            const scaleFactor = newScale / scale;
+            const newCameraX = offsetX - (offsetX - camera.x) * scaleFactor;
+            const newCameraY = offsetY - (offsetY - camera.y) * scaleFactor;
 
             setScale(newScale);
-            setCamera((prev) => ({
-                x: prev.x + dx,
-                y: prev.y + dy,
-            }));
+            setCamera({ x: newCameraX, y: newCameraY });
         },
-        [scale],
+        [scale, camera],
     );
 
     const onPointerDown = useCallback((e: React.PointerEvent) => {
