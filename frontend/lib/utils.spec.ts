@@ -22,7 +22,11 @@ describe('Utility Functions', () => {
         it('should handle conditional class names', () => {
             const isActive = true;
             const isDisabled = false;
-            const result = cn('base', isActive && 'active', isDisabled && 'disabled');
+            const result = cn(
+                'base',
+                isActive && 'active',
+                isDisabled && 'disabled',
+            );
             expect(result).toBe('base active');
         });
 
@@ -55,7 +59,9 @@ describe('Utility Functions', () => {
                 [50, 60],
             ];
             const result = getSvgPathFromStroke(stroke);
-            expect(result).toBe('M 10 20 Q 10 20 20 30 30 40 40 50 50 60 30 40 Z');
+            expect(result).toBe(
+                'M 10 20 Q 10 20 20 30 30 40 40 50 50 60 30 40 Z',
+            );
         });
 
         it('should correctly handle closed paths', () => {
@@ -66,7 +72,9 @@ describe('Utility Functions', () => {
                 [0, 100],
             ];
             const result = getSvgPathFromStroke(stroke);
-            expect(result).toBe('M 0 0 Q 0 0 50 0 100 0 100 50 100 100 50 100 0 100 0 50 Z');
+            expect(result).toBe(
+                'M 0 0 Q 0 0 50 0 100 0 100 50 100 100 50 100 0 100 0 50 Z',
+            );
         });
 
         it('should handle a curve with multiple points', () => {
@@ -77,7 +85,9 @@ describe('Utility Functions', () => {
                 [70, 80],
             ];
             const result = getSvgPathFromStroke(stroke);
-            expect(result).toBe('M 10 20 Q 10 20 7.5 30 5 40 27.5 50 50 60 60 70 70 80 40 50 Z');
+            expect(result).toBe(
+                'M 10 20 Q 10 20 7.5 30 5 40 27.5 50 50 60 60 70 70 80 40 50 Z',
+            );
         });
     });
 

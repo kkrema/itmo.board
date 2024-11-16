@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import Canvas from './Canvas';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
@@ -25,8 +25,8 @@ jest.mock('@/lib/utils', () => ({
 
 describe('Canvas Component', () => {
     const mockUseCanvasStore = (mockLayerIds: string[]) => {
-        (useCanvasStore as unknown as jest.Mock).mockImplementation((selector) =>
-            selector({ layerIds: mockLayerIds })
+        (useCanvasStore as unknown as jest.Mock).mockImplementation(
+            (selector) => selector({ layerIds: mockLayerIds }),
         );
     };
 
@@ -49,8 +49,6 @@ describe('Canvas Component', () => {
         expect(layerPreviews).toHaveLength(mockLayerIds.length);
     });
 
-
-
     it('toggles layer selection on layer click', () => {
         const mockLayerIds = ['layer1', 'layer2'];
         mockUseCanvasStore(mockLayerIds);
@@ -67,7 +65,7 @@ describe('Canvas Component', () => {
                 id: 'layer1',
                 selectionColor: 'blue',
             }),
-            {}
+            {},
         );
 
         const secondLayer = getByTestId('layer-preview-layer2');
@@ -80,7 +78,7 @@ describe('Canvas Component', () => {
                 id: 'layer2',
                 selectionColor: 'blue',
             }),
-            {}
+            {},
         );
     });
 

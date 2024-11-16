@@ -28,14 +28,13 @@ export default function BoardPage() {
             x: 100,
             y: 100,
             points: points,
-            fill: {r: 0, g: 0, b: 0},
+            fill: { r: 0, g: 0, b: 0 },
             height: 200,
             width: 200,
         };
 
         addLayer(newLayer);
     }, [addLayer]);
-
 
     const handleToolSelect = (selectedTool: string) => {
         setTool(selectedTool);
@@ -54,7 +53,7 @@ export default function BoardPage() {
                 onColorChange={handleColorChange}
                 currentColor={color}
             />
-            <Canvas/>
+            <Canvas />
         </div>
     );
 }

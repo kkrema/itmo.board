@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 
 const Canvas: React.FC = () => {
     const [camera, setCamera] = useState({ x: 0, y: 0 });
+    const [scale, setScale] = useState(1);
 
     const [isPanning, setIsPanning] = useState(false);
     const [lastPointerPosition, setLastPointerPosition] = useState({
@@ -35,34 +36,50 @@ const Canvas: React.FC = () => {
     });
 
     // Event handlers
-    const onWheel = useCallback((e: React.WheelEvent) => {
-        e.preventDefault();
-        setCamera((prev) => ({
-            x: prev.x - e.deltaX,
-            y: prev.y - e.deltaY,
-        }));
-    }, []);
+    const onWheel = useCallback(
+        (e: React.WheelEvent) => {
+            e.preventDefault();
 
-    const onPointerDown = useCallback(
-        (e: React.PointerEvent) => {
-            if (e.button === 0) {
-                setIsPanning(true);
-                setLastPointerPosition({ x: e.clientX, y: e.clientY });
-            }
+            const { clientX, clientY, deltaY } = e;
+            const zoomIntensity = 0.001;
+            const newScale = Math.min(Math.max(scale - deltaY * zoomIntensity, 0.1), 20); // Clamp scale
+
+            // Calculate the mouse position relative to the SVG
+            const svg = e.currentTarget;
+            const rect = svg.getBoundingClientRect();
+            const offsetX = clientX - rect.left;
+            const offsetY = clientY - rect.top;
+
+            // Calculate the new camera position to zoom towards the mouse
+            const dx = (offsetX / scale - offsetX / newScale);
+            const dy = (offsetY / scale - offsetY / newScale);
+
+            setScale(newScale);
+            setCamera((prev) => ({
+                x: prev.x + dx,
+                y: prev.y + dy,
+            }));
         },
-        [],
+        [scale],
     );
+
+    const onPointerDown = useCallback((e: React.PointerEvent) => {
+        if (e.button === 0) {
+            setIsPanning(true);
+            setLastPointerPosition({ x: e.clientX, y: e.clientY });
+        }
+    }, []);
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
             if (isPanning) {
-                const dx = e.clientX - lastPointerPosition.x;
-                const dy = e.clientY - lastPointerPosition.y;
+                const dx = (e.clientX - lastPointerPosition.x) / scale;
+                const dy = (e.clientY - lastPointerPosition.y) / scale;
                 setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
                 setLastPointerPosition({ x: e.clientX, y: e.clientY });
             }
         },
-        [isPanning, lastPointerPosition],
+        [isPanning, lastPointerPosition, scale],
     );
 
     const onPointerUp = useCallback(() => {
@@ -110,7 +127,8 @@ const Canvas: React.FC = () => {
                 <g
                     data-testid="svg-group"
                     style={{
-                        transform: `translate(${camera.x}px, ${camera.y}px)`,
+                        transform: `translate(${camera.x}px, ${camera.y}px) scale(${scale})`,
+                        transition: 'transform 0.1s ease-out',
                     }}
                 >
                     {layerIds?.map((layerId) => (
