@@ -42,7 +42,10 @@ const Canvas: React.FC = () => {
 
             const { clientX, clientY, deltaY } = e;
             const zoomIntensity = 0.001;
-            const newScale = Math.min(Math.max(scale - deltaY * zoomIntensity, 0.1), 20); // Clamp scale
+            const newScale = Math.min(
+                Math.max(scale - deltaY * zoomIntensity, 0.1),
+                20,
+            ); // Clamp scale
 
             // Calculate the mouse position relative to the SVG
             const svg = e.currentTarget;
@@ -71,13 +74,13 @@ const Canvas: React.FC = () => {
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
             if (isPanning) {
-                const dx = (e.clientX - lastPointerPosition.x) / scale;
-                const dy = (e.clientY - lastPointerPosition.y) / scale;
+                const dx = e.clientX - lastPointerPosition.x;
+                const dy = e.clientY - lastPointerPosition.y;
                 setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
                 setLastPointerPosition({ x: e.clientX, y: e.clientY });
             }
         },
-        [isPanning, lastPointerPosition, scale],
+        [isPanning, lastPointerPosition],
     );
 
     const onPointerUp = useCallback(() => {
@@ -124,10 +127,7 @@ const Canvas: React.FC = () => {
             >
                 <g
                     data-testid="svg-group"
-                    style={{
-                        transform: `translate(${camera.x}px, ${camera.y}px) scale(${scale})`,
-                        transition: 'transform 0.1s ease-out',
-                    }}
+                    transform={`translate(${camera.x}, ${camera.y}) scale(${scale})`}
                 >
                     {layerIds?.map((layerId) => (
                         <LayerPreview

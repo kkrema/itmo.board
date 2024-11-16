@@ -59,7 +59,9 @@ describe('Canvas Component', () => {
         const svgGroup = getByTestId('svg-group');
 
         // Verify initial camera position
-        expect(svgGroup).toHaveStyle('transform: translate(0px, 0px)');
+        expect(svgGroup.getAttribute('transform')).toBe(
+            'translate(0, 0) scale(1)',
+        );
 
         fireEvent.pointerDown(svgElement, {
             button: 0,
@@ -69,9 +71,9 @@ describe('Canvas Component', () => {
         fireEvent.pointerMove(svgElement, { clientX: 110, clientY: 120 });
         fireEvent.pointerUp(svgElement);
 
-        await waitFor(() => {
-            expect(svgGroup).toHaveStyle('transform: translate(10px, 20px)');
-        });
+        expect(svgGroup.getAttribute('transform')).toBe(
+            'translate(10, 20) scale(1)',
+        );
     });
 
     it('should accumulate multiple panning actions correctly', async () => {
@@ -80,8 +82,9 @@ describe('Canvas Component', () => {
         const svgElement = getByTestId('svg-element');
         const svgGroup = getByTestId('svg-group');
 
-        // Initial camera position
-        expect(svgGroup).toHaveStyle('transform: translate(0px, 0px)');
+        expect(svgGroup.getAttribute('transform')).toBe(
+            'translate(0, 0) scale(1)',
+        );
 
         // First panning action: move by (15, 25)
         fireEvent.pointerDown(svgElement, {
@@ -92,9 +95,9 @@ describe('Canvas Component', () => {
         fireEvent.pointerMove(svgElement, { clientX: 215, clientY: 225 });
         fireEvent.pointerUp(svgElement);
 
-        await waitFor(() => {
-            expect(svgGroup).toHaveStyle('transform: translate(15px, 25px)');
-        });
+        expect(svgGroup.getAttribute('transform')).toBe(
+            'translate(15, 25) scale(1)',
+        );
 
         // Second panning action: move by (-5, -10)
         fireEvent.pointerDown(svgElement, {
@@ -105,9 +108,9 @@ describe('Canvas Component', () => {
         fireEvent.pointerMove(svgElement, { clientX: 210, clientY: 215 });
         fireEvent.pointerUp(svgElement);
 
-        await waitFor(() => {
-            expect(svgGroup).toHaveStyle('transform: translate(10px, 15px)');
-        });
+        expect(svgGroup.getAttribute('transform')).toBe(
+            'translate(10, 15) scale(1)',
+        );
     });
 
     it('toggles layer selection on layer click', () => {
@@ -143,15 +146,47 @@ describe('Canvas Component', () => {
         );
     });
 
-    it('handles wheel events to adjust camera position', () => {
+    it('handles wheel events to adjust camera position and scale', async () => {
         mockUseCanvasStore([]);
 
         const { getByTestId } = render(<Canvas />);
         const svgElement = getByTestId('svg-element');
+        const svgGroup = getByTestId('svg-group');
 
-        fireEvent.wheel(svgElement, { deltaX: 20, deltaY: 30 });
+        // Initial transform
+        expect(svgGroup.getAttribute('transform')).toBe(
+            'translate(0, 0) scale(1)',
+        );
 
-        const gElement = getByTestId('svg-group');
-        expect(gElement).toHaveStyle('transform: translate(-20px, -30px)');
+        // Simulate wheel event
+        fireEvent.wheel(svgElement, {
+            deltaX: 20,
+            deltaY: 30,
+            clientX: 50,
+            clientY: 50,
+        });
+
+        // Calculate expected new scale and camera position based on the component's onWheel logic
+        const zoomIntensity = 0.001;
+        const initialScale = 1;
+        const deltaY = 30;
+        const newScale = Math.min(
+            Math.max(initialScale - deltaY * zoomIntensity, 0.1),
+            20,
+        ); // 1 - 0.03 = 0.97
+
+        const scaleFactor = newScale / initialScale; // 0.97 / 1 = 0.97
+        const offsetX = 50; // Assuming clientX and clientY are 50
+        const offsetY = 50;
+        const newCameraX = offsetX - offsetX * scaleFactor; // 50 - 50 * 0.97 = 50 - 48.5 = 1.5
+        const newCameraY = offsetY - offsetY * scaleFactor; // 50 - 50 * 0.97 = 1.5
+
+        await waitFor(() => {
+            // Using toBeCloseTo for floating point precision
+            const transform = svgGroup.getAttribute('transform');
+            expect(transform).toBe(
+                `translate(${newCameraX}, ${newCameraY}) scale(${newScale})`,
+            );
+        });
     });
 });
