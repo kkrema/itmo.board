@@ -7,6 +7,7 @@ import { useCanvasStore } from '@/store/useCanvasStore';
 import { Layer, LayerType } from '@/types/canvas';
 
 export default function BoardPage() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [tool, setTool] = useState('brush');
     const [color, setColor] = useState('#000000');
 

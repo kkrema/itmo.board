@@ -1,78 +1,98 @@
-import { render, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import Canvas from './Canvas';
+import { useCanvasStore } from '@/store/useCanvasStore';
+import { LayerPreview } from './LayerPreview';
+import '@testing-library/jest-dom';
 
-beforeAll(() => {
-    HTMLCanvasElement.prototype.getContext = jest.fn((contextId: string) => {
-        if (contextId === '2d') {
-            return {
-                beginPath: jest.fn(),
-                moveTo: jest.fn(),
-                lineTo: jest.fn(),
-                stroke: jest.fn(),
-                closePath: jest.fn(),
-                fillRect: jest.fn(),
-            } as unknown as CanvasRenderingContext2D;
-        }
-        return null;
-    });
-});
+jest.mock('@/store/useCanvasStore');
+
+jest.mock('./LayerPreview', () => ({
+    LayerPreview: jest.fn(({ onLayerPointerDown, selectionColor, id }) => (
+        <div
+            data-testid={`layer-preview-${id}`}
+            onPointerDown={(e) => onLayerPointerDown(e, id)}
+            style={{ borderColor: selectionColor }}
+        >
+            LayerPreview {id}
+        </div>
+    )),
+}));
+
+jest.mock('@/lib/utils', () => ({
+    cn: (...args: string[]) => args.filter(Boolean).join(' '),
+}));
 
 describe('Canvas Component', () => {
-    const width = 300;
-    const height = 200;
-    const color = '#ff0000';
-    const backgroundColor = '#ffffff';
+    const mockUseCanvasStore = (mockLayerIds: string[]) => {
+        (useCanvasStore as unknown as jest.Mock).mockImplementation((selector) =>
+            selector({ layerIds: mockLayerIds })
+        );
+    };
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    test('renders canvas with correct dimensions and background color', () => {
-        render(
-            <Canvas
-                width={width}
-                height={height}
-                color={color}
-                tool="brush"
-                backgroundColor={backgroundColor}
-            />,
-        );
-
-        const canvas = document.getElementById(
-            'drawing-canvas',
-        ) as HTMLCanvasElement;
-        expect(canvas).toBeInTheDocument();
-        expect(canvas).toHaveAttribute('width', width.toString());
-        expect(canvas).toHaveAttribute('height', height.toString());
+    it('renders without crashing', () => {
+        mockUseCanvasStore([]);
+        const { getByRole } = render(<Canvas />);
+        expect(getByRole('main')).toBeInTheDocument();
     });
 
-    test('does not draw when tool is not brush', () => {
-        const { container } = render(
-            <Canvas
-                width={width}
-                height={height}
-                color={color}
-                tool="eraser"
-            />,
+    it('renders the correct number of LayerPreview components', () => {
+        const mockLayerIds = ['layer1', 'layer2', 'layer3'];
+        mockUseCanvasStore(mockLayerIds);
+
+        const { getAllByTestId } = render(<Canvas />);
+        const layerPreviews = getAllByTestId(/layer-preview-/);
+        expect(layerPreviews).toHaveLength(mockLayerIds.length);
+    });
+
+
+
+    it('toggles layer selection on layer click', () => {
+        const mockLayerIds = ['layer1', 'layer2'];
+        mockUseCanvasStore(mockLayerIds);
+
+        const { getByTestId, rerender } = render(<Canvas />);
+
+        const firstLayer = getByTestId('layer-preview-layer1');
+        fireEvent.pointerDown(firstLayer);
+
+        rerender(<Canvas />);
+
+        expect(LayerPreview).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'layer1',
+                selectionColor: 'blue',
+            }),
+            {}
         );
-        const canvas = container.querySelector('canvas') as HTMLCanvasElement;
-        const context = canvas.getContext('2d')!;
 
-        jest.spyOn(context, 'beginPath');
-        jest.spyOn(context, 'lineTo');
-        jest.spyOn(context, 'stroke');
+        const secondLayer = getByTestId('layer-preview-layer2');
+        fireEvent.pointerDown(secondLayer);
 
-        fireEvent.mouseDown(canvas, {
-            nativeEvent: { offsetX: 50, offsetY: 50 },
-        });
-        fireEvent.mouseMove(canvas, {
-            nativeEvent: { offsetX: 60, offsetY: 60 },
-        });
-        fireEvent.mouseUp(canvas);
+        rerender(<Canvas />);
 
-        expect(context.beginPath).not.toHaveBeenCalled();
-        expect(context.lineTo).not.toHaveBeenCalled();
-        expect(context.stroke).not.toHaveBeenCalled();
+        expect(LayerPreview).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'layer2',
+                selectionColor: 'blue',
+            }),
+            {}
+        );
+    });
+
+    it('handles wheel events to adjust camera position', () => {
+        mockUseCanvasStore([]);
+
+        const { getByTestId } = render(<Canvas />);
+        const svgElement = getByTestId('svg-element');
+
+        fireEvent.wheel(svgElement, { deltaX: 20, deltaY: 30 });
+
+        const gElement = svgElement.querySelector('g');
+        expect(gElement).toHaveStyle('transform: translate(-20px, -30px)');
     });
 });

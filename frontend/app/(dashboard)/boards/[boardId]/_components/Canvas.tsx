@@ -15,6 +15,7 @@ const Canvas: React.FC = () => {
 
     const [selection, setSelection] = useState<string[]>([]);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [canvasState, setCanvasState] = useState<{
         mode: CanvasMode;
         origin: { x: number; y: number } | null;
@@ -96,7 +97,9 @@ const Canvas: React.FC = () => {
                 {/* Add buttons here if needed */}
             </div>
             <svg
+                data-testid="svg-element"
                 className="h-[100vh] w-[100vw]"
+                style={{ height: '90vh', width: '98vw' }}
                 onWheel={onWheel}
                 onPointerMove={onPointerMove}
                 onPointerLeave={onPointerLeave}
@@ -105,6 +108,7 @@ const Canvas: React.FC = () => {
                 tabIndex={0}
             >
                 <g
+                    data-testid="svg-group"
                     style={{
                         transform: `translate(${camera.x}px, ${camera.y}px)`,
                     }}
