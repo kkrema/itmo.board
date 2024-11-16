@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import Canvas from './Canvas';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
@@ -32,6 +32,9 @@ describe('Canvas Component', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        (
+            window as unknown as { PointerEvent: typeof MouseEvent }
+        ).PointerEvent = MouseEvent;
     });
 
     it('renders without crashing', () => {
@@ -47,6 +50,64 @@ describe('Canvas Component', () => {
         const { getAllByTestId } = render(<Canvas />);
         const layerPreviews = getAllByTestId(/layer-preview-/);
         expect(layerPreviews).toHaveLength(mockLayerIds.length);
+    });
+
+    it('should pan with pointer correctly', async () => {
+        mockUseCanvasStore([]);
+        const { getByTestId } = render(<Canvas />);
+        const svgElement = getByTestId('svg-element');
+        const svgGroup = getByTestId('svg-group');
+
+        // Verify initial camera position
+        expect(svgGroup).toHaveStyle('transform: translate(0px, 0px)');
+
+        fireEvent.pointerDown(svgElement, {
+            button: 0,
+            clientX: 100,
+            clientY: 100,
+        });
+        fireEvent.pointerMove(svgElement, { clientX: 110, clientY: 120 });
+        fireEvent.pointerUp(svgElement);
+
+        await waitFor(() => {
+            expect(svgGroup).toHaveStyle('transform: translate(10px, 20px)');
+        });
+    });
+
+    it('should accumulate multiple panning actions correctly', async () => {
+        mockUseCanvasStore([]);
+        const { getByTestId } = render(<Canvas />);
+        const svgElement = getByTestId('svg-element');
+        const svgGroup = getByTestId('svg-group');
+
+        // Initial camera position
+        expect(svgGroup).toHaveStyle('transform: translate(0px, 0px)');
+
+        // First panning action: move by (15, 25)
+        fireEvent.pointerDown(svgElement, {
+            button: 0,
+            clientX: 200,
+            clientY: 200,
+        });
+        fireEvent.pointerMove(svgElement, { clientX: 215, clientY: 225 });
+        fireEvent.pointerUp(svgElement);
+
+        await waitFor(() => {
+            expect(svgGroup).toHaveStyle('transform: translate(15px, 25px)');
+        });
+
+        // Second panning action: move by (-5, -10)
+        fireEvent.pointerDown(svgElement, {
+            button: 0,
+            clientX: 215,
+            clientY: 225,
+        });
+        fireEvent.pointerMove(svgElement, { clientX: 210, clientY: 215 });
+        fireEvent.pointerUp(svgElement);
+
+        await waitFor(() => {
+            expect(svgGroup).toHaveStyle('transform: translate(10px, 15px)');
+        });
     });
 
     it('toggles layer selection on layer click', () => {
@@ -90,7 +151,7 @@ describe('Canvas Component', () => {
 
         fireEvent.wheel(svgElement, { deltaX: 20, deltaY: 30 });
 
-        const gElement = svgElement.querySelector('g');
+        const gElement = getByTestId('svg-group');
         expect(gElement).toHaveStyle('transform: translate(-20px, -30px)');
     });
 });
