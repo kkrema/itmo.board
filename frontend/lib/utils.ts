@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { Color } from '@/types/canvas';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -19,4 +20,8 @@ export function getSvgPathFromStroke(stroke: number[][] ) {
 
     pathData.push("Z");
     return pathData.join(" ");
+}
+
+export function colorToCss(color: Color){
+    return `#${color.r.toString(16).padStart(2,"0")}${color.g.toString(16).padStart(2, "0")}${color.b.toString(16).padStart(2,"0")}`
 }
