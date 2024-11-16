@@ -43,15 +43,12 @@ const Canvas: React.FC = () => {
         }));
     }, []);
 
-    const onPointerDown = useCallback(
-        (e: React.PointerEvent) => {
-            if (e.button === 0) {
-                setIsPanning(true);
-                setLastPointerPosition({ x: e.clientX, y: e.clientY });
-            }
-        },
-        [],
-    );
+    const onPointerDown = useCallback((e: React.PointerEvent) => {
+        if (e.button === 0) {
+            setIsPanning(true);
+            setLastPointerPosition({ x: e.clientX, y: e.clientY });
+        }
+    }, []);
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
