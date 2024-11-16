@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "format": "prettier --check ./**/*.{js,jsx,ts,tsx}",
-    "format:fix": "prettier --write ./**/*.{js,jsx,ts,tsx}",
+    "format": "prettier --check ./**/*.{js,ts,tsx}",
+    "format:fix": "prettier --write ./**/*.{js,ts,tsx}",
     "test": "jest --verbose",
     "test:coverage": "jest --coverage || exit 0",
     "test:e2e": "npx playwright test"
