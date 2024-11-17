@@ -7,8 +7,6 @@ import { useCanvasStore } from '@/store/useCanvasStore';
 import { Layer, LayerType } from '@/types/canvas';
 
 export default function BoardPage() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [tool, setTool] = useState('brush');
     const [color, setColor] = useState('#000000');
 
     const addLayer = useCanvasStore((state) => state.addLayer);
@@ -36,22 +34,42 @@ export default function BoardPage() {
         addLayer(newLayer);
     }, [addLayer]);
 
-    const handleToolSelect = (selectedTool: string) => {
-        setTool(selectedTool);
-        console.log('Выбранный инструмент:', selectedTool);
-    };
-
     const handleColorChange = (selectedColor: string) => {
         setColor(selectedColor);
         console.log('Выбранный цвет:', selectedColor);
     };
 
+    const handleDeleteSelected = () => {
+        console.log('Delete selected');
+    };
+
+    const handleMoveToFront = () => {
+        console.log('Move to front');
+    };
+
+    const handleMoveToBack = () => {
+        console.log('Move to back');
+    };
+
+    const handleMoveForward = () => {
+        console.log('Move forward');
+    };
+
+    const handleMoveBackward = () => {
+        console.log('Move backward');
+    };
+
     return (
         <div>
-            <Toolbar
-                onSelectTool={handleToolSelect}
+            <ToolBar
                 onColorChange={handleColorChange}
                 currentColor={color}
+                editable={true} // example prop
+                deleteSelected={handleDeleteSelected}
+                moveToFront={handleMoveToFront}
+                moveToBack={handleMoveToBack}
+                moveForward={handleMoveForward}
+                moveBackward={handleMoveBackward}
             />
             <Canvas />
         </div>
