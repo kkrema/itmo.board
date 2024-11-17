@@ -12,17 +12,37 @@ export default function BoardPage() {
         console.log('Выбранный цвет:', selectedColor);
     };
 
+    const handleDeleteSelected = () => {
+        console.log('Delete selected');
+    };
+
+    const handleMoveToFront = () => {
+        console.log('Move to front');
+    };
+
+    const handleMoveToBack = () => {
+        console.log('Move to back');
+    };
+
+    const handleMoveForward = () => {
+        console.log('Move forward');
+    };
+
+    const handleMoveBackward = () => {
+        console.log('Move backward');
+    };
+
     return (
         <div>
             <ToolBar
                 onColorChange={handleColorChange}
                 currentColor={color}
                 editable={true} // example prop
-                deleteSelected={() => console.log('Delete selected')} // example function
-                moveToFront={() => console.log('Move to front')} // example function
-                moveToBack={() => console.log('Move to back')} // example function
-                moveForward={() => console.log('Move forward')} // example function
-                moveBackward={() => console.log('Move backward')} // example function
+                deleteSelected={handleDeleteSelected}
+                moveToFront={handleMoveToFront}
+                moveToBack={handleMoveToBack}
+                moveForward={handleMoveForward}
+                moveBackward={handleMoveBackward}
             />
             <Canvas
                 width={800}

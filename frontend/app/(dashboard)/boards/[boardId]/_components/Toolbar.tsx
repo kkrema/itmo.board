@@ -34,9 +34,14 @@ export const ToolBar = ({
 }: ToolbarProps) => {
     const [showExtraTools, setShowExtraTools] = useState(false);
 
-    const handleColorChange = (color: string) => {
-        onColorChange(color);
-    };
+    const handleToggleExtraTools = () => setShowExtraTools((prev) => !prev);
+
+    const extraTools = [
+        { label: 'Bring to Front', icon: BringToFront, action: moveToFront },
+        { label: 'Send to Back', icon: SendToBack, action: moveToBack },
+        { label: 'Move Forward', icon: ArrowUp, action: moveForward },
+        { label: 'Move Backward', icon: ArrowDown, action: moveBackward },
+    ];
 
     return (
         <div className="absolute bottom-5 left-[50%] -translate-x-[50%] flex items-center">
@@ -46,44 +51,22 @@ export const ToolBar = ({
                     <ToolButton
                         label="More"
                         icon={MoreVertical}
-                        onClick={() => setShowExtraTools(!showExtraTools)}
+                        onClick={handleToggleExtraTools}
                     />
                 </div>
 
-                {/* Extra tools dropdown with two columns */}
+                {/* Extra tools dropdown */}
                 {showExtraTools && (
                     <div className="flex gap-4 p-2 bg-white rounded-md shadow-md absolute bottom-full mb-2">
-                        {/* Left column */}
-                        <div className="flex flex-col gap-2">
+                        {extraTools.map((tool, index) => (
                             <ToolButton
-                                label="Bring to Front"
-                                icon={BringToFront}
-                                onClick={moveToFront}
+                                key={index}
+                                label={tool.label}
+                                icon={tool.icon}
+                                onClick={tool.action}
                                 isDisabled={!editable}
                             />
-                            <ToolButton
-                                label="Send to Back"
-                                icon={SendToBack}
-                                onClick={moveToBack}
-                                isDisabled={!editable}
-                            />
-                        </div>
-
-                        {/* Right column */}
-                        <div className="flex flex-col gap-2">
-                            <ToolButton
-                                label="Move Forward"
-                                icon={ArrowUp}
-                                onClick={moveForward}
-                                isDisabled={!editable}
-                            />
-                            <ToolButton
-                                label="Move Backward"
-                                icon={ArrowDown}
-                                onClick={moveBackward}
-                                isDisabled={!editable}
-                            />
-                        </div>
+                        ))}
                     </div>
                 )}
             </div>
@@ -93,11 +76,10 @@ export const ToolBar = ({
 
             {/* Main toolbar */}
             <div className="flex gap-x-2 p-2 bg-white rounded-md shadow-md">
-                {/* Example of color selection */}
                 <ToolButton
                     label="Pen"
-                    icon={Pencil} // Use an actual color icon here
-                    onClick={() => handleColorChange('#FF5733')} // Example color change
+                    icon={Pencil}
+                    onClick={() => onColorChange('#FF5733')}
                     isActive={currentColor === '#FF5733'}
                     isDisabled={!editable}
                 />
