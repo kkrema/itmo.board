@@ -6,7 +6,11 @@ const config: Config = {
         './components/**/*.{js,ts,jsx,tsx}',
     ],
     theme: {
-        extend: {},
+        extend: {
+            backgroundImage: {
+                'custom-grid': "url('/graph-paper.svg')",
+            },
+        },
     },
     plugins: [],
 };
