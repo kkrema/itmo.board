@@ -24,7 +24,10 @@ const canvasStore = create<CanvasStore>((set, get) => ({
         set((state) => {
             const layers = new Map(state.layers);
             ids.forEach((id) => layers.delete(id));
-            return { layers, layerIds: state.layerIds.filter((id) => !ids.includes(id)) };
+            return {
+                layers,
+                layerIds: state.layerIds.filter((id) => !ids.includes(id)),
+            };
         }),
     updateLayer: (id: string, updates: Partial<Layer>) =>
         set((state) => {

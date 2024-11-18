@@ -26,7 +26,7 @@ export type RectangleLayer = {
     width: number;
     fill: Color;
     value?: string;
-}
+};
 
 export type PathLayer = {
     id: string;

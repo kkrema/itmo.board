@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export function pointerEventToCanvasPoint(
     e: React.PointerEvent,
     camera: Camera,
-    scale: number
+    scale: number,
 ): Point {
     const svg = e.currentTarget as SVGSVGElement;
     const rect = svg.getBoundingClientRect();
@@ -48,11 +48,11 @@ export function findIntersectingLayersWithRectangle(
     layers: ReadonlyMap<string, Layer>,
     a: Point,
     b: Point,
-){
+) {
     const rect = {
         x: Math.min(a.x, b.x),
         y: Math.min(a.y, b.y),
-        width: Math.abs (a.x - b. x),
+        width: Math.abs(a.x - b.x),
         height: Math.abs(a.y - b.y),
     };
 
@@ -61,18 +61,18 @@ export function findIntersectingLayersWithRectangle(
     for (const layerId of layerIds) {
         const layer = layers.get(layerId);
 
-        if(layer == null ) {
+        if (layer == null) {
             continue;
         }
 
-        const { x, y, height, width} = layer;
+        const { x, y, height, width } = layer;
 
-        if(
+        if (
             rect.x + rect.width > x &&
             rect.x < x + width &&
             rect.y + rect.height > y &&
             rect.y < y + height
-        ){
+        ) {
             ids.push(layerId);
         }
     }
@@ -80,11 +80,7 @@ export function findIntersectingLayersWithRectangle(
     return ids;
 }
 
-export function resizeBounds(
-    bounds: XYWH,
-    corner: Side,
-    point: Point
-): XYWH {
+export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
     const result = {
         x: bounds.x,
         y: bounds.y,
@@ -92,22 +88,22 @@ export function resizeBounds(
         height: bounds.height,
     };
 
-    if((corner & Side.Left) === Side.Left) {
+    if ((corner & Side.Left) === Side.Left) {
         result.x = Math.min(point.x, bounds.x + bounds.width);
         result.width = Math.abs(bounds.x + bounds.width - point.x);
     }
 
-    if((corner & Side.Right) === Side.Right) {
+    if ((corner & Side.Right) === Side.Right) {
         result.x = Math.min(point.x, bounds.x);
         result.width = Math.abs(point.x - bounds.x);
     }
 
-    if((corner & Side.Top) === Side.Top) {
+    if ((corner & Side.Top) === Side.Top) {
         result.y = Math.min(point.y, bounds.y + bounds.height);
-        result.height = Math.abs(bounds.y +bounds.height - point.y);
+        result.height = Math.abs(bounds.y + bounds.height - point.y);
     }
 
-    if((corner & Side.Bottom) === Side.Bottom) {
+    if ((corner & Side.Bottom) === Side.Bottom) {
         result.y = Math.min(point.y, bounds.y);
         result.height = Math.abs(point.y - bounds.y);
     }

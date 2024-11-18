@@ -1,8 +1,20 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
-import { Camera, CanvasMode, CanvasState, Layer, LayerType, Point } from '@/types/canvas';
-import { cn, findIntersectingLayersWithRectangle, pointerEventToCanvasPoint, resizeBounds } from '@/lib/utils';
+import {
+    Camera,
+    CanvasMode,
+    CanvasState,
+    Layer,
+    LayerType,
+    Point,
+} from '@/types/canvas';
+import {
+    cn,
+    findIntersectingLayersWithRectangle,
+    pointerEventToCanvasPoint,
+    resizeBounds,
+} from '@/lib/utils';
 import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
 import { nanoid } from 'nanoid';
 
@@ -29,9 +41,15 @@ const Canvas: React.FC = () => {
     });
 
     const [pencilDraft, setPencilDraft] = useState<number[][] | null>(null);
-    // TODO: Pen is not drawing on correct coordinates
 
-    const { layerIds, addLayer, updateLayer, removeLayers, getLayer, getLayers } = useCanvasStore();
+    const {
+        layerIds,
+        addLayer,
+        updateLayer,
+        removeLayers,
+        getLayer,
+        getLayers,
+    } = useCanvasStore();
 
     // Map of layer IDs to selection colors
     const layerIdsToColorSelection: Record<string, string> = {};
@@ -43,7 +61,7 @@ const Canvas: React.FC = () => {
         (point: Point) => {
             setPencilDraft([[point.x, point.y]]);
         },
-        [setPencilDraft]
+        [setPencilDraft],
     );
 
     const continueDrawing = useCallback(
@@ -56,7 +74,7 @@ const Canvas: React.FC = () => {
                 }
             });
         },
-        [setPencilDraft]
+        [setPencilDraft],
     );
 
     const insertPath = useCallback(() => {
@@ -104,15 +122,18 @@ const Canvas: React.FC = () => {
             setSelection([id]);
             setCanvasState({ mode: CanvasMode.None });
         },
-        [addLayer, setSelection]
+        [addLayer, setSelection],
     );
 
     const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
-    const [dragStartLayers, setDragStartLayers] = useState<{ [id: string]: Layer }>({});
+    const [dragStartLayers, setDragStartLayers] = useState<{
+        [id: string]: Layer;
+    }>({});
 
     const translateSelectedLayers = useCallback(
         (currentPoint: Point) => {
-            if (canvasState.mode !== CanvasMode.Translating || !editable) return;
+            if (canvasState.mode !== CanvasMode.Translating || !editable)
+                return;
             if (!dragStartPoint) return;
             const dx = currentPoint.x - dragStartPoint.x;
             const dy = currentPoint.y - dragStartPoint.y;
@@ -125,9 +146,12 @@ const Canvas: React.FC = () => {
                     });
                 }
             });
-            setCanvasState({ mode: CanvasMode.Translating, current: currentPoint });
+            setCanvasState({
+                mode: CanvasMode.Translating,
+                current: currentPoint,
+            });
         },
-        [dragStartPoint, dragStartLayers, selection, updateLayer]
+        [dragStartPoint, dragStartLayers, selection, updateLayer],
     );
 
     const unselectLayers = useCallback(() => {
@@ -138,7 +162,9 @@ const Canvas: React.FC = () => {
         (origin: Point, current: Point) => {
             if (!editable) return;
 
-            const layers = new Map(getLayers(layerIds).map(layer => [layer.id, layer]));
+            const layers = new Map(
+                getLayers(layerIds).map((layer) => [layer.id, layer]),
+            );
             setCanvasState({ mode: CanvasMode.SelectionNet, origin, current });
 
             const selectedLayerIds = findIntersectingLayersWithRectangle(
@@ -150,7 +176,7 @@ const Canvas: React.FC = () => {
 
             setSelection(selectedLayerIds);
         },
-        [editable, getLayers, layerIds]
+        [editable, getLayers, layerIds],
     );
 
     const resizeSelectedLayers = useCallback(
@@ -171,7 +197,7 @@ const Canvas: React.FC = () => {
                 });
             }
         },
-        [canvasState, selection, updateLayer]
+        [canvasState, selection, updateLayer],
     );
 
     // Event handlers
@@ -229,9 +255,8 @@ const Canvas: React.FC = () => {
                 }
             }
         },
-        [camera, canvasState.mode, insertLayer, startDrawing]
+        [camera, canvasState.mode, insertLayer, startDrawing],
     );
-
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
@@ -265,7 +290,7 @@ const Canvas: React.FC = () => {
             pencilDraft,
             continueDrawing,
             camera,
-        ]
+        ],
     );
 
     const onPointerUp = useCallback(
@@ -283,7 +308,7 @@ const Canvas: React.FC = () => {
                 insertPath();
             }
         },
-        [canvasState, insertPath, pencilDraft]
+        [canvasState, insertPath, pencilDraft],
     );
 
     const onPointerLeave = useCallback(() => {
@@ -321,9 +346,15 @@ const Canvas: React.FC = () => {
             });
             setDragStartLayers(initialLayers);
         },
-        [selection, setSelection, getLayer, pointerEventToCanvasPoint, camera, canvasState.mode]
+        [
+            selection,
+            setSelection,
+            getLayer,
+            pointerEventToCanvasPoint,
+            camera,
+            canvasState.mode,
+        ],
     );
-
 
     const deleteLayers = useCallback(() => {
         removeLayers(selection);
@@ -334,7 +365,9 @@ const Canvas: React.FC = () => {
 
     const copyLayers = useCallback(() => {
         const layersToCopy = getLayers(selection);
-        setCopiedLayers(layersToCopy.map((layer) => ({ ...layer, id: nanoid() })));
+        setCopiedLayers(
+            layersToCopy.map((layer) => ({ ...layer, id: nanoid() })),
+        );
     }, [getLayers, selection]);
 
     const pasteLayers = useCallback(() => {
@@ -392,7 +425,6 @@ const Canvas: React.FC = () => {
             <svg
                 data-testid="svg-element"
                 className="h-[100vh] w-[100vw]"
-                style={{ height: '80vh', width: '98vw' }}
                 onWheel={onWheel}
                 onPointerMove={onPointerMove}
                 onPointerLeave={onPointerLeave}
@@ -412,6 +444,19 @@ const Canvas: React.FC = () => {
                             selectionColor={layerIdsToColorSelection[layerId]}
                         />
                     ))}
+
+                    {/* Render the temporary pencil draft as a preview */}
+                    {pencilDraft && pencilDraft.length > 1 && (
+                        <polyline
+                            points={pencilDraft
+                                .map((point) => point.join(','))
+                                .join(' ')}
+                            stroke="black"
+                            fill="none"
+                            strokeWidth={2}
+                            strokeDasharray="4 2" // Dashed line for distinction
+                        />
+                    )}
 
                     {canvasState.mode === CanvasMode.SelectionNet &&
                         canvasState.current != null &&
