@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
 import { Camera, CanvasMode, CanvasState, Layer, LayerType, Point } from '@/types/canvas';
@@ -8,6 +8,11 @@ import { nanoid } from 'nanoid';
 
 const Canvas: React.FC = () => {
     const [editable, setEditable] = useState(false);
+
+    useEffect(() => {
+        setEditable(true); // later will depend on user permissions
+    }, []);
+
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
     const [scale, setScale] = useState(1);
 
@@ -23,18 +28,54 @@ const Canvas: React.FC = () => {
         mode: CanvasMode.None,
     });
 
-    const layerIds = useCanvasStore((state) => state.layerIds);
-    const addLayer = useCanvasStore((state) => state.addLayer);
-    const updateLayer = useCanvasStore((state) => state.updateLayer);
-    const removeLayers = useCanvasStore((state) => state.removeLayers);
-    const getLayer = useCanvasStore((state) => state.getLayer);
-    const getLayers = useCanvasStore((state) => state.getLayers);
+    const [pencilDraft, setPencilDraft] = useState<number[][] | null>(null);
+    // TODO: Pen is not drawing on correct coordinates
+
+    const { layerIds, addLayer, updateLayer, removeLayers, getLayer, getLayers } = useCanvasStore();
 
     // Map of layer IDs to selection colors
     const layerIdsToColorSelection: Record<string, string> = {};
     selection.forEach((layerId) => {
         layerIdsToColorSelection[layerId] = 'blue';
     });
+
+    const startDrawing = useCallback(
+        (point: Point) => {
+            setPencilDraft([[point.x, point.y]]);
+        },
+        [setPencilDraft]
+    );
+
+    const continueDrawing = useCallback(
+        (point: Point) => {
+            setPencilDraft((draft) => {
+                if (draft) {
+                    return [...draft, [point.x, point.y]];
+                } else {
+                    return [[point.x, point.y]];
+                }
+            });
+        },
+        [setPencilDraft]
+    );
+
+    const insertPath = useCallback(() => {
+        if (pencilDraft && pencilDraft.length > 1) {
+            const id = nanoid();
+            const newLayer: Layer = {
+                id,
+                type: LayerType.Path,
+                x: 0,
+                y: 0,
+                height: 0,
+                width: 0,
+                fill: { r: 0, g: 0, b: 0 },
+                points: pencilDraft,
+            };
+            addLayer(newLayer);
+        }
+        setPencilDraft(null);
+    }, [pencilDraft, addLayer]);
 
     const insertLayer = useCallback(
         (layerType: LayerType, position: { x: number; y: number }) => {
@@ -164,11 +205,23 @@ const Canvas: React.FC = () => {
 
     const onPointerDown = useCallback(
         (e: React.PointerEvent) => {
+            const point = pointerEventToCanvasPoint(e, camera);
+            if (canvasState.mode === CanvasMode.Inserting) {
+                insertLayer(canvasState.layerType, point);
+                return;
+            }
+            if (canvasState.mode === CanvasMode.Pencil) {
+                startDrawing(point);
+                return;
+            }
             if (e.button === 0) {
-                const point = pointerEventToCanvasPoint(e, camera);
                 if (e.shiftKey) {
                     // Start selection net
-                    setCanvasState({ mode: CanvasMode.SelectionNet, origin: point, current: point });
+                    setCanvasState({
+                        mode: CanvasMode.SelectionNet,
+                        origin: point,
+                        current: point,
+                    });
                 } else {
                     // Start panning
                     setIsPanning(true);
@@ -176,13 +229,16 @@ const Canvas: React.FC = () => {
                 }
             }
         },
-        [camera]
+        [camera, canvasState.mode, insertLayer, startDrawing]
     );
 
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
-            if (isPanning) {
+            if (pencilDraft) {
+                const point = pointerEventToCanvasPoint(e, camera);
+                continueDrawing(point);
+            } else if (isPanning) {
                 const dx = e.clientX - lastPointerPosition.x;
                 const dy = e.clientY - lastPointerPosition.y;
                 setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
@@ -206,19 +262,28 @@ const Canvas: React.FC = () => {
             translateSelectedLayers,
             pointerEventToCanvasPoint,
             updateSelectionNet,
+            pencilDraft,
+            continueDrawing,
+            camera,
         ]
     );
 
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             setIsPanning(false);
-            if (canvasState.mode === CanvasMode.Translating || canvasState.mode === CanvasMode.SelectionNet) {
+            if (
+                canvasState.mode === CanvasMode.Translating ||
+                canvasState.mode === CanvasMode.SelectionNet
+            ) {
                 setCanvasState({ mode: CanvasMode.None });
                 setDragStartPoint(null);
                 setDragStartLayers({});
             }
+            if (pencilDraft) {
+                insertPath();
+            }
         },
-        [canvasState]
+        [canvasState, insertPath, pencilDraft]
     );
 
     const onPointerLeave = useCallback(() => {
@@ -234,6 +299,12 @@ const Canvas: React.FC = () => {
         (e: React.PointerEvent, layerId: string) => {
             e.stopPropagation();
             const point = pointerEventToCanvasPoint(e, camera);
+
+            if (canvasState.mode === CanvasMode.Pencil) {
+                // Do nothing if in drawing mode
+                return;
+            }
+
             const isSelected = selection.includes(layerId);
             const newSelection = isSelected ? selection : [layerId];
             setSelection(newSelection);
@@ -250,7 +321,7 @@ const Canvas: React.FC = () => {
             });
             setDragStartLayers(initialLayers);
         },
-        [selection, setSelection, getLayer, pointerEventToCanvasPoint]
+        [selection, setSelection, getLayer, pointerEventToCanvasPoint, camera, canvasState.mode]
     );
 
 
