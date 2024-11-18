@@ -1,11 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
-import { CanvasMode } from '@/types/canvas';
+import { Camera, CanvasMode, CanvasState } from '@/types/canvas';
 import { cn } from '@/lib/utils';
+import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
 
 const Canvas: React.FC = () => {
-    const [camera, setCamera] = useState({ x: 0, y: 0 });
+    const [editable, setEditable] = useState(false);
+    const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
     const [scale, setScale] = useState(1);
 
     const [isPanning, setIsPanning] = useState(false);
@@ -16,15 +18,8 @@ const Canvas: React.FC = () => {
 
     const [selection, setSelection] = useState<string[]>([]);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [canvasState, setCanvasState] = useState<{
-        mode: CanvasMode;
-        origin: { x: number; y: number } | null;
-        current: { x: number; y: number } | null;
-    }>({
+    const [canvasState, setCanvasState] = useState<CanvasState>({
         mode: CanvasMode.None,
-        origin: null,
-        current: null,
     });
 
     const layerIds = useCanvasStore((state) => state.layerIds);
@@ -34,6 +29,8 @@ const Canvas: React.FC = () => {
     selection.forEach((layerId) => {
         layerIdsToColorSelection[layerId] = 'blue';
     });
+
+
 
     // Event handlers
     const onWheel = useCallback(
@@ -103,6 +100,26 @@ const Canvas: React.FC = () => {
         [],
     );
 
+    const handleDeleteSelected = () => {
+        console.log('Delete selected');
+    };
+
+    const handleMoveToFront = () => {
+        console.log('Move to front');
+    };
+
+    const handleMoveToBack = () => {
+        console.log('Move to back');
+    };
+
+    const handleMoveForward = () => {
+        console.log('Move forward');
+    };
+
+    const handleMoveBackward = () => {
+        console.log('Move backward');
+    };
+
     return (
         <main
             className={cn(
@@ -114,6 +131,16 @@ const Canvas: React.FC = () => {
             <div className="absolute top-2 right-2 flex items-center gap-2">
                 {/* Add buttons here if needed */}
             </div>
+            <ToolBar
+                canvasState={canvasState}
+                setCanvasState={setCanvasState}
+                editable={editable}
+                deleteSelected={handleDeleteSelected}
+                moveToFront={handleMoveToFront}
+                moveToBack={handleMoveToBack}
+                moveForward={handleMoveForward}
+                moveBackward={handleMoveBackward}
+            />
             <svg
                 data-testid="svg-element"
                 className="h-[100vh] w-[100vw]"

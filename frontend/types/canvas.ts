@@ -4,6 +4,11 @@ export type Color = {
     b: number;
 };
 
+export type Camera = {
+    x: number;
+    y: number;
+};
+
 export enum LayerType {
     Rectangle,
     Ellipse,
