@@ -7,14 +7,19 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function pointerEventToCanvasPoint(
-    e:React.PointerEvent,
+    e: React.PointerEvent,
     camera: Camera,
-){
-    return {
-        x: Math.round(e.clientX) - camera.x,
-        y: Math.round(e.clientY) - camera.y,
-    };
-};
+    scale: number
+): Point {
+    const svg = e.currentTarget as SVGSVGElement;
+    const rect = svg.getBoundingClientRect();
+    const screenX = e.clientX - rect.left;
+    const screenY = e.clientY - rect.top;
+
+    const x = (screenX - camera.x) / scale;
+    const y = (screenY - camera.y) / scale;
+    return { x, y };
+}
 
 export function getSvgPathFromStroke(stroke: number[][]) {
     if (!stroke.length) return '';

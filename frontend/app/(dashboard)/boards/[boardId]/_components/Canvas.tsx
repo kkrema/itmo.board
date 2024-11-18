@@ -205,7 +205,7 @@ const Canvas: React.FC = () => {
 
     const onPointerDown = useCallback(
         (e: React.PointerEvent) => {
-            const point = pointerEventToCanvasPoint(e, camera);
+            const point = pointerEventToCanvasPoint(e, camera, scale);
             if (canvasState.mode === CanvasMode.Inserting) {
                 insertLayer(canvasState.layerType, point);
                 return;
@@ -236,7 +236,7 @@ const Canvas: React.FC = () => {
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
             if (pencilDraft) {
-                const point = pointerEventToCanvasPoint(e, camera);
+                const point = pointerEventToCanvasPoint(e, camera, scale);
                 continueDrawing(point);
             } else if (isPanning) {
                 const dx = e.clientX - lastPointerPosition.x;
@@ -244,10 +244,10 @@ const Canvas: React.FC = () => {
                 setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
                 setLastPointerPosition({ x: e.clientX, y: e.clientY });
             } else if (canvasState.mode === CanvasMode.Translating) {
-                const point = pointerEventToCanvasPoint(e, camera);
+                const point = pointerEventToCanvasPoint(e, camera, scale);
                 translateSelectedLayers(point);
             } else if (canvasState.mode === CanvasMode.SelectionNet) {
-                const point = pointerEventToCanvasPoint(e, camera);
+                const point = pointerEventToCanvasPoint(e, camera, scale);
                 setCanvasState((prevState) => ({
                     ...prevState,
                     current: point,
@@ -298,7 +298,7 @@ const Canvas: React.FC = () => {
     const onLayerPointerDown = useCallback(
         (e: React.PointerEvent, layerId: string) => {
             e.stopPropagation();
-            const point = pointerEventToCanvasPoint(e, camera);
+            const point = pointerEventToCanvasPoint(e, camera, scale);
 
             if (canvasState.mode === CanvasMode.Pencil) {
                 // Do nothing if in drawing mode
