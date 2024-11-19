@@ -5,7 +5,9 @@ import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
 import '@testing-library/jest-dom';
 
-jest.mock('@/store/useCanvasStore');
+jest.mock('@/store/useCanvasStore', () => ({
+    useCanvasStore: jest.fn(),
+}));
 
 jest.mock('./LayerPreview', () => ({
     LayerPreview: jest.fn(({ onLayerPointerDown, selectionColor, id }) => (
@@ -21,13 +23,44 @@ jest.mock('./LayerPreview', () => ({
 
 jest.mock('@/lib/utils', () => ({
     cn: (...args: string[]) => args.filter(Boolean).join(' '),
+    pointerEventToCanvasPoint: jest.fn((e, camera, scale) => ({
+        x: (e.clientX - camera.x) / scale,
+        y: (e.clientY - camera.y) / scale,
+    })),
+    findIntersectingLayersWithRectangle: jest.fn(() => []),
+    penPointsToPathLayer: jest.fn((draft) => ({
+        path: draft.map(([x, y]) => ({ x, y })),
+    })),
+    resizeBounds: jest.fn((initialBounds, corner, currentPoint) => ({
+        x: initialBounds.x,
+        y: initialBounds.y,
+        width: 100, // Mocked width
+        height: 100, // Mocked height
+    })),
+}));
+
+jest.mock('nanoid', () => ({
+    nanoid: () => 'nanoid',
 }));
 
 describe('Canvas Component', () => {
-    const mockUseCanvasStore = (mockLayerIds: string[]) => {
+    const mockUseCanvasStore = (overrides = {}) => {
+        const defaultStore = {
+            layerIds: [],
+            addLayer: jest.fn(),
+            updateLayer: jest.fn(),
+            removeLayers: jest.fn(),
+            getLayer: jest.fn(),
+            getLayers: jest.fn(),
+        };
+
+        const store = { ...defaultStore, ...overrides };
+
         (useCanvasStore as unknown as jest.Mock).mockImplementation(
-            (selector) => selector({ layerIds: mockLayerIds }),
+            () => store,
         );
+
+        return store;
     };
 
     beforeEach(() => {
@@ -38,14 +71,18 @@ describe('Canvas Component', () => {
     });
 
     it('renders without crashing', () => {
-        mockUseCanvasStore([]);
+        mockUseCanvasStore();
         const { getByRole } = render(<Canvas />);
         expect(getByRole('main')).toBeInTheDocument();
     });
 
     it('renders the correct number of LayerPreview components', () => {
         const mockLayerIds = ['layer1', 'layer2', 'layer3'];
-        mockUseCanvasStore(mockLayerIds);
+        const store = mockUseCanvasStore({
+            layerIds: mockLayerIds,
+            getLayer: jest.fn((id) => ({ id })),
+            getLayers: jest.fn(() => mockLayerIds.map((id) => ({ id }))),
+        });
 
         const { getAllByTestId } = render(<Canvas />);
         const layerPreviews = getAllByTestId(/layer-preview-/);
@@ -53,7 +90,7 @@ describe('Canvas Component', () => {
     });
 
     it('should pan with pointer correctly', async () => {
-        mockUseCanvasStore([]);
+        mockUseCanvasStore();
         const { getByTestId } = render(<Canvas />);
         const svgElement = getByTestId('svg-element');
         const svgGroup = getByTestId('svg-group');
@@ -77,7 +114,7 @@ describe('Canvas Component', () => {
     });
 
     it('should accumulate multiple panning actions correctly', async () => {
-        mockUseCanvasStore([]);
+        mockUseCanvasStore();
         const { getByTestId } = render(<Canvas />);
         const svgElement = getByTestId('svg-element');
         const svgGroup = getByTestId('svg-group');
@@ -115,39 +152,26 @@ describe('Canvas Component', () => {
 
     it('toggles layer selection on layer click', () => {
         const mockLayerIds = ['layer1', 'layer2'];
-        mockUseCanvasStore(mockLayerIds);
+        const store = mockUseCanvasStore({
+            layerIds: mockLayerIds,
+            getLayer: jest.fn((id) => ({ id })),
+        });
 
-        const { getByTestId, rerender } = render(<Canvas />);
+        const { getByTestId } = render(<Canvas />);
 
         const firstLayer = getByTestId('layer-preview-layer1');
         fireEvent.pointerDown(firstLayer);
 
-        rerender(<Canvas />);
-
-        expect(LayerPreview).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'layer1',
-                selectionColor: 'blue',
-            }),
-            {},
-        );
+        expect(firstLayer).toHaveStyle('border-color: blue');
 
         const secondLayer = getByTestId('layer-preview-layer2');
         fireEvent.pointerDown(secondLayer);
 
-        rerender(<Canvas />);
-
-        expect(LayerPreview).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'layer2',
-                selectionColor: 'blue',
-            }),
-            {},
-        );
+        expect(secondLayer).toHaveStyle('border-color: blue');
     });
 
     it('handles wheel events to adjust camera position and scale', async () => {
-        mockUseCanvasStore([]);
+        mockUseCanvasStore();
 
         const { getByTestId } = render(<Canvas />);
         const svgElement = getByTestId('svg-element');
@@ -173,16 +197,14 @@ describe('Canvas Component', () => {
         const newScale = Math.min(
             Math.max(initialScale - deltaY * zoomIntensity, 0.1),
             20,
-        ); // 1 - 0.03 = 0.97
-
-        const scaleFactor = newScale / initialScale; // 0.97 / 1 = 0.97
-        const offsetX = 50; // Assuming clientX and clientY are 50
+        ); // 0.97
+        const scaleFactor = newScale / initialScale; // 0.97
+        const offsetX = 50;
         const offsetY = 50;
         const newCameraX = offsetX - offsetX * scaleFactor; // 50 - 50 * 0.97 = 50 - 48.5 = 1.5
         const newCameraY = offsetY - offsetY * scaleFactor; // 50 - 50 * 0.97 = 1.5
 
         await waitFor(() => {
-            // Using toBeCloseTo for floating point precision
             const transform = svgGroup.getAttribute('transform');
             expect(transform).toBe(
                 `translate(${newCameraX}, ${newCameraY}) scale(${newScale})`,

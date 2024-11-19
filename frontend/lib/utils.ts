@@ -1,6 +1,15 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Camera, Color, Layer, LayerType, PathLayer, Point, Side, XYWH } from '@/types/canvas';
+import {
+    Camera,
+    Color,
+    Layer,
+    LayerType,
+    PathLayer,
+    Point,
+    Side,
+    XYWH,
+} from '@/types/canvas';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -80,11 +89,9 @@ export function findIntersectingLayersWithRectangle(
     return ids;
 }
 
-export function penPointsToPathLayer(
-    points: number[][],
-): Partial<PathLayer> {
+export function penPointsToPathLayer(points: number[][]): Partial<PathLayer> {
     if (points.length < 2) {
-        throw new Error("Cannot transform points with less than 2 points");
+        throw new Error('Cannot transform points with less than 2 points');
     }
 
     let left = Number.POSITIVE_INFINITY;
@@ -119,9 +126,8 @@ export function penPointsToPathLayer(
         y: top,
         width: right - left,
         height: bottom - top,
-        points: points
-            .map(([x, y, pressure]) => [x - left, y - top, pressure])
-    }
+        points: points.map(([x, y, pressure]) => [x - left, y - top, pressure]),
+    };
 }
 
 export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {

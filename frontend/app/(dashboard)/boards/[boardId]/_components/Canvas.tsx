@@ -6,12 +6,14 @@ import {
     CanvasMode,
     CanvasState,
     Layer,
-    LayerType, PathLayer,
+    LayerType,
+    PathLayer,
     Point,
 } from '@/types/canvas';
 import {
     cn,
-    findIntersectingLayersWithRectangle, penPointsToPathLayer,
+    findIntersectingLayersWithRectangle,
+    penPointsToPathLayer,
     pointerEventToCanvasPoint,
     resizeBounds,
 } from '@/lib/utils';
@@ -340,7 +342,15 @@ const Canvas: React.FC = () => {
                 });
             }
         },
-        [camera, canvasState, insertLayer, insertPath, pencilDraft, scale, unselectLayers],
+        [
+            camera,
+            canvasState,
+            insertLayer,
+            insertPath,
+            pencilDraft,
+            scale,
+            unselectLayers,
+        ],
     );
 
     const onPointerLeave = useCallback(() => {
@@ -357,7 +367,9 @@ const Canvas: React.FC = () => {
                 return;
             }
             e.stopPropagation();
-            e.currentTarget = document.querySelector('svg[data-testid="svg-element"]') as SVGSVGElement;
+            e.currentTarget = document.querySelector(
+                'svg[data-testid="svg-element"]',
+            ) as SVGSVGElement;
             const point = pointerEventToCanvasPoint(e, camera, scale);
 
             const isSelected = selection.includes(layerId);
@@ -393,7 +405,7 @@ const Canvas: React.FC = () => {
     const selectAllLayers = useCallback(() => {
         setSelection([...layerIds]);
     }, [layerIds]);
-    
+
     // Keyboard Actions
     useEffect(() => {
         function onKeyDown(e: KeyboardEvent) {
@@ -403,24 +415,24 @@ const Canvas: React.FC = () => {
             }
 
             switch (e.key) {
-                case "Delete":
+                case 'Delete':
                     deleteLayers();
                     break;
-                case "c": {
+                case 'c': {
                     if (e.ctrlKey || e.metaKey) {
                         copyLayers();
                         break;
                     }
                     break;
                 }
-                case "v": {
+                case 'v': {
                     if (e.ctrlKey || e.metaKey) {
                         pasteLayers();
                         break;
                     }
                     break;
                 }
-                case "a": {
+                case 'a': {
                     if (e.ctrlKey || e.metaKey) {
                         e.preventDefault();
                         selectAllLayers();
@@ -433,10 +445,10 @@ const Canvas: React.FC = () => {
             }
         }
 
-        window.addEventListener("keydown", onKeyDown);
+        window.addEventListener('keydown', onKeyDown);
 
         return () => {
-            window.removeEventListener("keydown", onKeyDown);
+            window.removeEventListener('keydown', onKeyDown);
         };
     }, [copyLayers, pasteLayers, deleteLayers, selectAllLayers, editable]);
 

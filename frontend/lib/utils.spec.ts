@@ -2,12 +2,25 @@ import {
     cn,
     colorToCss,
     findIntersectingLayersWithRectangle,
-    getSvgPathFromStroke, penPointsToPathLayer,
-    pointerEventToCanvasPoint, resizeBounds,
+    getSvgPathFromStroke,
+    penPointsToPathLayer,
+    pointerEventToCanvasPoint,
+    resizeBounds,
 } from './utils';
-import { Camera, Color, Layer, LayerType, Point, Side, XYWH } from '@/types/canvas';
+import {
+    Camera,
+    Color,
+    Layer,
+    LayerType,
+    Point,
+    Side,
+    XYWH,
+} from '@/types/canvas';
 import { twMerge } from 'tailwind-merge';
-import { MAX_ZOOM, MIN_ZOOM } from '@/app/(dashboard)/boards/[boardId]/_components/Canvas';
+import {
+    MAX_ZOOM,
+    MIN_ZOOM,
+} from '@/app/(dashboard)/boards/[boardId]/_components/Canvas';
 
 jest.mock('clsx', () => ({
     __esModule: true,
@@ -23,8 +36,11 @@ jest.mock('nanoid', () => ({
     nanoid: () => 'nanoid',
 }));
 
-
-const createPointerEvent = (clientX: number, clientY: number, boundingRect: DOMRect) => {
+const createPointerEvent = (
+    clientX: number,
+    clientY: number,
+    boundingRect: DOMRect,
+) => {
     return {
         clientX,
         clientY,
@@ -244,7 +260,12 @@ describe('Utility Functions', () => {
             const a: Point = { x: 0, y: 0 };
             const b: Point = { x: 50, y: 50 };
 
-            const result = findIntersectingLayersWithRectangle(layerIds, layers, a, b);
+            const result = findIntersectingLayersWithRectangle(
+                layerIds,
+                layers,
+                a,
+                b,
+            );
             expect(result).toEqual([]);
         });
 
@@ -258,7 +279,12 @@ describe('Utility Functions', () => {
             const a: Point = { x: 20, y: 20 };
             const b: Point = { x: 60, y: 60 };
 
-            const result = findIntersectingLayersWithRectangle(layerIds, layers, a, b);
+            const result = findIntersectingLayersWithRectangle(
+                layerIds,
+                layers,
+                a,
+                b,
+            );
             expect(result).toEqual(['layer1', 'layer2']);
         });
 
@@ -272,7 +298,12 @@ describe('Utility Functions', () => {
             const a: Point = { x: 0, y: 0 };
             const b: Point = { x: 50, y: 50 };
 
-            const result = findIntersectingLayersWithRectangle(layerIds, layers, a, b);
+            const result = findIntersectingLayersWithRectangle(
+                layerIds,
+                layers,
+                a,
+                b,
+            );
             expect(result).toEqual(['layer1']);
         });
 
@@ -285,7 +316,12 @@ describe('Utility Functions', () => {
             const a: Point = { x: 20, y: 20 };
             const b: Point = { x: 20, y: 50 }; // Zero width
 
-            const result = findIntersectingLayersWithRectangle(layerIds, layers, a, b);
+            const result = findIntersectingLayersWithRectangle(
+                layerIds,
+                layers,
+                a,
+                b,
+            );
             expect(result).toEqual(['layer1']);
         });
 
@@ -298,7 +334,12 @@ describe('Utility Functions', () => {
             const a: Point = { x: -20, y: -20 };
             const b: Point = { x: 10, y: 10 };
 
-            const result = findIntersectingLayersWithRectangle(layerIds, layers, a, b);
+            const result = findIntersectingLayersWithRectangle(
+                layerIds,
+                layers,
+                a,
+                b,
+            );
             expect(result).toEqual(['layer1', 'layer2']);
         });
     });
@@ -348,7 +389,7 @@ describe('Utility Functions', () => {
                     [10 - 5, 20 - 20, 0.5],
                     [5 - 5, 40 - 20, 0.6],
                     [50 - 5, 60 - 20, 0.8],
-                    [70- 5, 80 - 20, 0.9],
+                    [70 - 5, 80 - 20, 0.9],
                 ],
             });
         });
@@ -374,7 +415,6 @@ describe('Utility Functions', () => {
             });
         });
     });
-
 
     describe('resizeBounds', () => {
         it('should resize bounds from the left corner', () => {
