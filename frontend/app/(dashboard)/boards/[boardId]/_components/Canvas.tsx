@@ -249,9 +249,8 @@ const Canvas: React.FC = () => {
                         current: point,
                     });
                 } else {
-                    // Start panning
-                    setIsPanning(true);
-                    setLastPointerPosition({ x: e.clientX, y: e.clientY });
+                    // Start pressing for deselection
+                    setCanvasState({ mode: CanvasMode.Pressing, origin: point });
                 }
             }
         },
@@ -296,7 +295,11 @@ const Canvas: React.FC = () => {
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             setIsPanning(false);
-            if (
+            if (canvasState.mode === CanvasMode.Pressing) {
+                // Deselect layers when clicking on empty space
+                unselectLayers();
+                setCanvasState({ mode: CanvasMode.None });
+            } else if (
                 canvasState.mode === CanvasMode.Translating ||
                 canvasState.mode === CanvasMode.SelectionNet
             ) {
@@ -308,8 +311,9 @@ const Canvas: React.FC = () => {
                 insertPath();
             }
         },
-        [canvasState, insertPath, pencilDraft],
+        [canvasState, insertPath, pencilDraft, unselectLayers],
     );
+
 
     const onPointerLeave = useCallback(() => {
         setIsPanning(false);
