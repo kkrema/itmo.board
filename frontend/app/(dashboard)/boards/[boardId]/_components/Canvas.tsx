@@ -23,12 +23,16 @@ import { nanoid } from 'nanoid';
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
 
-const Canvas: React.FC = () => {
+interface CanvasProps {
+    edit?: boolean
+}
+
+const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     const [editable, setEditable] = useState(false);
 
     useEffect(() => {
-        setEditable(true); // later will depend on user permissions
-    }, []);
+        if (edit !== false) setEditable(true); // later will depend on user permissions
+    }, [edit]);
 
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
     const [scale, setScale] = useState(1);
@@ -332,9 +336,9 @@ const Canvas: React.FC = () => {
                 setCanvasState({
                     mode: CanvasMode.None,
                 });
-            } else if (canvasState.mode === CanvasMode.Pencil) {
+            } else if (canvasState.mode === CanvasMode.Pencil && editable) {
                 if (pencilDraft) insertPath();
-            } else if (canvasState.mode === CanvasMode.Inserting) {
+            } else if (canvasState.mode === CanvasMode.Inserting && editable) {
                 insertLayer(canvasState.layerType, point);
             } else {
                 setCanvasState({
@@ -342,15 +346,7 @@ const Canvas: React.FC = () => {
                 });
             }
         },
-        [
-            camera,
-            canvasState,
-            insertLayer,
-            insertPath,
-            pencilDraft,
-            scale,
-            unselectLayers,
-        ],
+        [camera, canvasState, editable, insertLayer, insertPath, pencilDraft, scale, unselectLayers],
     );
 
     const onPointerLeave = useCallback(() => {
