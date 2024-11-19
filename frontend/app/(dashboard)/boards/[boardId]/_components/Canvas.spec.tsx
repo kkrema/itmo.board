@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import '@testing-library/jest-dom';
 import Canvas from './Canvas';
-import {findIntersectingLayersWithRectangle} from "@/lib/utils";
+import { findIntersectingLayersWithRectangle } from '@/lib/utils';
 
 jest.mock('@/store/useCanvasStore', () => ({
     useCanvasStore: jest.fn(),
@@ -285,7 +285,11 @@ describe('Canvas Component', () => {
         const { getByTestId } = render(<Canvas />);
         const svgElement = getByTestId('svg-element');
 
-        fireEvent.pointerDown(svgElement, { button: 0, clientX: 100, clientY: 100 });
+        fireEvent.pointerDown(svgElement, {
+            button: 0,
+            clientX: 100,
+            clientY: 100,
+        });
         fireEvent.pointerUp(svgElement);
 
         fireEvent.keyDown(window, { key: 'Delete' });
@@ -306,11 +310,15 @@ describe('Canvas Component', () => {
         const mockLayerIds = ['layer1', 'layer2', 'layer3'];
         const mockLayers = mockLayerIds.map((id) => ({ id }));
 
-        const mockFindIntersectingLayersWithRectangle = findIntersectingLayersWithRectangle as jest.MockedFunction<
-            typeof findIntersectingLayersWithRectangle
-        >;
+        const mockFindIntersectingLayersWithRectangle =
+            findIntersectingLayersWithRectangle as jest.MockedFunction<
+                typeof findIntersectingLayersWithRectangle
+            >;
 
-        mockFindIntersectingLayersWithRectangle.mockImplementation(() => ['layer1', 'layer2']);
+        mockFindIntersectingLayersWithRectangle.mockImplementation(() => [
+            'layer1',
+            'layer2',
+        ]);
 
         mockUseCanvasStore({
             layerIds: mockLayerIds,
@@ -320,7 +328,11 @@ describe('Canvas Component', () => {
         const { getByTestId } = render(<Canvas />);
         const svgElement = getByTestId('svg-element');
 
-        fireEvent.pointerDown(svgElement, { clientX: 100, clientY: 100, shiftKey: true });
+        fireEvent.pointerDown(svgElement, {
+            clientX: 100,
+            clientY: 100,
+            shiftKey: true,
+        });
 
         fireEvent.pointerMove(svgElement, { clientX: 200, clientY: 200 });
 
@@ -330,9 +342,12 @@ describe('Canvas Component', () => {
             mockLayerIds,
             expect.any(Map),
             expect.any(Object),
-            expect.any(Object)
+            expect.any(Object),
         );
 
-        expect(mockFindIntersectingLayersWithRectangle).toHaveReturnedWith(['layer1', 'layer2']);
+        expect(mockFindIntersectingLayersWithRectangle).toHaveReturnedWith([
+            'layer1',
+            'layer2',
+        ]);
     });
 });

@@ -115,7 +115,10 @@ describe('useCanvasStore', () => {
             result.current.addLayer(anotherLayer);
         });
 
-        const layers = result.current.getLayers([sampleLayer.id, anotherLayer.id]);
+        const layers = result.current.getLayers([
+            sampleLayer.id,
+            anotherLayer.id,
+        ]);
         expect(layers).toHaveLength(2);
         expect(layers).toContainEqual(sampleLayer);
         expect(layers).toContainEqual(anotherLayer);
@@ -136,6 +139,9 @@ describe('useCanvasStore', () => {
             result.current.addLayer(anotherLayer);
         });
 
-        expect(result.current.layerIds).toEqual([sampleLayer.id, anotherLayer.id]);
+        expect(result.current.layerIds).toEqual([
+            sampleLayer.id,
+            anotherLayer.id,
+        ]);
     });
 });
