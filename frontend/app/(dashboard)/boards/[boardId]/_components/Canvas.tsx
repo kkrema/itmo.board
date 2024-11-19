@@ -249,6 +249,7 @@ const Canvas: React.FC = () => {
 
     const onPointerDown = useCallback(
         (e: React.PointerEvent) => {
+            console.log('Pointer down');
             const point = pointerEventToCanvasPoint(e, camera, scale);
             if (canvasState.mode === CanvasMode.Inserting) {
                 return;
@@ -279,7 +280,8 @@ const Canvas: React.FC = () => {
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
             if (!editable) return;
-
+            e.stopPropagation();
+            console.log('Pointer move');
             const point = pointerEventToCanvasPoint(e, camera, scale);
 
             if (canvasState.mode === CanvasMode.Pressing) {
@@ -354,6 +356,8 @@ const Canvas: React.FC = () => {
                 return;
             }
             e.stopPropagation();
+            e.currentTarget = document.querySelector('svg[data-testid="svg-element"]') as SVGSVGElement;
+            console.log('Layer pointer down');
             const point = pointerEventToCanvasPoint(e, camera, scale);
 
             const isSelected = selection.includes(layerId);
