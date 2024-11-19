@@ -33,8 +33,8 @@ export const Path = ({
             style={{
                 transform: `translate(${x}px, ${y}px)`,
             }}
-            x={0}
-            y={0}
+            x={x}
+            y={y}
             fill={fill}
             stroke={stroke}
             strokeWidth={1}

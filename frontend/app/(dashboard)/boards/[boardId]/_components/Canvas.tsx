@@ -6,12 +6,12 @@ import {
     CanvasMode,
     CanvasState,
     Layer,
-    LayerType,
+    LayerType, PathLayer,
     Point,
 } from '@/types/canvas';
 import {
     cn,
-    findIntersectingLayersWithRectangle,
+    findIntersectingLayersWithRectangle, penPointsToPathLayer,
     pointerEventToCanvasPoint,
     resizeBounds,
 } from '@/lib/utils';
@@ -87,16 +87,10 @@ const Canvas: React.FC = () => {
         [addLayer, setSelection],
     );
 
-    const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
-    const [dragStartLayers, setDragStartLayers] = useState<{
-        [id: string]: Layer;
-    }>({});
-
     const translateSelectedLayers = useCallback(
         (point: Point) => {
             if (canvasState.mode !== CanvasMode.Translating || !editable)
                 return;
-            if (!dragStartPoint) return;
 
             const offset = {
                 x: point.x - canvasState.current.x,
@@ -104,11 +98,11 @@ const Canvas: React.FC = () => {
             };
 
             selection.forEach((id) => {
-                const initialLayer = dragStartLayers[id];
-                if (initialLayer) {
+                const layer = getLayer(id);
+                if (layer) {
                     updateLayer(id, {
-                        x: initialLayer.x + offset.x,
-                        y: initialLayer.y + offset.y,
+                        x: layer.x + offset.x,
+                        y: layer.y + offset.y,
                     });
                 }
             });
@@ -117,7 +111,7 @@ const Canvas: React.FC = () => {
                 current: point,
             });
         },
-        [dragStartPoint, dragStartLayers, selection, updateLayer],
+        [canvasState, editable, selection, getLayer, updateLayer],
     );
 
     const unselectLayers = useCallback(() => {
@@ -125,16 +119,18 @@ const Canvas: React.FC = () => {
     }, []);
 
     const updateSelectionNet = useCallback(
-        (origin: Point, current: Point) => {
+        (current: Point, origin: Point) => {
             if (!editable) return;
 
             const layers = new Map(
                 getLayers(layerIds).map((layer) => [layer.id, layer]),
             );
-            setCanvasState((prevState) => ({
-                ...prevState,
+
+            setCanvasState({
+                mode: CanvasMode.SelectionNet,
+                origin,
                 current,
-            }));
+            });
 
             const selectedLayerIds = findIntersectingLayersWithRectangle(
                 layerIds,
@@ -183,16 +179,12 @@ const Canvas: React.FC = () => {
     const insertPath = useCallback(() => {
         if (pencilDraft && pencilDraft.length > 1) {
             const id = nanoid();
-            const newLayer: Layer = {
+            const newLayer: PathLayer = {
                 id,
                 type: LayerType.Path,
-                x: 0,
-                y: 0,
-                height: 0,
-                width: 0,
-                fill: { r: 0, g: 0, b: 0 },
-                points: pencilDraft,
-            };
+                ...penPointsToPathLayer(pencilDraft),
+                fill: { r: 0, g: 0, b: 0 }, // TODO: Set fill color
+            } as PathLayer;
             addLayer(newLayer);
         }
         setPencilDraft(null);
@@ -293,7 +285,7 @@ const Canvas: React.FC = () => {
             if (canvasState.mode === CanvasMode.Pressing) {
                 startMultiSelection(point, canvasState.origin);
             } else if (canvasState.mode === CanvasMode.SelectionNet) {
-                updateSelectionNet(canvasState.origin, point);
+                updateSelectionNet(point, canvasState.origin);
             } else if (canvasState.mode === CanvasMode.Translating) {
                 translateSelectedLayers(point);
             } else if (canvasState.mode === CanvasMode.Resizing) {
@@ -345,17 +337,12 @@ const Canvas: React.FC = () => {
                 });
             }
         },
-        [camera, canvasState, insertLayer, insertPath, scale, unselectLayers],
+        [camera, canvasState, insertLayer, insertPath, pencilDraft, scale, unselectLayers],
     );
 
     const onPointerLeave = useCallback(() => {
         setIsPanning(false);
-        if (canvasState.mode === CanvasMode.Translating) {
-            setCanvasState({ mode: CanvasMode.None });
-            setDragStartPoint(null);
-            setDragStartLayers({});
-        }
-    }, [canvasState]);
+    }, []);
 
     const onLayerPointerDown = useCallback(
         (e: React.PointerEvent, layerId: string) => {
@@ -374,25 +361,8 @@ const Canvas: React.FC = () => {
             setSelection(newSelection);
             // Start translating
             setCanvasState({ mode: CanvasMode.Translating, current: point });
-            setDragStartPoint(point);
-            // Store initial positions of selected layers
-            const initialLayers: { [id: string]: Layer } = {};
-            newSelection.forEach((id) => {
-                const layer = getLayer(id);
-                if (layer) {
-                    initialLayers[id] = { ...layer };
-                }
-            });
-            setDragStartLayers(initialLayers);
         },
-        [
-            selection,
-            setSelection,
-            getLayer,
-            pointerEventToCanvasPoint,
-            camera,
-            canvasState.mode,
-        ],
+        [canvasState, editable, camera, scale, selection],
     );
 
     const deleteLayers = useCallback(() => {
@@ -419,6 +389,52 @@ const Canvas: React.FC = () => {
     const selectAllLayers = useCallback(() => {
         setSelection([...layerIds]);
     }, [layerIds]);
+    
+    // Keyboard Actions
+    useEffect(() => {
+        function onKeyDown(e: KeyboardEvent) {
+            if (!editable) {
+                e.preventDefault();
+                return;
+            }
+
+            switch (e.key) {
+                case "Delete":
+                    deleteLayers();
+                    break;
+                case "c": {
+                    if (e.ctrlKey || e.metaKey) {
+                        copyLayers();
+                        break;
+                    }
+                    break;
+                }
+                case "v": {
+                    if (e.ctrlKey || e.metaKey) {
+                        pasteLayers();
+                        break;
+                    }
+                    break;
+                }
+                case "a": {
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        selectAllLayers();
+                        break;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        window.addEventListener("keydown", onKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", onKeyDown);
+        };
+    }, [copyLayers, pasteLayers, deleteLayers, selectAllLayers, editable]);
 
     const handleDeleteSelected = () => {
         deleteLayers();

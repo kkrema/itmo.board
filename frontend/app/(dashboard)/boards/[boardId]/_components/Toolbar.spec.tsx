@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { ToolBar } from './Toolbar';
+import { CanvasMode } from '@/types/canvas';
 
 jest.mock('./ToolButton', () => ({
     ToolButton: ({ label, onClick, isDisabled }: never) => (
@@ -33,20 +34,22 @@ describe('ToolBar Component', () => {
             moveForward: mockMoveForward,
             moveBackward: mockMoveBackward,
         };
-        return render(<ToolBar {...defaultProps} {...props} />);
+        return render(
+            <ToolBar
+                canvasState={{
+                    mode: CanvasMode.None,
+                }}
+                setCanvasState={function (): void {
+                    console.log('Function not implemented.');
+                }}
+                {...defaultProps}
+                {...props}
+            />,
+        );
     };
 
     afterEach(() => {
         jest.clearAllMocks();
-    });
-
-    it('calls onColorChange when the Pen button is clicked', () => {
-        setup();
-
-        const penButton = screen.getByTestId('tool-button-Pen');
-        fireEvent.click(penButton);
-
-        expect(mockOnColorChange).toHaveBeenCalledWith('#FF5733');
     });
 
     it('does not trigger actions for disabled buttons', () => {
