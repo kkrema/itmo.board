@@ -18,17 +18,6 @@ export function pointerEventToCanvasPoint(
 
     const x = (screenX - camera.x) / scale;
     const y = (screenY - camera.y) / scale;
-
-    console.log("e.clientX: ", e.clientX);
-    console.log("e.clientY: ", e.clientY);
-    console.log("rect.left: ", rect.left);
-    console.log("rect.top: ", rect.top);
-    console.log("camera.x: ", camera.x);
-    console.log("camera.y: ", camera.y);
-    console.log("scale: ", scale);
-    console.log("x: ", x);
-    console.log("y: ", y);
-
     return { x, y };
 }
 

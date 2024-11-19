@@ -18,6 +18,9 @@ import {
 import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
 import { nanoid } from 'nanoid';
 
+export const MIN_ZOOM = 0.1;
+export const MAX_ZOOM = 20;
+
 const Canvas: React.FC = () => {
     const [editable, setEditable] = useState(false);
 
@@ -226,8 +229,8 @@ const Canvas: React.FC = () => {
             const { clientX, clientY, deltaY } = e;
             const zoomIntensity = 0.001;
             const newScale = Math.min(
-                Math.max(scale - deltaY * zoomIntensity, 0.1),
-                20,
+                Math.max(scale - deltaY * zoomIntensity, MIN_ZOOM),
+                MAX_ZOOM,
             ); // Clamp scale
 
             // Calculate the mouse position relative to the SVG
@@ -249,7 +252,6 @@ const Canvas: React.FC = () => {
 
     const onPointerDown = useCallback(
         (e: React.PointerEvent) => {
-            console.log('Pointer down');
             const point = pointerEventToCanvasPoint(e, camera, scale);
             if (canvasState.mode === CanvasMode.Inserting) {
                 return;
@@ -281,7 +283,6 @@ const Canvas: React.FC = () => {
         (e: React.PointerEvent) => {
             if (!editable) return;
             e.stopPropagation();
-            console.log('Pointer move');
             const point = pointerEventToCanvasPoint(e, camera, scale);
 
             if (canvasState.mode === CanvasMode.Pressing) {
@@ -357,7 +358,6 @@ const Canvas: React.FC = () => {
             }
             e.stopPropagation();
             e.currentTarget = document.querySelector('svg[data-testid="svg-element"]') as SVGSVGElement;
-            console.log('Layer pointer down');
             const point = pointerEventToCanvasPoint(e, camera, scale);
 
             const isSelected = selection.includes(layerId);
