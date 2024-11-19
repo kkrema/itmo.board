@@ -24,7 +24,7 @@ export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
 
 interface CanvasProps {
-    edit?: boolean
+    edit?: boolean;
 }
 
 const Canvas: React.FC<CanvasProps> = ({ edit }) => {
@@ -346,7 +346,16 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 });
             }
         },
-        [camera, canvasState, editable, insertLayer, insertPath, pencilDraft, scale, unselectLayers],
+        [
+            camera,
+            canvasState,
+            editable,
+            insertLayer,
+            insertPath,
+            pencilDraft,
+            scale,
+            unselectLayers,
+        ],
     );
 
     const onPointerLeave = useCallback(() => {

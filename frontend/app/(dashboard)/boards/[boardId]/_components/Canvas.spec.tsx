@@ -118,7 +118,6 @@ describe('Canvas Component', () => {
         const layer1 = getByTestId('layer-preview-layer1');
         const layer2 = getByTestId('layer-preview-layer2');
 
-
         // Attempt to insert a new rectangle layer
         fireEvent.click(insertButton);
         fireEvent.pointerUp(svgElement, {
@@ -341,10 +340,7 @@ describe('Canvas Component', () => {
         });
     });
 
-    it('actions ignored when editable is false', ()   => {
-
-
-    });
+    it('actions ignored when editable is false', () => {});
 
     it('should insert a new layer on pointer up in inserting mode', () => {
         const addLayerMock = jest.fn();
@@ -362,7 +358,7 @@ describe('Canvas Component', () => {
             button: 0,
             clientX: 100,
             clientY: 100,
-        })
+        });
 
         expect(addLayerMock).not.toHaveBeenCalled();
 
