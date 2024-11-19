@@ -12,7 +12,7 @@ import {
     MousePointer2,
 } from 'lucide-react';
 
-interface ToolbarProps {
+export interface ToolbarProps {
     canvasState: CanvasState;
     setCanvasState: (newState: CanvasState) => void;
     editable: boolean;
