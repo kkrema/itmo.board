@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
 import {
@@ -57,44 +57,6 @@ const Canvas: React.FC = () => {
         layerIdsToColorSelection[layerId] = 'blue';
     });
 
-    const startDrawing = useCallback(
-        (point: Point) => {
-            setPencilDraft([[point.x, point.y]]);
-        },
-        [setPencilDraft],
-    );
-
-    const continueDrawing = useCallback(
-        (point: Point) => {
-            setPencilDraft((draft) => {
-                if (draft) {
-                    return [...draft, [point.x, point.y]];
-                } else {
-                    return [[point.x, point.y]];
-                }
-            });
-        },
-        [setPencilDraft],
-    );
-
-    const insertPath = useCallback(() => {
-        if (pencilDraft && pencilDraft.length > 1) {
-            const id = nanoid();
-            const newLayer: Layer = {
-                id,
-                type: LayerType.Path,
-                x: 0,
-                y: 0,
-                height: 0,
-                width: 0,
-                fill: { r: 0, g: 0, b: 0 },
-                points: pencilDraft,
-            };
-            addLayer(newLayer);
-        }
-        setPencilDraft(null);
-    }, [pencilDraft, addLayer]);
-
     const insertLayer = useCallback(
         (layerType: LayerType, position: { x: number; y: number }) => {
             const id = nanoid();
@@ -131,24 +93,28 @@ const Canvas: React.FC = () => {
     }>({});
 
     const translateSelectedLayers = useCallback(
-        (currentPoint: Point) => {
+        (point: Point) => {
             if (canvasState.mode !== CanvasMode.Translating || !editable)
                 return;
             if (!dragStartPoint) return;
-            const dx = currentPoint.x - dragStartPoint.x;
-            const dy = currentPoint.y - dragStartPoint.y;
+
+            const offset = {
+                x: point.x - canvasState.current.x,
+                y: point.y - canvasState.current.y,
+            };
+
             selection.forEach((id) => {
                 const initialLayer = dragStartLayers[id];
                 if (initialLayer) {
                     updateLayer(id, {
-                        x: initialLayer.x + dx,
-                        y: initialLayer.y + dy,
+                        x: initialLayer.x + offset.x,
+                        y: initialLayer.y + offset.y,
                     });
                 }
             });
             setCanvasState({
                 mode: CanvasMode.Translating,
-                current: currentPoint,
+                current: point,
             });
         },
         [dragStartPoint, dragStartLayers, selection, updateLayer],
@@ -165,7 +131,10 @@ const Canvas: React.FC = () => {
             const layers = new Map(
                 getLayers(layerIds).map((layer) => [layer.id, layer]),
             );
-            setCanvasState({ mode: CanvasMode.SelectionNet, origin, current });
+            setCanvasState((prevState) => ({
+                ...prevState,
+                current,
+            }));
 
             const selectedLayerIds = findIntersectingLayersWithRectangle(
                 layerIds,
@@ -177,6 +146,63 @@ const Canvas: React.FC = () => {
             setSelection(selectedLayerIds);
         },
         [editable, getLayers, layerIds],
+    );
+
+    const startMultiSelection = useCallback(
+        (current: Point, origin: Point) => {
+            if (!editable) return;
+
+            if (
+                Math.abs(current.x - origin.x) +
+                    Math.abs(current.y - origin.y) >
+                5
+            ) {
+                setCanvasState({
+                    mode: CanvasMode.SelectionNet,
+                    origin,
+                    current,
+                });
+            }
+        },
+        [editable],
+    );
+
+    const continueDrawing = useCallback(
+        (point: Point) => {
+            setPencilDraft((draft) => {
+                if (draft) {
+                    return [...draft, [point.x, point.y]];
+                } else {
+                    return [[point.x, point.y]];
+                }
+            });
+        },
+        [setPencilDraft],
+    );
+
+    const insertPath = useCallback(() => {
+        if (pencilDraft && pencilDraft.length > 1) {
+            const id = nanoid();
+            const newLayer: Layer = {
+                id,
+                type: LayerType.Path,
+                x: 0,
+                y: 0,
+                height: 0,
+                width: 0,
+                fill: { r: 0, g: 0, b: 0 },
+                points: pencilDraft,
+            };
+            addLayer(newLayer);
+        }
+        setPencilDraft(null);
+    }, [pencilDraft, addLayer]);
+
+    const startDrawing = useCallback(
+        (point: Point) => {
+            setPencilDraft([[point.x, point.y]]);
+        },
+        [setPencilDraft],
     );
 
     const resizeSelectedLayers = useCallback(
@@ -233,7 +259,6 @@ const Canvas: React.FC = () => {
         (e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera, scale);
             if (canvasState.mode === CanvasMode.Inserting) {
-                insertLayer(canvasState.layerType, point);
                 return;
             }
             if (canvasState.mode === CanvasMode.Pencil) {
@@ -249,71 +274,79 @@ const Canvas: React.FC = () => {
                         current: point,
                     });
                 } else {
-                    // Start pressing for deselection
-                    setCanvasState({ mode: CanvasMode.Pressing, origin: point });
+                    setIsPanning(true);
+                    setLastPointerPosition({ x: e.clientX, y: e.clientY });
                 }
+            } else {
+                setCanvasState({ mode: CanvasMode.Pressing, origin: point });
             }
         },
-        [camera, canvasState.mode, insertLayer, startDrawing],
+        [camera, canvasState, scale, startDrawing],
     );
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
-            if (pencilDraft) {
-                const point = pointerEventToCanvasPoint(e, camera, scale);
-                continueDrawing(point);
+            if (!editable) return;
+
+            const point = pointerEventToCanvasPoint(e, camera, scale);
+
+            if (canvasState.mode === CanvasMode.Pressing) {
+                startMultiSelection(point, canvasState.origin);
+            } else if (canvasState.mode === CanvasMode.SelectionNet) {
+                updateSelectionNet(canvasState.origin, point);
+            } else if (canvasState.mode === CanvasMode.Translating) {
+                translateSelectedLayers(point);
+            } else if (canvasState.mode === CanvasMode.Resizing) {
+                resizeSelectedLayers(point);
+            } else if (canvasState.mode === CanvasMode.Pencil) {
+                if (pencilDraft) continueDrawing(point);
             } else if (isPanning) {
                 const dx = e.clientX - lastPointerPosition.x;
                 const dy = e.clientY - lastPointerPosition.y;
                 setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
                 setLastPointerPosition({ x: e.clientX, y: e.clientY });
-            } else if (canvasState.mode === CanvasMode.Translating) {
-                const point = pointerEventToCanvasPoint(e, camera, scale);
-                translateSelectedLayers(point);
-            } else if (canvasState.mode === CanvasMode.SelectionNet) {
-                const point = pointerEventToCanvasPoint(e, camera, scale);
-                setCanvasState((prevState) => ({
-                    ...prevState,
-                    current: point,
-                }));
-                updateSelectionNet(canvasState.origin, point);
             }
         },
         [
-            isPanning,
-            lastPointerPosition,
+            editable,
+            camera,
+            scale,
             canvasState,
-            translateSelectedLayers,
-            pointerEventToCanvasPoint,
+            isPanning,
+            startMultiSelection,
             updateSelectionNet,
+            translateSelectedLayers,
+            resizeSelectedLayers,
             pencilDraft,
             continueDrawing,
-            camera,
+            lastPointerPosition,
         ],
     );
 
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             setIsPanning(false);
-            if (canvasState.mode === CanvasMode.Pressing) {
-                // Deselect layers when clicking on empty space
-                unselectLayers();
-                setCanvasState({ mode: CanvasMode.None });
-            } else if (
-                canvasState.mode === CanvasMode.Translating ||
-                canvasState.mode === CanvasMode.SelectionNet
+            const point = pointerEventToCanvasPoint(e, camera, scale);
+            if (
+                canvasState.mode === CanvasMode.None ||
+                canvasState.mode === CanvasMode.Pressing
             ) {
-                setCanvasState({ mode: CanvasMode.None });
-                setDragStartPoint(null);
-                setDragStartLayers({});
-            }
-            if (pencilDraft) {
-                insertPath();
+                unselectLayers();
+                setCanvasState({
+                    mode: CanvasMode.None,
+                });
+            } else if (canvasState.mode === CanvasMode.Pencil) {
+                if (pencilDraft) insertPath();
+            } else if (canvasState.mode === CanvasMode.Inserting) {
+                insertLayer(canvasState.layerType, point);
+            } else {
+                setCanvasState({
+                    mode: CanvasMode.None,
+                });
             }
         },
-        [canvasState, insertPath, pencilDraft, unselectLayers],
+        [camera, canvasState, insertLayer, insertPath, scale, unselectLayers],
     );
-
 
     const onPointerLeave = useCallback(() => {
         setIsPanning(false);
@@ -326,13 +359,15 @@ const Canvas: React.FC = () => {
 
     const onLayerPointerDown = useCallback(
         (e: React.PointerEvent, layerId: string) => {
-            e.stopPropagation();
-            const point = pointerEventToCanvasPoint(e, camera, scale);
-
-            if (canvasState.mode === CanvasMode.Pencil) {
-                // Do nothing if in drawing mode
+            if (
+                canvasState.mode === CanvasMode.Pencil ||
+                canvasState.mode === CanvasMode.Inserting ||
+                !editable
+            ) {
                 return;
             }
+            e.stopPropagation();
+            const point = pointerEventToCanvasPoint(e, camera, scale);
 
             const isSelected = selection.includes(layerId);
             const newSelection = isSelected ? selection : [layerId];
@@ -450,7 +485,7 @@ const Canvas: React.FC = () => {
                     ))}
 
                     {/* Render the temporary pencil draft as a preview */}
-                    {pencilDraft && pencilDraft.length > 1 && (
+                    {pencilDraft && pencilDraft.length >= 1 && (
                         <polyline
                             points={pencilDraft
                                 .map((point) => point.join(','))
