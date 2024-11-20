@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CanvasMode, CanvasState } from '@/types/canvas';
 import { ToolButton } from './ToolButton';
 import {
     Trash2,
@@ -8,12 +9,12 @@ import {
     ArrowDown,
     ArrowUp,
     Pencil,
+    MousePointer2,
 } from 'lucide-react';
 
-interface ToolbarProps {
-    onColorChange: (selectedColor: string) => void;
-    currentColor: string;
-
+export interface ToolbarProps {
+    canvasState: CanvasState;
+    setCanvasState: (newState: CanvasState) => void;
     editable: boolean;
     deleteSelected: () => void;
     moveToFront: () => void;
@@ -23,8 +24,8 @@ interface ToolbarProps {
 }
 
 export const ToolBar = ({
-    onColorChange,
-    currentColor,
+    canvasState,
+    setCanvasState,
     editable,
     deleteSelected,
     moveToFront,
@@ -77,10 +78,27 @@ export const ToolBar = ({
             {/* Main toolbar */}
             <div className="flex gap-x-2 p-2 bg-white rounded-md shadow-md">
                 <ToolButton
+                    label="Select"
+                    icon={MousePointer2}
+                    onClick={() => setCanvasState({ mode: CanvasMode.None })}
+                    isActive={
+                        canvasState.mode === CanvasMode.None ||
+                        canvasState.mode === CanvasMode.Translating ||
+                        canvasState.mode === CanvasMode.SelectionNet ||
+                        canvasState.mode === CanvasMode.Pressing ||
+                        canvasState.mode === CanvasMode.Resizing
+                    }
+                    isDisabled={!editable}
+                />
+                <ToolButton
                     label="Pen"
                     icon={Pencil}
-                    onClick={() => onColorChange('#FF5733')}
-                    isActive={currentColor === '#FF5733'}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Pencil,
+                        })
+                    }
+                    isActive={canvasState.mode === CanvasMode.Pencil}
                     isDisabled={!editable}
                 />
             </div>

@@ -1,14 +1,16 @@
 import { Config } from 'tailwindcss';
 
 const config: Config = {
-    content: [
-        './app/**/*.{js,ts,jsx,tsx}',
-        './components/**/*.{js,ts,jsx,tsx}',
-    ],
+    content: ['./app/**/*.{js,ts,tsx}', './components/**/*.{js,ts,tsx}'],
+    prefix: '',
     theme: {
-        extend: {},
+        extend: {
+            backgroundImage: {
+                'custom-grid': "url('/graph-paper.svg')",
+            },
+        },
     },
     plugins: [],
-};
+} satisfies Config;
 
 export default config;
