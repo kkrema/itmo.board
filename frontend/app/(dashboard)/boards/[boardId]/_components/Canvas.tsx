@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
 import {
     Camera,
+    Color,
     CanvasMode,
     CanvasState,
     Layer,
@@ -19,6 +20,8 @@ import {
 } from '@/lib/utils';
 import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
 import { nanoid } from 'nanoid';
+import { SelectionTools } from "./SelectionTools";
+import { StylesButton } from "./StylesButton";
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -28,6 +31,8 @@ interface CanvasProps {
 }
 
 const Canvas: React.FC<CanvasProps> = ({ edit }) => {
+    const [showSelectionTools, setShowSelectionTools] = useState(false);
+
     const [editable, setEditable] = useState(false);
 
     useEffect(() => {
@@ -59,6 +64,37 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         getLayer,
         getLayers,
     } = useCanvasStore();
+
+    const [, setLastUsedColor] = useState<Color>({
+        r: 0,
+        g: 0,
+        b: 0,
+    });
+
+
+    // Determine if any tool is active
+    const isAnyToolActive = useMemo(() => {
+        return (
+            canvasState.mode === CanvasMode.None ||
+            canvasState.mode === CanvasMode.Translating ||
+            canvasState.mode === CanvasMode.SelectionNet ||
+            canvasState.mode === CanvasMode.Pressing ||
+            canvasState.mode === CanvasMode.Resizing ||
+            (canvasState.mode === CanvasMode.Inserting &&
+                (canvasState.layerType === LayerType.Text ||
+                    canvasState.layerType === LayerType.Note ||
+                    canvasState.layerType === LayerType.Rectangle ||
+                    canvasState.layerType === LayerType.Ellipse)) ||
+            canvasState.mode === CanvasMode.Pencil
+        );
+    }, [canvasState]);
+
+    // Adjust toggleSelectionTools function
+    const toggleSelectionTools = () => {
+        if (isAnyToolActive) {
+            setShowSelectionTools((prev) => !prev);
+        }
+    };
 
     // Map of layer IDs to selection colors
     const layerIdsToColorSelection: Record<string, string> = {};
@@ -486,8 +522,14 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         >
             {/* Container for aligning buttons in the top-right corner */}
             <div className="absolute top-2 right-2 flex items-center gap-2">
-                {/* Add buttons here if needed */}
+                <StylesButton
+                    id="styles-button"
+                    activeColor={{ r: 0, g: 0, b: 0 }}
+                    onClick={toggleSelectionTools} // Use toggleSelectionTools to control visibility
+                    className="h-12 w-30 bg-white rounded-md shadow-md flex items-center justify-center"
+                />
             </div>
+
             <ToolBar
                 canvasState={canvasState}
                 setCanvasState={setCanvasState}
@@ -498,6 +540,11 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 moveForward={handleMoveForward}
                 moveBackward={handleMoveBackward}
             />
+            {editable && isAnyToolActive && showSelectionTools && (
+                <SelectionTools
+                    setLastUsedColor={setLastUsedColor}
+                />
+            )}
             <svg
                 data-testid="svg-element"
                 className="h-[100vh] w-[100vw]"
