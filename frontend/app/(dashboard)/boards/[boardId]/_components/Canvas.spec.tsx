@@ -51,8 +51,8 @@ jest.mock('nanoid', () => ({
 
 jest.mock('@/app/(dashboard)/boards/[boardId]/_components/Toolbar', () => ({
     ToolBar: ({
-                  setCanvasState,
-              }: {
+        setCanvasState,
+    }: {
         setCanvasState: (newState: CanvasState) => void;
     }) => (
         <div>
