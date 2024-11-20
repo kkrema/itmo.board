@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {
+    render,
+    screen,
+    fireEvent,
+    RenderResult,
+} from '@testing-library/react';
 import { LayerPreview } from './LayerPreview';
 import { LayerType } from '@/types/canvas';
 import { useCanvasStore } from '@/store/useCanvasStore';
@@ -31,6 +36,18 @@ describe('LayerPreview Component', () => {
         fill: { r: 255, g: 0, b: 0, a: 1 },
     };
 
+    const defaultProps = {
+        id: 'layer1',
+        onLayerPointerDown: mockOnLayerPointerDown,
+        selectionColor: '#00FF00',
+    };
+
+    const renderLayerPreview = (
+        props?: Partial<typeof defaultProps>,
+    ): RenderResult => {
+        return render(<LayerPreview {...defaultProps} {...props} />);
+    };
+
     beforeEach(() => {
         jest.clearAllMocks();
         (useCanvasStore as unknown as jest.Mock).mockImplementation(
@@ -45,13 +62,7 @@ describe('LayerPreview Component', () => {
     test('renders Path component when layer type is Path', () => {
         mockGetLayer.mockReturnValue(mockLayer);
 
-        render(
-            <LayerPreview
-                id="layer1"
-                onLayerPointerDown={mockOnLayerPointerDown}
-                selectionColor="#00FF00"
-            />,
-        );
+        renderLayerPreview();
 
         const pathElement = screen.getByTestId('path-element');
         expect(pathElement).toBeInTheDocument();
@@ -60,13 +71,7 @@ describe('LayerPreview Component', () => {
     test('passes correct props to Path component', () => {
         mockGetLayer.mockReturnValue(mockLayer);
 
-        render(
-            <LayerPreview
-                id="layer1"
-                onLayerPointerDown={mockOnLayerPointerDown}
-                selectionColor="#00FF00"
-            />,
-        );
+        renderLayerPreview();
 
         const pathElement = screen.getByTestId('path-element');
 
@@ -77,20 +82,16 @@ describe('LayerPreview Component', () => {
         expect(mockOnLayerPointerDown).toHaveBeenCalledTimes(1);
         expect(mockOnLayerPointerDown).toHaveBeenCalledWith(
             expect.any(Object),
-            'layer1',
+            defaultProps.id,
         );
     });
 
     test('renders null if layer is not found', () => {
         mockGetLayer.mockReturnValue(null);
 
-        const { container } = render(
-            <LayerPreview
-                id="non-existent-layer"
-                onLayerPointerDown={mockOnLayerPointerDown}
-                selectionColor="#00FF00"
-            />,
-        );
+        const { container } = renderLayerPreview({
+            id: 'non-existent-layer',
+        });
 
         expect(container.firstChild).toBeNull();
     });
@@ -102,13 +103,9 @@ describe('LayerPreview Component', () => {
             type: 'UnknownType',
         });
 
-        const { container } = render(
-            <LayerPreview
-                id="unknown-layer"
-                onLayerPointerDown={mockOnLayerPointerDown}
-                selectionColor="#00FF00"
-            />,
-        );
+        const { container } = renderLayerPreview({
+            id: 'unknown-layer',
+        });
 
         expect(container.firstChild).toBeNull();
         expect(consoleWarnSpy).toHaveBeenCalledWith('Unknown layer type');

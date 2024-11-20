@@ -348,7 +348,7 @@ describe('Utility Functions', () => {
         it('should throw an error when less than 2 points are provided', () => {
             const points: number[][] = [[10, 20, 0.5]];
             expect(() => penPointsToPathLayer(points)).toThrow(
-                'Cannot transform points with less than 2 points',
+                `Invalid input: expected at least 2 points, but received ${points.length}`,
             );
         });
 

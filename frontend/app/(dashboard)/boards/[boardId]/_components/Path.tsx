@@ -1,7 +1,7 @@
 import { getSvgPathFromStroke } from '@/lib/utils';
 import { getStroke } from 'perfect-freehand';
 
-interface PathProps {
+export interface PathProps {
     x: number;
     y: number;
     points: number[][];
@@ -18,18 +18,20 @@ export const Path = ({
     onPointerDown,
     stroke,
 }: PathProps) => {
+    const strokePath = getSvgPathFromStroke(
+        getStroke(points, {
+            size: 4,
+            thinning: 0.5,
+            smoothing: 0.5,
+            streamline: 0.5,
+        }),
+    );
+
     return (
         <path
             className="drop-shadow-md"
             onPointerDown={onPointerDown}
-            d={getSvgPathFromStroke(
-                getStroke(points, {
-                    size: 4,
-                    thinning: 0.5,
-                    smoothing: 0.5,
-                    streamline: 0.5,
-                }),
-            )}
+            d={strokePath}
             style={{
                 transform: `translate(${x}px, ${y}px)`,
             }}

@@ -9,7 +9,7 @@ export type Camera = {
     y: number;
 };
 
-export enum LayerType {
+export const enum LayerType {
     Rectangle,
     Ellipse,
     Path,
@@ -52,7 +52,7 @@ export type XYWH = {
     height: number;
 };
 
-export enum Side {
+export const enum Side {
     Top = 1,
     Bottom = 2,
     Left = 4,
@@ -93,7 +93,7 @@ export type CanvasState =
           corner: Side;
       };
 
-export enum CanvasMode {
+export const enum CanvasMode {
     None,
     Pressing,
     SelectionNet,

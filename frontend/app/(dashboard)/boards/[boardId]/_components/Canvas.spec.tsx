@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import {
+    render,
+    fireEvent,
+    waitFor,
+    RenderResult,
+} from '@testing-library/react';
 import Canvas from './Canvas';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import '@testing-library/jest-dom';
@@ -72,26 +77,41 @@ jest.mock('@/app/(dashboard)/boards/[boardId]/_components/Toolbar', () => ({
 }));
 
 describe('Canvas Component', () => {
-    const mockUseCanvasStore = (overrides = {}) => {
-        const defaultStore = {
-            layerIds: ['layer1', 'layer2'],
-            addLayer: jest.fn(),
-            updateLayer: jest.fn(),
-            removeLayers: jest.fn(),
-            getLayer: jest.fn((id) => ({ id })),
-            getLayers: jest.fn(() => [
-                { id: 'layer1', x: 0, y: 0 },
-                { id: 'layer2', x: 50, y: 50 },
-            ]),
-        };
+    const defaultStore = {
+        layerIds: ['layer1', 'layer2'],
+        addLayer: jest.fn(),
+        updateLayer: jest.fn(),
+        removeLayers: jest.fn(),
+        getLayer: jest.fn((id) => ({ id })),
+        getLayers: jest.fn(() => [
+            { id: 'layer1', x: 0, y: 0 },
+            { id: 'layer2', x: 50, y: 50 },
+        ]),
+    };
 
+    const mockUseCanvasStoreHook = (overrides = {}) => {
         const store = { ...defaultStore, ...overrides };
-
         (useCanvasStore as unknown as jest.Mock).mockImplementation(
             () => store,
         );
-
         return store;
+    };
+
+    const renderCanvas = (props = {}, storeOverrides = {}): RenderResult => {
+        mockUseCanvasStoreHook(storeOverrides);
+        return render(<Canvas {...props} />);
+    };
+
+    const selectLayer = (
+        layerId: string,
+        getByTestId: (id: string) => HTMLElement,
+    ) => {
+        const layerElement = getByTestId(`layer-preview-${layerId}`);
+        fireEvent.pointerDown(layerElement, {
+            button: 0,
+            clientX: 100,
+            clientY: 100,
+        });
     };
 
     beforeEach(() => {
@@ -102,15 +122,13 @@ describe('Canvas Component', () => {
     });
 
     it('renders without crashing', () => {
-        mockUseCanvasStore();
-        const { getByRole } = render(<Canvas />);
+        const { getByRole } = renderCanvas();
         expect(getByRole('main')).toBeInTheDocument();
     });
 
     it('actions are ignored when editable is false', () => {
-        const store = mockUseCanvasStore();
-
-        const { getByTestId } = render(<Canvas edit={false} />);
+        const store = mockUseCanvasStoreHook();
+        const { getByTestId } = renderCanvas({ edit: false });
 
         const insertButton = getByTestId('insert-rectangle-button');
         const pencilButton = getByTestId('pencil-tool-button');
@@ -202,440 +220,414 @@ describe('Canvas Component', () => {
 
     it('renders the correct number of LayerPreview components', () => {
         const mockLayerIds = ['layer1', 'layer2', 'layer3'];
-        // store IS being used
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const store = mockUseCanvasStore({
+        const storeOverrides = {
             layerIds: mockLayerIds,
             getLayer: jest.fn((id) => ({ id })),
             getLayers: jest.fn(() => mockLayerIds.map((id) => ({ id }))),
-        });
-
-        const { getAllByTestId } = render(<Canvas />);
+        };
+        const { getAllByTestId } = renderCanvas({}, storeOverrides);
         const layerPreviews = getAllByTestId(/layer-preview-/);
         expect(layerPreviews).toHaveLength(mockLayerIds.length);
     });
 
-    it('should pan with pointer correctly', async () => {
-        mockUseCanvasStore();
-        const { getByTestId } = render(<Canvas />);
-        const svgElement = getByTestId('svg-element');
-        const svgGroup = getByTestId('svg-group');
+    describe('Panning', () => {
+        it('should pan with pointer correctly', async () => {
+            const { getByTestId } = renderCanvas();
+            const svgElement = getByTestId('svg-element');
+            const svgGroup = getByTestId('svg-group');
 
-        // Verify initial camera position
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(0, 0) scale(1)',
-        );
+            // Verify initial camera position
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(0, 0) scale(1)',
+            );
 
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
-        });
-        fireEvent.pointerMove(svgElement, { clientX: 110, clientY: 120 });
-        fireEvent.pointerUp(svgElement);
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 100,
+                clientY: 100,
+            });
+            fireEvent.pointerMove(svgElement, { clientX: 110, clientY: 120 });
+            fireEvent.pointerUp(svgElement);
 
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(10, 20) scale(1)',
-        );
-    });
-
-    it('should accumulate multiple panning actions correctly', async () => {
-        mockUseCanvasStore();
-        const { getByTestId } = render(<Canvas />);
-        const svgElement = getByTestId('svg-element');
-        const svgGroup = getByTestId('svg-group');
-
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(0, 0) scale(1)',
-        );
-
-        // First panning action: move by (15, 25)
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            clientX: 200,
-            clientY: 200,
-        });
-        fireEvent.pointerMove(svgElement, { clientX: 215, clientY: 225 });
-        fireEvent.pointerUp(svgElement);
-
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(15, 25) scale(1)',
-        );
-
-        // Second panning action: move by (-5, -10)
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            clientX: 215,
-            clientY: 225,
-        });
-        fireEvent.pointerMove(svgElement, { clientX: 210, clientY: 215 });
-        fireEvent.pointerUp(svgElement);
-
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(10, 15) scale(1)',
-        );
-    });
-
-    it('toggles layer selection on layer click', () => {
-        const mockLayerIds = ['layer1', 'layer2'];
-        // store IS being used
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const store = mockUseCanvasStore({
-            layerIds: mockLayerIds,
-            getLayer: jest.fn((id) => ({ id })),
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(10, 20) scale(1)',
+            );
         });
 
-        const { getByTestId } = render(<Canvas />);
+        it('should accumulate multiple panning actions correctly', async () => {
+            const { getByTestId } = renderCanvas();
+            const svgElement = getByTestId('svg-element');
+            const svgGroup = getByTestId('svg-group');
 
-        const firstLayer = getByTestId('layer-preview-layer1');
-        fireEvent.pointerDown(firstLayer);
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(0, 0) scale(1)',
+            );
 
-        expect(firstLayer).toHaveStyle('border-color: blue');
+            // First panning action: move by (15, 25)
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 200,
+                clientY: 200,
+            });
+            fireEvent.pointerMove(svgElement, { clientX: 215, clientY: 225 });
+            fireEvent.pointerUp(svgElement);
 
-        const secondLayer = getByTestId('layer-preview-layer2');
-        fireEvent.pointerDown(secondLayer);
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(15, 25) scale(1)',
+            );
 
-        expect(secondLayer).toHaveStyle('border-color: blue');
-    });
+            // Second panning action: move by (-5, -10)
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 215,
+                clientY: 225,
+            });
+            fireEvent.pointerMove(svgElement, { clientX: 210, clientY: 215 });
+            fireEvent.pointerUp(svgElement);
 
-    it('handles wheel events to adjust camera position and scale', async () => {
-        mockUseCanvasStore();
-
-        const { getByTestId } = render(<Canvas />);
-        const svgElement = getByTestId('svg-element');
-        const svgGroup = getByTestId('svg-group');
-
-        // Initial transform
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(0, 0) scale(1)',
-        );
-
-        // Simulate wheel event
-        fireEvent.wheel(svgElement, {
-            deltaX: 20,
-            deltaY: 30,
-            clientX: 50,
-            clientY: 50,
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(10, 15) scale(1)',
+            );
         });
 
-        // Calculate expected new scale and camera position based on the component's onWheel logic
-        const zoomIntensity = 0.001;
-        const initialScale = 1;
-        const deltaY = 30;
-        const newScale = Math.min(
-            Math.max(initialScale - deltaY * zoomIntensity, 0.1),
-            20,
-        ); // 0.97
-        const scaleFactor = newScale / initialScale; // 0.97
-        const offsetX = 50;
-        const offsetY = 50;
-        const newCameraX = offsetX - offsetX * scaleFactor; // 50 - 50 * 0.97 = 50 - 48.5 = 1.5
-        const newCameraY = offsetY - offsetY * scaleFactor; // 50 - 50 * 0.97 = 1.5
+        it('should stop panning when pointer leaves the canvas', () => {
+            const { getByTestId } = renderCanvas();
+            const svgElement = getByTestId('svg-element');
 
-        await waitFor(() => {
-            const transform = svgGroup.getAttribute('transform');
-            expect(transform).toBe(
-                `translate(${newCameraX}, ${newCameraY}) scale(${newScale})`,
+            // Simulate pointer down to start panning
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 100,
+                clientY: 100,
+            });
+
+            // Simulate pointer leave
+            fireEvent.pointerLeave(svgElement);
+
+            // Simulate pointer move (should not pan since pointer has left)
+            fireEvent.pointerMove(svgElement, {
+                clientX: 110,
+                clientY: 110,
+            });
+
+            const svgGroup = getByTestId('svg-group');
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(0, 0) scale(1)',
             );
         });
     });
 
-    it('actions ignored when editable is false', () => {});
+    describe('Layer Selection', () => {
+        it('toggles layer selection on layer click', () => {
+            const mockLayerIds = ['layer1', 'layer2'];
+            const storeOverrides = {
+                layerIds: mockLayerIds,
+                getLayer: jest.fn((id) => ({ id })),
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
 
-    it('should insert a new layer on pointer up in inserting mode', () => {
-        const addLayerMock = jest.fn();
-        mockUseCanvasStore({
-            addLayer: addLayerMock,
-        });
+            const firstLayer = getByTestId('layer-preview-layer1');
+            fireEvent.pointerDown(firstLayer);
 
-        const { getByTestId } = render(<Canvas />);
-        const insertButton = getByTestId('insert-rectangle-button');
-        fireEvent.click(insertButton);
+            expect(firstLayer).toHaveStyle('border-color: blue');
 
-        const svgElement = getByTestId('svg-element');
+            const secondLayer = getByTestId('layer-preview-layer2');
+            fireEvent.pointerDown(secondLayer);
 
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
-        });
-
-        expect(addLayerMock).not.toHaveBeenCalled();
-
-        fireEvent.pointerUp(svgElement, {
-            clientX: 100,
-            clientY: 100,
-        });
-
-        expect(addLayerMock).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'nanoid',
-                type: LayerType.Rectangle,
-                x: 100,
-                y: 100,
-                width: 100,
-                height: 100,
-                fill: { r: 0, g: 0, b: 0 },
-            }),
-        );
-    });
-
-    it('should translate selected layers when dragging', () => {
-        const layerId = 'layer1';
-        const initialLayer = { id: layerId, x: 50, y: 50 };
-        const updateLayerMock = jest.fn();
-        const getLayerMock = jest.fn(() => initialLayer);
-
-        mockUseCanvasStore({
-            layerIds: [layerId],
-            getLayer: getLayerMock,
-            updateLayer: updateLayerMock,
-        });
-
-        const { getByTestId } = render(<Canvas />);
-
-        // Simulate selecting the layer
-        const layerElement = getByTestId(`layer-preview-${layerId}`);
-        fireEvent.pointerDown(layerElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
-        });
-
-        // Simulate dragging
-        const svgElement = getByTestId('svg-element');
-        fireEvent.pointerMove(svgElement, {
-            clientX: 110,
-            clientY: 110,
-        });
-
-        fireEvent.pointerUp(svgElement);
-
-        // Verify that updateLayer was called with new x and y
-        expect(updateLayerMock).toHaveBeenCalledWith(layerId, {
-            x: 60,
-            y: 60,
+            expect(secondLayer).toHaveStyle('border-color: blue');
         });
     });
 
-    it('should update selection when drawing selection net', () => {
-        const layerIds = ['layer1', 'layer2', 'layer3'];
-        const getLayersMock = jest.fn(() =>
-            layerIds.map((id) => ({ id, x: 0, y: 0 })),
-        );
+    describe('Wheel Events', () => {
+        it('handles wheel events to adjust camera position and scale', async () => {
+            const { getByTestId } = renderCanvas();
+            const svgElement = getByTestId('svg-element');
+            const svgGroup = getByTestId('svg-group');
 
-        mockUseCanvasStore({
-            layerIds,
-            getLayers: getLayersMock,
+            // Initial transform
+            expect(svgGroup.getAttribute('transform')).toBe(
+                'translate(0, 0) scale(1)',
+            );
+
+            // Simulate wheel event
+            fireEvent.wheel(svgElement, {
+                deltaX: 20,
+                deltaY: 30,
+                clientX: 50,
+                clientY: 50,
+            });
+
+            // Calculate expected new scale and camera position based on the component's onWheel logic
+            const zoomIntensity = 0.001;
+            const initialScale = 1;
+            const deltaY = 30;
+            const newScale = Math.min(
+                Math.max(initialScale - deltaY * zoomIntensity, 0.1),
+                20,
+            ); // 0.97
+            const scaleFactor = newScale / initialScale; // 0.97
+            const offsetX = 50;
+            const offsetY = 50;
+            const newCameraX = offsetX - offsetX * scaleFactor; // 50 - 50 * 0.97 = 50 - 48.5 = 1.5
+            const newCameraY = offsetY - offsetY * scaleFactor; // 50 - 50 * 0.97 = 1.5
+
+            await waitFor(() => {
+                const transform = svgGroup.getAttribute('transform');
+                expect(transform).toBe(
+                    `translate(${newCameraX}, ${newCameraY}) scale(${newScale})`,
+                );
+            });
         });
-
-        const { getByTestId } = render(<Canvas />);
-        const svgElement = getByTestId('svg-element');
-
-        // Simulate shift+pointer down to start selection net
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            shiftKey: true,
-            clientX: 100,
-            clientY: 100,
-        });
-
-        // Simulate pointer move to update selection net
-        fireEvent.pointerMove(svgElement, {
-            clientX: 200,
-            clientY: 200,
-        });
-
-        // The mocked findIntersectingLayersWithRectangle returns ['layer1', 'layer2']
-        // Check that layer1 and layer2 are selected
-        ['layer1', 'layer2'].forEach((id) => {
-            const layerElement = getByTestId(`layer-preview-${id}`);
-            expect(layerElement).toHaveStyle('border-color: blue');
-        });
-
-        // Ensure layer3 is not selected
-        const layerElement = getByTestId('layer-preview-layer3');
-        expect(layerElement).not.toHaveStyle('border-color: blue');
     });
 
-    it('should start and continue drawing with pencil tool', () => {
-        mockUseCanvasStore();
+    describe('Layer Manipulation', () => {
+        it('should insert a new layer on pointer up in inserting mode', () => {
+            const addLayerMock = jest.fn();
+            const storeOverrides = {
+                addLayer: addLayerMock,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+            const insertButton = getByTestId('insert-rectangle-button');
+            fireEvent.click(insertButton);
 
-        const { getByTestId } = render(<Canvas />);
-        const pencilButton = getByTestId('pencil-tool-button');
-        fireEvent.click(pencilButton);
+            const svgElement = getByTestId('svg-element');
 
-        const svgElement = getByTestId('svg-element');
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 100,
+                clientY: 100,
+            });
 
-        // Start drawing
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
+            expect(addLayerMock).not.toHaveBeenCalled();
+
+            fireEvent.pointerUp(svgElement, {
+                clientX: 100,
+                clientY: 100,
+            });
+
+            expect(addLayerMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'nanoid',
+                    type: LayerType.Rectangle,
+                    x: 100,
+                    y: 100,
+                    width: 100,
+                    height: 100,
+                    fill: { r: 0, g: 0, b: 0 },
+                }),
+            );
         });
 
-        // Continue drawing
-        fireEvent.pointerMove(svgElement, {
-            clientX: 110,
-            clientY: 110,
-        });
-        fireEvent.pointerMove(svgElement, {
-            clientX: 120,
-            clientY: 120,
-        });
+        it('should translate selected layers when dragging', () => {
+            const layerId = 'layer1';
+            const initialLayer = { id: layerId, x: 50, y: 50 };
+            const updateLayerMock = jest.fn();
+            const getLayerMock = jest.fn(() => initialLayer);
+            const storeOverrides = {
+                layerIds: [layerId],
+                getLayer: getLayerMock,
+                updateLayer: updateLayerMock,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
 
-        // Finish drawing
-        fireEvent.pointerUp(svgElement);
+            selectLayer(layerId, getByTestId);
 
-        // Since insertPath adds a new layer, verify that addLayer is called
-        const addLayerMock = useCanvasStore().addLayer;
-        expect(addLayerMock).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'nanoid',
-                type: LayerType.Path,
-            }),
-        );
-    });
+            // Simulate dragging
+            const svgElement = getByTestId('svg-element');
+            fireEvent.pointerMove(svgElement, {
+                clientX: 110,
+                clientY: 110,
+            });
 
-    it('should delete selected layers when pressing Delete key', () => {
-        const layerId = 'layer1';
-        const removeLayersMock = jest.fn();
+            fireEvent.pointerUp(svgElement);
 
-        mockUseCanvasStore({
-            layerIds: [layerId],
-            removeLayers: removeLayersMock,
-        });
-
-        const { getByTestId } = render(<Canvas />);
-
-        // Simulate selecting the layer
-        const layerElement = getByTestId(`layer-preview-${layerId}`);
-        fireEvent.pointerDown(layerElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
-        });
-
-        fireEvent.keyDown(window, { key: 'Delete' });
-
-        expect(removeLayersMock).toHaveBeenCalledWith([layerId]);
-    });
-
-    it('should copy and paste selected layers', () => {
-        const layerId = 'layer1';
-        const layerData = { id: layerId, x: 50, y: 50 };
-        const addLayerMock = jest.fn();
-        const getLayersMock = jest.fn(() => [layerData]);
-
-        mockUseCanvasStore({
-            layerIds: [layerId],
-            getLayers: getLayersMock,
-            addLayer: addLayerMock,
-        });
-
-        const { getByTestId } = render(<Canvas />);
-
-        // Simulate selecting the layer
-        const layerElement = getByTestId(`layer-preview-${layerId}`);
-        fireEvent.pointerDown(layerElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
-        });
-
-        // Ctrl+C
-        fireEvent.keyDown(window, { key: 'c', ctrlKey: true });
-
-        // Ctrl+V
-        fireEvent.keyDown(window, { key: 'v', ctrlKey: true });
-
-        // Verify that addLayer is called with copied layer
-        expect(addLayerMock).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'nanoid',
+            // Verify that updateLayer was called with new x and y
+            expect(updateLayerMock).toHaveBeenCalledWith(layerId, {
                 x: 60,
                 y: 60,
-            }),
-        );
-
-        fireEvent.keyDown(window, { key: 'c', metaKey: true });
-        fireEvent.keyDown(window, { key: 'v', metaKey: true });
-
-        // Verify that addLayer is called with copied layer
-        expect(addLayerMock).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'nanoid',
-                x: 60,
-                y: 60,
-            }),
-        );
-
-        // Verify that addLayer is called twice
-        expect(addLayerMock).toHaveBeenCalledTimes(2);
-    });
-
-    it('should select all layers when pressing Ctrl+A', () => {
-        const layerIds = ['layer1', 'layer2', 'layer3'];
-
-        mockUseCanvasStore({
-            layerIds,
+            });
         });
 
-        const { getByTestId } = render(<Canvas />);
+        it('should update selection when drawing selection net', () => {
+            const layerIds = ['layer1', 'layer2', 'layer3'];
+            const storeOverrides = {
+                layerIds,
+                getLayers: jest.fn(() =>
+                    layerIds.map((id) => ({ id, x: 0, y: 0 })),
+                ),
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+            const svgElement = getByTestId('svg-element');
 
-        // Ctrl+A
-        fireEvent.keyDown(window, { key: 'a', ctrlKey: true });
+            // Simulate shift+pointer down to start selection net
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                shiftKey: true,
+                clientX: 100,
+                clientY: 100,
+            });
 
-        // Verify that all layers are selected
-        layerIds.forEach((id) => {
-            const layerElement = getByTestId(`layer-preview-${id}`);
-            expect(layerElement).toHaveStyle('border-color: blue');
-        });
-    });
+            // Simulate pointer move to update selection net
+            fireEvent.pointerMove(svgElement, {
+                clientX: 200,
+                clientY: 200,
+            });
 
-    it('should select all layers when pressing Meta+A', () => {
-        const layerIds = ['layer1', 'layer2', 'layer3'];
+            // The mocked findIntersectingLayersWithRectangle returns ['layer1', 'layer2']
+            // Check that layer1 and layer2 are selected
+            ['layer1', 'layer2'].forEach((id) => {
+                const layerElement = getByTestId(`layer-preview-${id}`);
+                expect(layerElement).toHaveStyle('border-color: blue');
+            });
 
-        mockUseCanvasStore({
-            layerIds,
-        });
-
-        const { getByTestId } = render(<Canvas />);
-
-        // Ctrl+A
-        fireEvent.keyDown(window, { key: 'a', metaKey: true });
-
-        // Verify that all layers are selected
-        layerIds.forEach((id) => {
-            const layerElement = getByTestId(`layer-preview-${id}`);
-            expect(layerElement).toHaveStyle('border-color: blue');
+            // Ensure layer3 is not selected
+            const layerElement = getByTestId('layer-preview-layer3');
+            expect(layerElement).not.toHaveStyle('border-color: blue');
         });
     });
 
-    it('should stop panning when pointer leaves the canvas', () => {
-        mockUseCanvasStore();
-        const { getByTestId } = render(<Canvas />);
-        const svgElement = getByTestId('svg-element');
+    describe('Tool Usage', () => {
+        it('should start and continue drawing with pencil tool', () => {
+            const addLayerMock = jest.fn();
+            const storeOverrides = {
+                addLayer: addLayerMock,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+            const pencilButton = getByTestId('pencil-tool-button');
+            fireEvent.click(pencilButton);
 
-        // Simulate pointer down to start panning
-        fireEvent.pointerDown(svgElement, {
-            button: 0,
-            clientX: 100,
-            clientY: 100,
+            const svgElement = getByTestId('svg-element');
+
+            // Start drawing
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 100,
+                clientY: 100,
+            });
+
+            // Continue drawing
+            fireEvent.pointerMove(svgElement, {
+                clientX: 110,
+                clientY: 110,
+            });
+            fireEvent.pointerMove(svgElement, {
+                clientX: 120,
+                clientY: 120,
+            });
+
+            // Finish drawing
+            fireEvent.pointerUp(svgElement);
+
+            // Since insertPath adds a new layer, verify that addLayer is called
+            expect(addLayerMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'nanoid',
+                    type: LayerType.Path,
+                }),
+            );
+        });
+    });
+
+    describe('Keyboard Shortcuts', () => {
+        it('should delete selected layers when pressing Delete key', () => {
+            const layerId = 'layer1';
+            const removeLayersMock = jest.fn();
+            const storeOverrides = {
+                layerIds: [layerId],
+                removeLayers: removeLayersMock,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+
+            selectLayer(layerId, getByTestId);
+
+            fireEvent.keyDown(window, { key: 'Delete' });
+
+            expect(removeLayersMock).toHaveBeenCalledWith([layerId]);
         });
 
-        // Simulate pointer leave
-        fireEvent.pointerLeave(svgElement);
+        it('should copy and paste selected layers', () => {
+            const layerId = 'layer1';
+            const layerData = { id: layerId, x: 50, y: 50 };
+            const addLayerMock = jest.fn();
+            const getLayersMock = jest.fn(() => [layerData]);
+            const storeOverrides = {
+                layerIds: [layerId],
+                getLayers: getLayersMock,
+                addLayer: addLayerMock,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
 
-        // Simulate pointer move (should not pan since pointer has left)
-        fireEvent.pointerMove(svgElement, {
-            clientX: 110,
-            clientY: 110,
+            selectLayer(layerId, getByTestId);
+
+            // Ctrl+C
+            fireEvent.keyDown(window, { key: 'c', ctrlKey: true });
+
+            // Ctrl+V
+            fireEvent.keyDown(window, { key: 'v', ctrlKey: true });
+
+            // Verify that addLayer is called with copied layer
+            expect(addLayerMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'nanoid',
+                    x: 60,
+                    y: 60,
+                }),
+            );
+
+            // Meta+C and Meta+V
+            fireEvent.keyDown(window, { key: 'c', metaKey: true });
+            fireEvent.keyDown(window, { key: 'v', metaKey: true });
+
+            // Verify that addLayer is called with copied layer
+            expect(addLayerMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'nanoid',
+                    x: 60,
+                    y: 60,
+                }),
+            );
+
+            // Verify that addLayer is called twice
+            expect(addLayerMock).toHaveBeenCalledTimes(2);
         });
 
-        const svgGroup = getByTestId('svg-group');
-        expect(svgGroup.getAttribute('transform')).toBe(
-            'translate(0, 0) scale(1)',
-        );
+        it('should select all layers when pressing Ctrl+A', () => {
+            const layerIds = ['layer1', 'layer2', 'layer3'];
+            const storeOverrides = {
+                layerIds,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+
+            // Ctrl+A
+            fireEvent.keyDown(window, { key: 'a', ctrlKey: true });
+
+            // Verify that all layers are selected
+            layerIds.forEach((id) => {
+                const layerElement = getByTestId(`layer-preview-${id}`);
+                expect(layerElement).toHaveStyle('border-color: blue');
+            });
+        });
+
+        it('should select all layers when pressing Meta+A', () => {
+            const layerIds = [
+                'layer1',
+                'layer22323',
+                'layer3',
+                'asifngjrvo-layer',
+            ];
+            const storeOverrides = {
+                layerIds,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+
+            // Meta+A
+            fireEvent.keyDown(window, { key: 'a', metaKey: true });
+
+            // Verify that all layers are selected
+            layerIds.forEach((id) => {
+                const layerElement = getByTestId(`layer-preview-${id}`);
+                expect(layerElement).toHaveStyle('border-color: blue');
+            });
+        });
     });
 });

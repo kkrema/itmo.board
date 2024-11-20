@@ -31,25 +31,28 @@ export function pointerEventToCanvasPoint(
 }
 
 export function getSvgPathFromStroke(stroke: number[][]) {
-    if (!stroke.length) return '';
+    const len = stroke.length;
+    if (len === 0) return '';
 
-    const pathData = stroke.reduce(
-        (acc, [x0, y0], i, arr) => {
-            const [x1, y1] = arr[(i + 1) % arr.length];
-            acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
-            return acc;
-        },
-        ['M', ...stroke[0], 'Q'],
-    );
+    const pathData = ['M', ...stroke[0], 'Q'];
+
+    for (let i = 0; i < len; i++) {
+        const [x0, y0] = stroke[i];
+        const [x1, y1] = stroke[(i + 1) % len];
+        pathData.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+    }
 
     pathData.push('Z');
     return pathData.join(' ');
 }
 
 export function colorToCss(color: Color) {
-    return `#${color.r.toString(16).padStart(2, '0')}${color.g
-        .toString(16)
-        .padStart(2, '0')}${color.b.toString(16).padStart(2, '0')}`;
+    const toHex = (value: number) => value.toString(16).padStart(2, '0');
+    const red = toHex(color.r);
+    const green = toHex(color.g);
+    const blue = toHex(color.b);
+
+    return `#${red}${green}${blue}`;
 }
 
 export function findIntersectingLayersWithRectangle(
@@ -65,33 +68,37 @@ export function findIntersectingLayersWithRectangle(
         height: Math.abs(a.y - b.y),
     };
 
-    const ids = [];
+    const rectRight = rect.x + rect.width;
+    const rectBottom = rect.y + rect.height;
+
+    const intersectingIds = [];
 
     for (const layerId of layerIds) {
         const layer = layers.get(layerId);
 
-        if (layer == null) {
-            continue;
-        }
+        if (!layer) continue;
 
         const { x, y, height, width } = layer;
 
         if (
-            rect.x + rect.width > x &&
+            // check if the rectangle intersects with the layer
+            rectRight > x &&
             rect.x < x + width &&
-            rect.y + rect.height > y &&
+            rectBottom > y &&
             rect.y < y + height
         ) {
-            ids.push(layerId);
+            intersectingIds.push(layerId);
         }
     }
 
-    return ids;
+    return intersectingIds;
 }
 
 export function penPointsToPathLayer(points: number[][]): Partial<PathLayer> {
     if (points.length < 2) {
-        throw new Error('Cannot transform points with less than 2 points');
+        throw new Error(
+            `Invalid input: expected at least 2 points, but received ${points.length}`,
+        );
     }
 
     let left = Number.POSITIVE_INFINITY;
