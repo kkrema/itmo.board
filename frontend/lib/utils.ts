@@ -55,6 +55,14 @@ export function colorToCss(color: Color) {
     return `#${red}${green}${blue}`;
 }
 
+export const parseColor = (color: string): Color => {
+    const hex = color.slice(1); // Remove '#' from color value
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return { r: r, g: g, b: b };
+}
+
 export function findIntersectingLayersWithRectangle(
     layerIds: readonly string[],
     layers: ReadonlyMap<string, Layer>,
