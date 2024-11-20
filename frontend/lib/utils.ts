@@ -46,8 +46,10 @@ export function getSvgPathFromStroke(stroke: number[][]) {
     return pathData.join(' ');
 }
 
-export function colorToCss(color: Color){
-    return `#${color.r.toString(16).padStart(2,"0")}${color.g.toString(16).padStart(2, "0")}${color.b.toString(16).padStart(2,"0")}`
+export function colorToCss(color: Color) {
+    return `#${color.r.toString(16).padStart(2, '0')}${color.g
+        .toString(16)
+        .padStart(2, '0')}${color.b.toString(16).padStart(2, '0')}`;
 }
 
 export const parseColor = (color: string): Color => {
