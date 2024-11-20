@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Color } from "@/types/canvas";
-import { memo } from "react";
-import { ColorPicker } from "./ColorPicker";
+import { Color } from '@/types/canvas';
+import { memo } from 'react';
+import { ColorPicker } from './ColorPicker';
 
 interface SelectionToolsProps {
     setLastUsedColor: (color: Color) => void;
@@ -19,15 +19,14 @@ export const SelectionTools = memo(
             <div
                 className="absolute p-3 rounded-xl bg-white shadow-sm border flex select-none"
                 style={{
-                    top: "65px",
-                    right: "8px",
+                    top: '65px',
+                    right: '8px',
                 }}
             >
                 <ColorPicker onChange={setFill} />
-
             </div>
         );
-    }
+    },
 );
 
-SelectionTools.displayName = "SelectionTools";
+SelectionTools.displayName = 'SelectionTools';

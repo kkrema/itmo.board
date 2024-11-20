@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
 import {
@@ -20,8 +20,8 @@ import {
 } from '@/lib/utils';
 import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
 import { nanoid } from 'nanoid';
-import { SelectionTools } from "./SelectionTools";
-import { StylesButton } from "./StylesButton";
+import { SelectionTools } from './SelectionTools';
+import { StylesButton } from './StylesButton';
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -70,7 +70,6 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         g: 0,
         b: 0,
     });
-
 
     // Determine if any tool is active
     const isAnyToolActive = useMemo(() => {
@@ -541,9 +540,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 moveBackward={handleMoveBackward}
             />
             {editable && isAnyToolActive && showSelectionTools && (
-                <SelectionTools
-                    setLastUsedColor={setLastUsedColor}
-                />
+                <SelectionTools setLastUsedColor={setLastUsedColor} />
             )}
             <svg
                 data-testid="svg-element"

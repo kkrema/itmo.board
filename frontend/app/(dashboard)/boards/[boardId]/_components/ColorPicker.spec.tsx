@@ -5,9 +5,10 @@ import '@testing-library/jest-dom';
 
 // Mock Input component properly with forwardRef
 jest.mock('@/components/ui/Input', () => {
-    const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-        (props, ref) => <input ref={ref} data-testid="color-input" {...props} />,
-    );
+    const Input = forwardRef<
+        HTMLInputElement,
+        React.InputHTMLAttributes<HTMLInputElement>
+    >((props, ref) => <input ref={ref} data-testid="color-input" {...props} />);
     Input.displayName = 'Input'; // Add displayName for ESLint compliance
     return { Input };
 });

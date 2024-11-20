@@ -1,5 +1,5 @@
-import React, { FC, useRef } from "react";
-import {colorToCss} from "@/lib/utils";
+import React, { FC, useRef } from 'react';
+import { colorToCss } from '@/lib/utils';
 
 interface StylesButtonProps {
     id: string;
@@ -8,7 +8,12 @@ interface StylesButtonProps {
     className?: string;
 }
 
-export const StylesButton: FC<StylesButtonProps> = ({ id, activeColor, onClick, className }) => {
+export const StylesButton: FC<StylesButtonProps> = ({
+    id,
+    activeColor,
+    onClick,
+    className,
+}) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null);
 
     return (

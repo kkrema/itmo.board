@@ -1,29 +1,27 @@
 'use client';
 
-import React, {useRef, useState} from 'react';
-import { colorToCss, parseColor } from "@/lib/utils";
+import React, { useRef, useState } from 'react';
+import { colorToCss, parseColor } from '@/lib/utils';
 import { Color } from '@/types/canvas';
-import { Plus } from "lucide-react";
-import { Input } from "@/components/ui/Input";
+import { Plus } from 'lucide-react';
+import { Input } from '@/components/ui/Input';
 
 interface ColorPickerProps {
     onChange: (color: Color) => void;
 }
 
-export const ColorPicker = ({
-                                onChange
-                            }: ColorPickerProps) => {
+export const ColorPicker = ({ onChange }: ColorPickerProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [inputColor, setInputColor] = useState('#2563eb');
 
     const modernColors = [
-        { r: 0, g: 188, b: 212 },  // Cyan
-        { r: 255, g: 145, b: 77 },   // Orange
-        { r: 0, g: 150, b: 136 },   // Teal
-        { r: 33, g: 150, b: 243 },  // Blue
-        { r: 244, g: 67, b: 54 },    // Red
-        { r: 0, g: 0, b: 0 },       // Black
-        { r: 255, g: 255, b: 255 },  // White
+        { r: 0, g: 188, b: 212 }, // Cyan
+        { r: 255, g: 145, b: 77 }, // Orange
+        { r: 0, g: 150, b: 136 }, // Teal
+        { r: 33, g: 150, b: 243 }, // Blue
+        { r: 244, g: 67, b: 54 }, // Red
+        { r: 0, g: 0, b: 0 }, // Black
+        { r: 255, g: 255, b: 255 }, // White
     ];
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,12 +31,10 @@ export const ColorPicker = ({
 
     const handleButtonClick = () => {
         inputRef.current?.click();
-    }
+    };
 
     return (
-        <div
-            className="flex flex-wrap gap-2 items-center max-w-[164px] pr-2 mr-2 border-r border-neutral-200"
-        >
+        <div className="flex flex-wrap gap-2 items-center max-w-[164px] pr-2 mr-2 border-r border-neutral-200">
             {modernColors.map((color, index) => (
                 <ColorButton key={index} color={color} onClick={onChange} />
             ))}
@@ -54,11 +50,10 @@ export const ColorPicker = ({
                     value={inputColor}
                     onChange={handleInputChange}
                 />
-                <Plus className="h-5 w-5 text-white font-bold"/>
-
+                <Plus className="h-5 w-5 text-white font-bold" />
             </button>
         </div>
-    )
+    );
 };
 
 interface ColorButtonProps {
@@ -66,10 +61,7 @@ interface ColorButtonProps {
     color: Color;
 }
 
-const ColorButton = ({
-                         onClick,
-                         color
-                     }: ColorButtonProps) => {
+const ColorButton = ({ onClick, color }: ColorButtonProps) => {
     return (
         <button
             className="h-8 w-8 items-center flex justify-center hover:opacity-75 transition"
@@ -80,5 +72,5 @@ const ColorButton = ({
                 style={{ background: colorToCss(color) }}
             />
         </button>
-    )
-}
+    );
+};
