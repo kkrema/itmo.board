@@ -1,12 +1,13 @@
 import React from 'react';
 import { render, fireEvent, RenderResult } from '@testing-library/react';
-import { Path, PathProps } from './Path';
-import { getSvgPathFromStroke } from '@/lib/utils';
+import { getStrokeOptions, Path, PathProps } from './Path';
+import { getSvgPathFromStroke, optimizeStroke } from '@/lib/utils';
 import { getStroke } from 'perfect-freehand';
 import '@testing-library/jest-dom';
 
 jest.mock('@/lib/utils', () => ({
     getSvgPathFromStroke: jest.fn(),
+    optimizeStroke: jest.fn(),
 }));
 
 jest.mock('perfect-freehand', () => ({
@@ -16,6 +17,7 @@ jest.mock('perfect-freehand', () => ({
 describe('Path Component', () => {
     const mockGetSvgPathFromStroke = getSvgPathFromStroke as jest.Mock;
     const mockGetStroke = getStroke as jest.Mock;
+    const mockOptimizeStroke = optimizeStroke as jest.Mock;
 
     const defaultProps = {
         x: 0,
@@ -31,7 +33,7 @@ describe('Path Component', () => {
     const mockSvgPath = 'M0,0 L10,10 L20,20';
 
     beforeEach(() => {
-        mockGetStroke.mockReturnValue(mockStrokeData);
+        mockOptimizeStroke.mockReturnValue(mockStrokeData);
         mockGetSvgPathFromStroke.mockReturnValue(mockSvgPath);
     });
 
@@ -69,12 +71,10 @@ describe('Path Component', () => {
     test('calls getStroke with correct arguments', () => {
         renderPath();
 
-        expect(mockGetStroke).toHaveBeenCalledWith(defaultProps.points, {
-            size: 4,
-            thinning: 0.5,
-            smoothing: 0.5,
-            streamline: 0.5,
-        });
+        expect(mockGetStroke).toHaveBeenCalledWith(
+            defaultProps.points,
+            getStrokeOptions,
+        );
     });
 
     test('calls getSvgPathFromStroke with the result of getStroke', () => {

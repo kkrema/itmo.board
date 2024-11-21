@@ -12,7 +12,8 @@ import {
     Point,
 } from '@/types/canvas';
 import {
-    cn, colorToCss,
+    cn,
+    colorToCss,
     findIntersectingLayersWithRectangle,
     penPointsToPathLayer,
     pointerEventToCanvasPoint,
@@ -209,11 +210,25 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
 
     const continueDrawing = useCallback(
         (point: Point) => {
+            const roundedPoint = [
+                Number(point.x.toFixed(4)),
+                Number(point.y.toFixed(4)),
+            ];
             setPencilDraft((draft) => {
-                if (draft) {
-                    return [...draft, [point.x, point.y]];
+                if (draft && draft.length > 0) {
+                    const lastPoint = draft[draft.length - 1];
+                    const dx = roundedPoint[0] - lastPoint[0];
+                    const dy = roundedPoint[1] - lastPoint[1];
+                    const distanceSquared = dx * dx + dy * dy;
+                    const threshold = 0.001;
+
+                    if (distanceSquared > threshold) {
+                        return [...draft, roundedPoint];
+                    } else {
+                        return draft;
+                    }
                 } else {
-                    return [[point.x, point.y]];
+                    return [roundedPoint];
                 }
             });
         },

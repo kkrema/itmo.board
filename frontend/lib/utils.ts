@@ -30,19 +30,72 @@ export function pointerEventToCanvasPoint(
     return { x, y };
 }
 
-export function getSvgPathFromStroke(stroke: number[][]) {
+export function optimizeStroke(
+    stroke: number[][],
+    precision: number = 4,
+    threshold: number = 0.001,
+): number[][] {
+    if (stroke.length === 0) return [];
+    const optimized: number[][] = [];
+    const thresholdSquared = threshold * threshold;
+
+    const roundPoint = (point: number[]): number[] => [
+        Number(point[0].toFixed(precision)),
+        Number(point[1].toFixed(precision)),
+    ];
+
+    let [lastAddedX, lastAddedY] = roundPoint(stroke[0]);
+    optimized.push([lastAddedX, lastAddedY]);
+
+    for (let i = 1; i < stroke.length; i++) {
+        const [x, y] = roundPoint(stroke[i]);
+
+        const dx = x - lastAddedX;
+        const dy = y - lastAddedY;
+        const distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared > thresholdSquared) {
+            optimized.push([x, y]);
+            lastAddedX = x;
+            lastAddedY = y;
+        }
+    }
+    return optimized;
+}
+
+export function getSvgPathFromStroke(stroke: number[][]): string {
     const len = stroke.length;
     if (len === 0) return '';
 
-    const pathData = ['M', ...stroke[0], 'Q'];
+    // Calculate the size needed for the pathData array:
+    // 'M', x, y, 'Q', followed by (x, y, midX, midY) for each point, and 'Z' to close the path
+    // 'M', x, y, 'Q', 'Z' = 5
+    const pathData = new Array(len * 4 + 5);
+    let currIndex = 0;
+
+    pathData[currIndex++] = 'M';
+    pathData[currIndex++] = stroke[0][0];
+    pathData[currIndex++] = stroke[0][1];
+    pathData[currIndex++] = 'Q';
 
     for (let i = 0; i < len; i++) {
-        const [x0, y0] = stroke[i];
-        const [x1, y1] = stroke[(i + 1) % len];
-        pathData.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+        const current = stroke[i];
+        const next = stroke[i + 1] || stroke[0]; // Wrap around to the first point if at the end
+
+        const currentX = current[0];
+        const currentY = current[1];
+        const nextX = next[0];
+        const nextY = next[1];
+
+        pathData[currIndex++] = currentX;
+        pathData[currIndex++] = currentY;
+
+        pathData[currIndex++] = (currentX + nextX) / 2;
+        pathData[currIndex++] = (currentY + nextY) / 2;
     }
 
-    pathData.push('Z');
+    pathData[currIndex++] = 'Z';
+
     return pathData.join(' ');
 }
 
@@ -117,21 +170,10 @@ export function penPointsToPathLayer(points: number[][]): Partial<PathLayer> {
         const [x, y] = point;
 
         // limit the range
-        if (left > x) {
-            left = x;
-        }
-
-        if (top > y) {
-            top = y;
-        }
-
-        if (right < x) {
-            right = x;
-        }
-
-        if (bottom < y) {
-            bottom = y;
-        }
+        if (x < left) left = x;
+        if (y < top) top = y;
+        if (x > right) right = x;
+        if (y > bottom) bottom = y;
     }
 
     return {
