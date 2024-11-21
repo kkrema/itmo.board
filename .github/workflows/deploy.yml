@@ -1,0 +1,30 @@
+name: Deploy to Remote Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the latest code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: SSH into the remote server and run commands
+      - name: Deploy to SSH server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }} # The IP address of the remote server
+          port: ${{ secrets.SSH_PORT }} # Specific port for SSH connection
+          username: ${{ secrets.SSH_USERNAME }} # Username for the SSH connection
+          key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH private key stored in GitHub Secrets
+          script: |
+            cd /home/service/itmo.board
+            git pull origin main
+            cd ../  # Pull the latest changes from the main branch
+            sudo docker compose down   # Stop the running Docker containers
+            sudo docker compose up -d --no-deps --build # Start the Docker containers in detached mode
