@@ -1,33 +1,71 @@
-// ColorPicker.spec.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
+import React, { forwardRef } from 'react';
+import { render, fireEvent, screen } from '@testing-library/react';
+import { ColorPicker } from './ColorPicker';
 import '@testing-library/jest-dom';
-import ColorPicker from './ColorPicker';
+
+// Mock Input component properly with forwardRef
+jest.mock('@/components/ui/Input', () => {
+    const Input = forwardRef<
+        HTMLInputElement,
+        React.InputHTMLAttributes<HTMLInputElement>
+    >((props, ref) => <input ref={ref} data-testid="color-input" {...props} />);
+    Input.displayName = 'Input'; // Add displayName for ESLint compliance
+    return { Input };
+});
+
+// Mock utility functions
+jest.mock('@/lib/utils', () => ({
+    colorToCss: jest.fn(({ r, g, b }) => `rgb(${r}, ${g}, ${b})`),
+    parseColor: jest.fn((color: string) => {
+        if (color === '#000000') return { r: 0, g: 0, b: 0 };
+        if (color === '#ffffff') return { r: 255, g: 255, b: 255 };
+        return null;
+    }),
+}));
 
 describe('ColorPicker Component', () => {
-    const defaultColor = '#ff0000';
-    const onChangeMock = jest.fn();
+    const mockOnChangeAction = jest.fn();
 
-    beforeEach(() => {
+    afterEach(() => {
         jest.clearAllMocks();
     });
 
-    test('renders color picker with default color', () => {
-        render(<ColorPicker color={defaultColor} onChange={onChangeMock} />);
-
-        const colorInput = screen.getByDisplayValue(defaultColor);
-        expect(colorInput).toBeInTheDocument();
-        expect(colorInput).toHaveAttribute('type', 'color');
-        expect(colorInput).toHaveClass('color-picker');
+    it('renders modern color buttons', () => {
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
+        const buttons = screen.getAllByRole('button');
+        expect(buttons).toHaveLength(8); // 7 modern colors + custom color picker button
     });
 
-    test('calls onChange with correct color when color changes', () => {
-        render(<ColorPicker color={defaultColor} onChange={onChangeMock} />);
+    it('calls onChangeAction when a modern color is clicked', () => {
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
+        const colorButtons = screen.getAllByRole('button');
+        fireEvent.click(colorButtons[0]); // Click the first modern color button
+        expect(mockOnChangeAction).toHaveBeenCalledTimes(1);
+        expect(mockOnChangeAction).toHaveBeenCalledWith({
+            r: 0,
+            g: 188,
+            b: 212,
+        }); // Cyan
+    });
 
-        const newColor = '#00ff00';
-        const colorInput = screen.getByDisplayValue(defaultColor);
+    it('triggers input click when the gradient button is clicked', () => {
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
+        const gradientButton = screen.getByTitle('Choose your color');
+        const inputElement = screen.getByTestId('color-input');
 
-        // Simulate changing color in the color input
-        fireEvent.change(colorInput, { target: { value: newColor } });
-        expect(onChangeMock).toHaveBeenCalledWith(newColor);
+        // Mock the click behavior
+        const clickSpy = jest.spyOn(inputElement, 'click');
+        fireEvent.click(gradientButton);
+
+        expect(clickSpy).toHaveBeenCalled();
+    });
+
+    it('updates the color when a custom color is selected', () => {
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
+        const inputElement = screen.getByTestId('color-input');
+
+        fireEvent.change(inputElement, { target: { value: '#000000' } });
+
+        expect(mockOnChangeAction).toHaveBeenCalledWith({ r: 0, g: 0, b: 0 });
     });
 });

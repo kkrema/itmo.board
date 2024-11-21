@@ -47,13 +47,18 @@ export function getSvgPathFromStroke(stroke: number[][]) {
 }
 
 export function colorToCss(color: Color) {
-    const toHex = (value: number) => value.toString(16).padStart(2, '0');
-    const red = toHex(color.r);
-    const green = toHex(color.g);
-    const blue = toHex(color.b);
-
-    return `#${red}${green}${blue}`;
+    return `#${color.r.toString(16).padStart(2, '0')}${color.g
+        .toString(16)
+        .padStart(2, '0')}${color.b.toString(16).padStart(2, '0')}`;
 }
+
+export const parseColor = (color: string): Color => {
+    const hex = color.slice(1); // Remove '#' from color value
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return { r: r, g: g, b: b };
+};
 
 export function findIntersectingLayersWithRectangle(
     layerIds: readonly string[],

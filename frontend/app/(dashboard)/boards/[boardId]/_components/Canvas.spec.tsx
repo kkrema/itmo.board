@@ -27,7 +27,7 @@ jest.mock('./LayerPreview', () => ({
 }));
 
 jest.mock('@/lib/utils', () => ({
-    cn: (...args: string[]) => args.filter(Boolean).join(' '),
+    cn: jest.fn((...args: string[]) => args.filter(Boolean).join(' ')),
     pointerEventToCanvasPoint: jest.fn((e, camera, scale) => ({
         x: (e.clientX - camera.x) / scale,
         y: (e.clientY - camera.y) / scale,
@@ -42,6 +42,7 @@ jest.mock('@/lib/utils', () => ({
         width: 150,
         height: 150,
     })),
+    colorToCss: jest.fn((color) => `#${color.r}${color.g}${color.b}`),
 }));
 
 jest.mock('nanoid', () => ({
