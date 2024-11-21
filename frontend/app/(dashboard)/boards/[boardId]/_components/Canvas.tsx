@@ -12,7 +12,7 @@ import {
     Point,
 } from '@/types/canvas';
 import {
-    cn,
+    cn, colorToCss,
     findIntersectingLayersWithRectangle,
     penPointsToPathLayer,
     pointerEventToCanvasPoint,
@@ -65,7 +65,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         getLayers,
     } = useCanvasStore();
 
-    const [, setLastUsedColor] = useState<Color>({
+    const [lastUsedColor, setLastUsedColor] = useState<Color>({
         r: 0,
         g: 0,
         b: 0,
@@ -116,7 +116,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                         y: position.y,
                         height: 100,
                         width: 100,
-                        fill: { r: 0, g: 0, b: 0 },
+                        fill: lastUsedColor,
                     };
                     // more will be added
                     break;
@@ -128,7 +128,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             setSelection([id]);
             setCanvasState({ mode: CanvasMode.None });
         },
-        [addLayer, setSelection],
+        [addLayer, lastUsedColor],
     );
 
     const translateSelectedLayers = useCallback(
@@ -227,12 +227,12 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 id,
                 type: LayerType.Path,
                 ...penPointsToPathLayer(pencilDraft),
-                fill: { r: 0, g: 0, b: 0 }, // TODO: Set fill color
+                fill: lastUsedColor,
             } as PathLayer;
             addLayer(newLayer);
         }
         setPencilDraft(null);
-    }, [pencilDraft, addLayer]);
+    }, [pencilDraft, lastUsedColor, addLayer]);
 
     const startDrawing = useCallback(
         (point: Point) => {
@@ -523,7 +523,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             <div className="absolute top-2 right-2 flex items-center gap-2">
                 <StylesButton
                     id="styles-button"
-                    activeColor={{ r: 0, g: 0, b: 0 }}
+                    activeColor={lastUsedColor}
                     onClick={toggleSelectionTools} // Use toggleSelectionTools to control visibility
                     className="h-12 w-30 bg-white rounded-md shadow-md flex items-center justify-center"
                 />
@@ -571,7 +571,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                             points={pencilDraft
                                 .map((point) => point.join(','))
                                 .join(' ')}
-                            stroke="black"
+                            stroke={colorToCss(lastUsedColor)}
                             fill="none"
                             strokeWidth={2}
                             strokeDasharray="4 2" // Dashed line for distinction
