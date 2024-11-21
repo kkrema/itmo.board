@@ -427,20 +427,29 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     }, [removeLayers, selection]);
 
     const [copiedLayers, setCopiedLayers] = useState<Layer[]>([]);
+    const [pasteCount, setPasteCount] = useState(0);
 
     const copyLayers = useCallback(() => {
         const layersToCopy = getLayers(selection);
-        setCopiedLayers(
-            layersToCopy.map((layer) => ({ ...layer, id: nanoid() })),
-        );
+        setCopiedLayers(layersToCopy);
+        setPasteCount(0);
     }, [getLayers, selection]);
 
     const pasteLayers = useCallback(() => {
-        copiedLayers.forEach((layer) => {
-            addLayer({ ...layer, x: layer.x + 10, y: layer.y + 10 });
-        });
-        setSelection(copiedLayers.map((layer) => layer.id));
-    }, [addLayer, copiedLayers]);
+        const offset = 10 * (pasteCount + 1);
+        const newLayers = copiedLayers.map((layer) => ({
+            ...layer,
+            id: nanoid(),
+            x: layer.x + offset,
+            y: layer.y + offset,
+        }));
+
+        newLayers.forEach((newLayer) => addLayer(newLayer));
+
+        const newLayerIds = newLayers.map((layer) => layer.id);
+        setSelection(newLayerIds);
+        setPasteCount((prevCount) => prevCount + 1);
+    }, [addLayer, copiedLayers, pasteCount]);
 
     const selectAllLayers = useCallback(() => {
         setSelection([...layerIds]);
