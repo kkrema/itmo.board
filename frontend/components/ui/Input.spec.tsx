@@ -2,16 +2,14 @@ import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { Input } from '@/components/ui/Input';
+import { defaultClasses, Input } from '@/components/ui/Input';
 
 describe('Input Component', () => {
     test('renders an input element with default properties', () => {
         render(<Input />);
         const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        expect(input).toHaveClass(
-            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
-        );
+        expect(input).toHaveClass(defaultClasses);
     });
 
     test('applies custom className', () => {
