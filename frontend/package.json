@@ -23,7 +23,7 @@
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
-    "@sentry/nextjs": "^8.39.0",
+    "@rollbar/react": "^0.12.0-beta",
     "@uidotdev/usehooks": "^2.4.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -34,6 +34,7 @@
     "query-string": "^9.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "rollbar": "^2.26.4",
     "swiper": "^11.1.14",
     "tailwind-merge": "^2.5.4",
     "zustand": "^5.0.1"
