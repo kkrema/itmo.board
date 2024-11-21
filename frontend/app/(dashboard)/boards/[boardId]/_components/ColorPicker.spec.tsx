@@ -24,28 +24,32 @@ jest.mock('@/lib/utils', () => ({
 }));
 
 describe('ColorPicker Component', () => {
-    const mockOnChange = jest.fn();
+    const mockOnChangeAction = jest.fn();
 
     afterEach(() => {
         jest.clearAllMocks();
     });
 
     it('renders modern color buttons', () => {
-        render(<ColorPicker onChange={mockOnChange} />);
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
         const buttons = screen.getAllByRole('button');
         expect(buttons).toHaveLength(8); // 7 modern colors + custom color picker button
     });
 
-    it('calls onChange when a modern color is clicked', () => {
-        render(<ColorPicker onChange={mockOnChange} />);
+    it('calls onChangeAction when a modern color is clicked', () => {
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
         const colorButtons = screen.getAllByRole('button');
         fireEvent.click(colorButtons[0]); // Click the first modern color button
-        expect(mockOnChange).toHaveBeenCalledTimes(1);
-        expect(mockOnChange).toHaveBeenCalledWith({ r: 0, g: 188, b: 212 }); // Cyan
+        expect(mockOnChangeAction).toHaveBeenCalledTimes(1);
+        expect(mockOnChangeAction).toHaveBeenCalledWith({
+            r: 0,
+            g: 188,
+            b: 212,
+        }); // Cyan
     });
 
     it('triggers input click when the gradient button is clicked', () => {
-        render(<ColorPicker onChange={mockOnChange} />);
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
         const gradientButton = screen.getByTitle('Choose your color');
         const inputElement = screen.getByTestId('color-input');
 
@@ -57,11 +61,11 @@ describe('ColorPicker Component', () => {
     });
 
     it('updates the color when a custom color is selected', () => {
-        render(<ColorPicker onChange={mockOnChange} />);
+        render(<ColorPicker onChangeAction={mockOnChangeAction} />);
         const inputElement = screen.getByTestId('color-input');
 
         fireEvent.change(inputElement, { target: { value: '#000000' } });
 
-        expect(mockOnChange).toHaveBeenCalledWith({ r: 0, g: 0, b: 0 });
+        expect(mockOnChangeAction).toHaveBeenCalledWith({ r: 0, g: 0, b: 0 });
     });
 });

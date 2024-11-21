@@ -10,20 +10,21 @@ interface SelectionToolsProps {
 }
 
 export const SelectionTools = memo(
-    ({ setLastUsedColor }: SelectionToolsProps) => {
+    ({ setLastUsedColor, className = '' }: SelectionToolsProps) => {
         const setFill = (fill: Color) => {
             setLastUsedColor(fill);
         };
 
         return (
             <div
-                className="absolute p-3 rounded-xl bg-white shadow-sm border flex select-none"
+                data-testid="selection-tools-container"
+                className={`absolute p-3 rounded-xl bg-white shadow-sm border flex select-none ${className}`}
                 style={{
                     top: '65px',
                     right: '8px',
                 }}
             >
-                <ColorPicker onChange={setFill} />
+                <ColorPicker onChangeAction={setFill} />
             </div>
         );
     },
