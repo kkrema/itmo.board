@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { LayerPreview } from './LayerPreview';
 import {
@@ -32,6 +38,27 @@ interface CanvasProps {
 }
 
 const Canvas: React.FC<CanvasProps> = ({ edit }) => {
+    const svgRef = useRef<SVGSVGElement>(null);
+    const [svgRect, setSvgRect] = useState<DOMRect | null>(null);
+
+    useEffect(() => {
+        if (svgRef.current) {
+            setSvgRect(svgRef.current.getBoundingClientRect());
+        }
+
+        const handleResize = () => {
+            if (svgRef.current) {
+                setSvgRect(svgRef.current.getBoundingClientRect());
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
     const [showSelectionTools, setShowSelectionTools] = useState(false);
 
     const [editable, setEditable] = useState(false);
@@ -89,18 +116,20 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         );
     }, [canvasState]);
 
-    // Adjust toggleSelectionTools function
-    const toggleSelectionTools = () => {
+    const toggleSelectionTools = useCallback(() => {
         if (isAnyToolActive) {
             setShowSelectionTools((prev) => !prev);
         }
-    };
+    }, [isAnyToolActive]);
 
     // Map of layer IDs to selection colors
-    const layerIdsToColorSelection: Record<string, string> = {};
-    selection.forEach((layerId) => {
-        layerIdsToColorSelection[layerId] = 'blue';
-    });
+    const layerIdsToColorSelection = useMemo(() => {
+        const mapping: Record<string, string> = {};
+        selection.forEach((layerId) => {
+            mapping[layerId] = 'blue';
+        });
+        return mapping;
+    }, [selection]);
 
     const insertLayer = useCallback(
         (layerType: LayerType, position: { x: number; y: number }) => {
@@ -189,6 +218,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         [editable, getLayers, layerIds],
     );
 
+    // Start multi-selection if pointer moved sufficiently
     const startMultiSelection = useCallback(
         (current: Point, origin: Point) => {
             if (!editable) return;
@@ -208,32 +238,29 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         [editable],
     );
 
-    const continueDrawing = useCallback(
-        (point: Point) => {
-            const roundedPoint = [
-                Number(point.x.toFixed(4)),
-                Number(point.y.toFixed(4)),
-            ];
-            setPencilDraft((draft) => {
-                if (draft && draft.length > 0) {
-                    const lastPoint = draft[draft.length - 1];
-                    const dx = roundedPoint[0] - lastPoint[0];
-                    const dy = roundedPoint[1] - lastPoint[1];
-                    const distanceSquared = dx * dx + dy * dy;
-                    const threshold = 0.001;
+    const continueDrawing = useCallback((point: Point) => {
+        const roundedPoint = [
+            Number(point.x.toFixed(4)),
+            Number(point.y.toFixed(4)),
+        ];
+        setPencilDraft((draft) => {
+            if (draft && draft.length > 0) {
+                const lastPoint = draft[draft.length - 1];
+                const dx = roundedPoint[0] - lastPoint[0];
+                const dy = roundedPoint[1] - lastPoint[1];
+                const distanceSquared = dx * dx + dy * dy;
+                const threshold = 0.001;
 
-                    if (distanceSquared > threshold) {
-                        return [...draft, roundedPoint];
-                    } else {
-                        return draft;
-                    }
+                if (distanceSquared > threshold * threshold) {
+                    return [...draft, roundedPoint];
                 } else {
-                    return [roundedPoint];
+                    return draft;
                 }
-            });
-        },
-        [setPencilDraft],
-    );
+            } else {
+                return [roundedPoint];
+            }
+        });
+    }, []);
 
     const insertPath = useCallback(() => {
         if (pencilDraft && pencilDraft.length > 1) {
@@ -249,12 +276,9 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         setPencilDraft(null);
     }, [pencilDraft, lastUsedColor, addLayer]);
 
-    const startDrawing = useCallback(
-        (point: Point) => {
-            setPencilDraft([[point.x, point.y]]);
-        },
-        [setPencilDraft],
-    );
+    const startDrawing = useCallback((point: Point) => {
+        setPencilDraft([[point.x, point.y]]);
+    }, []);
 
     const resizeSelectedLayers = useCallback(
         (currentPoint: Point) => {
@@ -308,7 +332,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
 
     const onPointerDown = useCallback(
         (e: React.PointerEvent) => {
-            const point = pointerEventToCanvasPoint(e, camera, scale);
+            const point = pointerEventToCanvasPoint(e, camera, scale, svgRect);
             if (canvasState.mode === CanvasMode.Inserting) {
                 return;
             }
@@ -332,14 +356,14 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 setCanvasState({ mode: CanvasMode.Pressing, origin: point });
             }
         },
-        [camera, canvasState, scale, startDrawing],
+        [camera, canvasState, scale, startDrawing, svgRect],
     );
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent) => {
             if (!editable) return;
             e.stopPropagation();
-            const point = pointerEventToCanvasPoint(e, camera, scale);
+            const point = pointerEventToCanvasPoint(e, camera, scale, svgRect);
 
             if (canvasState.mode === CanvasMode.Pressing) {
                 startMultiSelection(point, canvasState.origin);
@@ -362,6 +386,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             editable,
             camera,
             scale,
+            svgRect,
             canvasState,
             isPanning,
             startMultiSelection,
@@ -377,7 +402,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             setIsPanning(false);
-            const point = pointerEventToCanvasPoint(e, camera, scale);
+            const point = pointerEventToCanvasPoint(e, camera, scale, svgRect);
             if (
                 canvasState.mode === CanvasMode.None ||
                 canvasState.mode === CanvasMode.Pressing
@@ -404,6 +429,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             insertPath,
             pencilDraft,
             scale,
+            svgRect,
             unselectLayers,
         ],
     );
@@ -422,10 +448,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 return;
             }
             e.stopPropagation();
-            e.currentTarget = document.querySelector(
-                'svg[data-testid="svg-element"]',
-            ) as SVGSVGElement;
-            const point = pointerEventToCanvasPoint(e, camera, scale);
+            const point = pointerEventToCanvasPoint(e, camera, scale, svgRect);
 
             const isSelected = selection.includes(layerId);
             const newSelection = isSelected ? selection : [layerId];
@@ -433,7 +456,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             // Start translating
             setCanvasState({ mode: CanvasMode.Translating, current: point });
         },
-        [canvasState, editable, camera, scale, selection],
+        [canvasState, editable, camera, scale, svgRect, selection],
     );
 
     const deleteLayers = useCallback(() => {
@@ -516,10 +539,6 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         };
     }, [copyLayers, pasteLayers, deleteLayers, selectAllLayers, editable]);
 
-    const handleDeleteSelected = () => {
-        deleteLayers();
-    };
-
     const handleMoveToFront = () => {
         console.log('Move to front');
     };
@@ -557,7 +576,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 canvasState={canvasState}
                 setCanvasState={setCanvasState}
                 editable={editable}
-                deleteSelected={handleDeleteSelected}
+                deleteSelected={deleteLayers}
                 moveToFront={handleMoveToFront}
                 moveToBack={handleMoveToBack}
                 moveForward={handleMoveForward}
@@ -567,6 +586,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 <SelectionTools setLastUsedColor={setLastUsedColor} />
             )}
             <svg
+                ref={svgRef}
                 data-testid="svg-element"
                 className="h-[100vh] w-[100vw]"
                 onWheel={onWheel}

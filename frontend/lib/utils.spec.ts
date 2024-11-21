@@ -100,7 +100,12 @@ describe('Utility Functions', () => {
             const camera: Camera = { x: 50, y: 50 };
             const scale = 2;
 
-            const result = pointerEventToCanvasPoint(event, camera, scale);
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                scale,
+                boundingRect,
+            );
             // Calculation:
             // screenX = 150 - 100 = 50
             // screenY = 200 - 100 = 100
@@ -129,7 +134,12 @@ describe('Utility Functions', () => {
             const camera: Camera = { x: 50, y: 50 };
             const scale = 2;
 
-            const result = pointerEventToCanvasPoint(event, camera, scale);
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                scale,
+                boundingRect,
+            );
             // screenX = 80 - 100 = -20
             // screenY = 90 - 100 = -10
             // x = (-20 - 50) / 2 = -35
@@ -155,7 +165,12 @@ describe('Utility Functions', () => {
 
             const event = createPointerEvent(clientX, clientY, boundingRect);
             const camera: Camera = { x: 50, y: 50 };
-            const result = pointerEventToCanvasPoint(event, camera, MIN_ZOOM);
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                MIN_ZOOM,
+                boundingRect,
+            );
 
             // Calculation:
             // screenX = 150 - 100 = 50
@@ -165,7 +180,12 @@ describe('Utility Functions', () => {
 
             expect(result).toEqual({ x: 0, y: 500 });
 
-            const result2 = pointerEventToCanvasPoint(event, camera, MAX_ZOOM);
+            const result2 = pointerEventToCanvasPoint(
+                event,
+                camera,
+                MAX_ZOOM,
+                boundingRect,
+            );
 
             // Calculation:
             // x = (50 - 50) / 20 = 0

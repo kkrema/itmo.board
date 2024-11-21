@@ -19,14 +19,14 @@ export function pointerEventToCanvasPoint(
     e: React.PointerEvent,
     camera: Camera,
     scale: number,
+    svgRect: DOMRect | null,
 ): Point {
-    const svg = e.currentTarget as SVGSVGElement;
-    const rect = svg.getBoundingClientRect();
-    const screenX = e.clientX - rect.left;
-    const screenY = e.clientY - rect.top;
+    if (!svgRect) {
+        return { x: 0, y: 0 };
+    }
 
-    const x = (screenX - camera.x) / scale;
-    const y = (screenY - camera.y) / scale;
+    const x = (e.clientX - svgRect.left - camera.x) / scale;
+    const y = (e.clientY - svgRect.top - camera.y) / scale;
     return { x, y };
 }
 
