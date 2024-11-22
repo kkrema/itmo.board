@@ -29,6 +29,7 @@ import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar'
 import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';
+import { Grid } from '@/app/(dashboard)/boards/[boardId]/_components/Grid';
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -557,10 +558,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
 
     return (
         <main
-            className={cn(
-                'h-full w-full relative bg-neutral-100 touch-none',
-                "bg-[url('/graph-paper.svg')] bg-opacity-20 bg-white",
-            )}
+            className={cn('h-full w-full relative bg-neutral-100 touch-none')}
         >
             {/* Container for aligning buttons in the top-right corner */}
             <div className="absolute top-2 right-2 flex items-center gap-2">
@@ -596,6 +594,15 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 onPointerUp={onPointerUp}
                 tabIndex={0}
             >
+                {/* Render the dynamic grid */}
+                {svgRect && (
+                    <Grid
+                        camera={camera}
+                        scale={scale}
+                        width={svgRect.width}
+                        height={svgRect.height}
+                    />
+                )}
                 <g
                     data-testid="svg-group"
                     transform={`translate(${camera.x}, ${camera.y}) scale(${scale})`}
