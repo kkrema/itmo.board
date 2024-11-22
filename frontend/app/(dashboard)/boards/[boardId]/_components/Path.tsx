@@ -1,5 +1,6 @@
 import { getSvgPathFromStroke, optimizeStroke } from '@/lib/utils';
 import { getStroke } from 'perfect-freehand';
+import { memo, useMemo } from 'react';
 
 export interface PathProps {
     x: number;
@@ -17,31 +18,30 @@ export const getStrokeOptions = {
     streamline: 0.5,
 };
 
-export const Path = ({
-    x,
-    y,
-    points,
-    fill,
-    onPointerDown,
-    stroke,
-}: PathProps) => {
-    const strokePath = getSvgPathFromStroke(
-        optimizeStroke(getStroke(points, getStrokeOptions)),
-    );
+export const Path = memo(
+    ({ x, y, points, fill, onPointerDown, stroke }: PathProps) => {
+        const strokePath = useMemo(() => {
+            const stroke = getStroke(points, getStrokeOptions);
+            const optimizedStroke = optimizeStroke(stroke);
+            return getSvgPathFromStroke(optimizedStroke);
+        }, [points]);
 
-    return (
-        <path
-            className="drop-shadow-md"
-            onPointerDown={onPointerDown}
-            d={strokePath}
-            style={{
-                transform: `translate(${x}px, ${y}px)`,
-            }}
-            x={x}
-            y={y}
-            fill={fill}
-            stroke={stroke}
-            strokeWidth={1}
-        />
-    );
-};
+        return (
+            <path
+                className="drop-shadow-md"
+                onPointerDown={onPointerDown}
+                d={strokePath}
+                style={{
+                    transform: `translate(${x}px, ${y}px)`,
+                }}
+                x={x}
+                y={y}
+                fill={fill}
+                stroke={stroke}
+                strokeWidth={1}
+            />
+        );
+    },
+);
+
+Path.displayName = 'Path';

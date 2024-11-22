@@ -366,21 +366,32 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             e.stopPropagation();
             const point = pointerEventToCanvasPoint(e, camera, scale, svgRect);
 
-            if (canvasState.mode === CanvasMode.Pressing) {
-                startMultiSelection(point, canvasState.origin);
-            } else if (canvasState.mode === CanvasMode.SelectionNet) {
-                updateSelectionNet(point, canvasState.origin);
-            } else if (canvasState.mode === CanvasMode.Translating) {
-                translateSelectedLayers(point);
-            } else if (canvasState.mode === CanvasMode.Resizing) {
-                resizeSelectedLayers(point);
-            } else if (canvasState.mode === CanvasMode.Pencil) {
-                if (pencilDraft) continueDrawing(point);
-            } else if (isPanning) {
-                const dx = e.clientX - lastPointerPosition.x;
-                const dy = e.clientY - lastPointerPosition.y;
-                setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-                setLastPointerPosition({ x: e.clientX, y: e.clientY });
+            switch (canvasState.mode) {
+                case CanvasMode.Pressing:
+                    startMultiSelection(point, canvasState.origin);
+                    break;
+                case CanvasMode.SelectionNet:
+                    updateSelectionNet(point, canvasState.origin);
+                    break;
+                case CanvasMode.Translating:
+                    translateSelectedLayers(point);
+                    break;
+                case CanvasMode.Resizing:
+                    resizeSelectedLayers(point);
+                    break;
+                case CanvasMode.Pencil:
+                    if (pencilDraft) continueDrawing(point);
+                    break;
+                default:
+                    if (isPanning) {
+                        const dx = e.clientX - lastPointerPosition.x;
+                        const dy = e.clientY - lastPointerPosition.y;
+                        setCamera((prev) => ({
+                            x: prev.x + dx,
+                            y: prev.y + dy,
+                        }));
+                        setLastPointerPosition({ x: e.clientX, y: e.clientY });
+                    }
             }
         },
         [

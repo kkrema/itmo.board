@@ -2,7 +2,10 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { Grid, GridProps, STROKE_STYLES } from './Grid';
 import '@testing-library/jest-dom';
-import { MAX_ZOOM, MIN_ZOOM } from '@/app/(dashboard)/boards/[boardId]/_components/Canvas';
+import {
+    MAX_ZOOM,
+    MIN_ZOOM,
+} from '@/app/(dashboard)/boards/[boardId]/_components/Canvas';
 
 jest.mock('nanoid', () => ({
     nanoid: () => 'nanoid',
@@ -105,8 +108,10 @@ describe('Grid Component', () => {
             const stroke = line.getAttribute('stroke');
             const strokeWidth = line.getAttribute('stroke-width');
 
-            const validStrokes = STROKE_STYLES.map(style => style.stroke);
-            const validStrokeWidths = STROKE_STYLES.map(style => style.strokeWidth.toString());
+            const validStrokes = STROKE_STYLES.map((style) => style.stroke);
+            const validStrokeWidths = STROKE_STYLES.map((style) =>
+                style.strokeWidth.toString(),
+            );
 
             expect(validStrokes).toContain(stroke);
             expect(validStrokeWidths).toContain(strokeWidth);
@@ -172,7 +177,9 @@ describe('Grid Component', () => {
             const strokeWidth = group.getAttribute('stroke-width');
 
             const matchingStyle = STROKE_STYLES.find(
-                (style) => style.stroke === stroke && style.strokeWidth.toString() === strokeWidth
+                (style) =>
+                    style.stroke === stroke &&
+                    style.strokeWidth.toString() === strokeWidth,
             );
 
             expect(matchingStyle).toBeDefined();
