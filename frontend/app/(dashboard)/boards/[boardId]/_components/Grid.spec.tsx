@@ -40,9 +40,10 @@ describe('Grid Component', () => {
 
         const lines = container.querySelectorAll('line');
         // Expected levels: 1000, 500, 100, 50, 10
-        // One vertical and one horizontal line for levels 1000, 500, 100, 50
-        // 2 vertical and 2 horizontal lines for level 10
-        expect(lines.length).toBe(12);
+        // 1 vertical and 1 horizontal line for level 1000
+        // levels 500, 100, 50 have repeated lines -> 0 lines
+        // 1 vertical and 1 horizontal lines for level 10
+        expect(lines.length).toBe(4);
     });
 
     it('does not render grid levels that are too dense', () => {
@@ -60,9 +61,9 @@ describe('Grid Component', () => {
         // (level) => level * scale
         // minGridSpacing = 10
         // 1000 => 1000 * 0.1 = 100 ---> 2 lines
-        // 500 => 500 * 0.1 = 50 ---> 2 lines
-        // 100 => 100 * 0.1 = 10 ---> 4 lines
-        expect(lines.length).toBe(8);
+        // 500 => 500 * 0.1 = 50 ---> 2 lines (repeated)
+        // 100 => 100 * 0.1 = 10 ---> 4 lines (2 not repeated)
+        expect(lines.length).toBe(4);
     });
 
     it('renders all applicable grid levels when scale allows', () => {
@@ -80,13 +81,13 @@ describe('Grid Component', () => {
         // (level) => level * scale
         // minGridSpacing = 10
         // 1000 => 1000 * 20 = 20000 ---> 2 lines
-        // 500 => 500 * 20 = 10000 ---> 2 lines
-        // 100 => 100 * 20 = 2000 ---> 2 lines
-        // 50 => 50 * 20 = 1000 ---> 2 lines
-        // 10 => 10 * 20 = 200 ---> 2 lines
-        // 5 => 5 * 20 = 100 ---> 2 lines
-        // 1 => 1 * 20 = 20 ---> 2 lines
-        expect(lines.length).toBe(14);
+        // 500 => 500 * 20 = 10000 ---> 2 lines (repeated)
+        // 100 => 100 * 20 = 2000 ---> 2 lines (repeated)
+        // 50 => 50 * 20 = 1000 ---> 2 lines (repeated)
+        // 10 => 10 * 20 = 200 ---> 2 lines (repeated)
+        // 5 => 5 * 20 = 100 ---> 2 lines (repeated)
+        // 1 => 1 * 20 = 20 ---> 2 lines (repeated)
+        expect(lines.length).toBe(2);
     });
 
     it('grid lines have correct stroke and strokeWidth attributes', () => {

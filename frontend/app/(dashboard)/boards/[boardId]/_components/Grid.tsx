@@ -38,6 +38,8 @@ export const Grid: React.FC<GridProps> = memo(
             const y0 = (0 - camera.y) / scale;
             const y1 = (height - camera.y) / scale;
 
+            const usedX = new Set<number>();
+            const usedY = new Set<number>();
             GRID_LEVELS.forEach((gridSize) => {
                 const gridSpacingInPixels = gridSize * scale;
                 if (gridSpacingInPixels < MIN_GRID_SPACING) {
@@ -53,6 +55,10 @@ export const Grid: React.FC<GridProps> = memo(
 
                 const verticalLines = [];
                 for (let x = xStart; x <= x1; x += gridSize) {
+                    if (usedX.has(x)) {
+                        continue;
+                    }
+                    usedX.add(x);
                     const xScreen = x * scale + camera.x;
                     verticalLines.push(
                         <line
@@ -69,6 +75,10 @@ export const Grid: React.FC<GridProps> = memo(
 
                 const horizontalLines = [];
                 for (let y = yStart; y <= y1; y += gridSize) {
+                    if (usedY.has(y)) {
+                        continue;
+                    }
+                    usedY.add(y);
                     const yScreen = y * scale + camera.y;
                     horizontalLines.push(
                         <line
