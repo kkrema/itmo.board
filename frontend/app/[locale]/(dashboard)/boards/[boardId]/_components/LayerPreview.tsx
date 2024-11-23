@@ -5,7 +5,7 @@ import { LayerType } from '@/types/canvas';
 import { colorToCss } from '@/lib/utils';
 import { Path } from './Path';
 import { useCanvasStore } from '@/store/useCanvasStore';
-import {Rectangle} from "@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle";
+import { Rectangle } from "@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle";
 
 interface LayerPreviewProps {
     id: string;

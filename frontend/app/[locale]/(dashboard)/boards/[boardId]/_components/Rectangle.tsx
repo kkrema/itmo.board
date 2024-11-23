@@ -1,5 +1,5 @@
-import {RectangleLayer} from "@/types/canvas";
-import {colorToCss} from "@/lib/utils";
+import { RectangleLayer } from '@/types/canvas';
+import { colorToCss } from '@/lib/utils';
 
 interface RectangleProps {
     id: string;
@@ -9,13 +9,12 @@ interface RectangleProps {
 }
 
 export const Rectangle = ({
-                              id,
-                              layer,
-                              onPointerDown,
-                              selectionColor,
-                          }: RectangleProps) => {
-
-    const {x, y, width, height, fill} = layer;
+    id,
+    layer,
+    onPointerDown,
+    selectionColor,
+}: RectangleProps) => {
+    const { x, y, width, height, fill } = layer;
 
     return (
         <svg>
@@ -30,8 +29,8 @@ export const Rectangle = ({
                 width={width}
                 height={height}
                 strokeWidth={1}
-                fill={fill ? colorToCss(fill) : "#000"}
-                stroke={selectionColor || "transparent"}
+                fill={fill ? colorToCss(fill) : '#000'}
+                stroke={selectionColor || 'transparent'}
             />
         </svg>
     );

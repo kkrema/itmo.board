@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { Rectangle } from './Rectangle';
-import {LayerType, RectangleLayer} from "@/types/canvas";
+import { LayerType, RectangleLayer } from '@/types/canvas';
 import '@testing-library/jest-dom';
 
 const mockLayer: RectangleLayer = {
@@ -23,7 +23,7 @@ test('renders rectangle with correct props', () => {
             layer={mockLayer}
             onPointerDown={mockOnPointerDown}
             selectionColor="blue"
-        />
+        />,
     );
 
     const rectElement = container.querySelector('rect');
