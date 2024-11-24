@@ -125,4 +125,4 @@ export const enum CanvasMode {
     Pencil,
 }
 
-export type Layer = RectangleLayer | EllipseLayer | PathLayer;
+export type Layer = RectangleLayer | EllipseLayer | NoteLayer | PathLayer;
