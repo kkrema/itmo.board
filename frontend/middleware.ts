@@ -1,6 +1,6 @@
-import { authMiddleware } from "@clerk/nextjs";
+import { authMiddleware } from '@clerk/nextjs';
 
-import createMiddleware from "next-intl/middleware";
+import createMiddleware from 'next-intl/middleware';
 import { routing } from '@/i18n/routing';
 
 const intlMiddleware = createMiddleware(routing);

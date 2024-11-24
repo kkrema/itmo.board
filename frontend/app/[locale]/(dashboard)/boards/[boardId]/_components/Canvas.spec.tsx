@@ -49,33 +49,36 @@ jest.mock('nanoid', () => ({
     nanoid: () => 'nanoid',
 }));
 
-jest.mock('@/app/[locale]/(dashboard)/boards/[boardId]/_components/Toolbar', () => ({
-    ToolBar: ({
-        setCanvasState,
-    }: {
-        setCanvasState: (newState: CanvasState) => void;
-    }) => (
-        <div>
-            <button
-                data-testid="insert-rectangle-button"
-                onClick={() =>
-                    setCanvasState({
-                        mode: CanvasMode.Inserting,
-                        layerType: LayerType.Rectangle,
-                    })
-                }
-            >
-                Insert Rectangle
-            </button>
-            <button
-                data-testid="pencil-tool-button"
-                onClick={() => setCanvasState({ mode: CanvasMode.Pencil })}
-            >
-                Pencil Tool
-            </button>
-        </div>
-    ),
-}));
+jest.mock(
+    '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Toolbar',
+    () => ({
+        ToolBar: ({
+            setCanvasState,
+        }: {
+            setCanvasState: (newState: CanvasState) => void;
+        }) => (
+            <div>
+                <button
+                    data-testid="insert-rectangle-button"
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Rectangle,
+                        })
+                    }
+                >
+                    Insert Rectangle
+                </button>
+                <button
+                    data-testid="pencil-tool-button"
+                    onClick={() => setCanvasState({ mode: CanvasMode.Pencil })}
+                >
+                    Pencil Tool
+                </button>
+            </div>
+        ),
+    }),
+);
 
 describe('Canvas Component', () => {
     const defaultStore = {
