@@ -25,7 +25,7 @@ import {
     pointerEventToCanvasPoint,
     resizeBounds,
 } from '@/lib/utils';
-import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
+import { ToolBar } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Toolbar';
 import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';

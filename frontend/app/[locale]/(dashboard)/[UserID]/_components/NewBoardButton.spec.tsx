@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { NewBoardButton } from '@/app/(dashboard)/[UserID]/_components/NewBoardButton';
+import { NewBoardButton } from '@/app/[locale]/(dashboard)/[UserID]/_components/NewBoardButton';
 import '@testing-library/jest-dom';
 
 describe('NewBoardButton Component', () => {

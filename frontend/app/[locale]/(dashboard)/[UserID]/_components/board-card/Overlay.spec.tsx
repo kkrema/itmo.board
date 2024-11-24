@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Overlay } from '@/app/(dashboard)/[UserID]/_components/board-card/Overlay';
+import { Overlay } from '@/app/[locale]/(dashboard)/[UserID]/_components/board-card/Overlay';
 
 describe('Overlay Component', () => {
     test('renders with default classes', () => {

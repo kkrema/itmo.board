@@ -1,4 +1,3 @@
-// app/page.tsx
 import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { Loader } from 'lucide-react';

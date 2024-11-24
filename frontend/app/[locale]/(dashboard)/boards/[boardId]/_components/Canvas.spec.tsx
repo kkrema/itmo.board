@@ -49,7 +49,7 @@ jest.mock('nanoid', () => ({
     nanoid: () => 'nanoid',
 }));
 
-jest.mock('@/app/(dashboard)/boards/[boardId]/_components/Toolbar', () => ({
+jest.mock('@/app/[locale]/(dashboard)/boards/[boardId]/_components/Toolbar', () => ({
     ToolBar: ({
         setCanvasState,
     }: {

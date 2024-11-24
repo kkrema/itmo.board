@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { Navbar } from '@/app/(dashboard)/[UserID]/_components/Navbar';
+import { Navbar } from '@/app/[locale]/(dashboard)/[UserID]/_components/Navbar';
 import { useOrganization } from '@clerk/nextjs';
 import '@testing-library/jest-dom';
 
