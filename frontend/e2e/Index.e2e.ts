@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+test.setTimeout(30_000);
+
 test('should log in and access page', async ({ page }) => {
     const username = process.env.TEST_USERNAME;
     const password = process.env.TEST_PASSWORD;
