@@ -1,8 +1,8 @@
 import { Kalam } from "next/font/google";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
-
 import { NoteLayer } from "@/types/canvas";
-import { cn, colorToCss, getContrastingTextColor} from "@/lib/utils";
+import { cn, colorToCss, getContrastingTextColor } from "@/lib/utils";
+import { useState, useCallback } from "react";
 
 const font = Kalam({
     subsets: ["latin"],
@@ -27,7 +27,6 @@ interface NoteProps {
     layer: NoteLayer;
     onPointerDown: (e: React.PointerEvent, id: string) => void;
     selectionColor?: string;
-    updateNoteValue?: (id: string, newValue: string) => void;
 }
 
 export const Note = ({
@@ -35,15 +34,14 @@ export const Note = ({
                          onPointerDown,
                          id,
                          selectionColor,
-                         updateNoteValue,
                      }: NoteProps) => {
     const { x, y, width, height, fill, value } = layer;
 
-    const handleContentChange = (e: ContentEditableEvent) => {
-        if (updateNoteValue) {
-            updateNoteValue(id, e.target.value);
-        }
-    }
+    const [noteValue, setNoteValue] = useState(value || "Text");
+
+    const handleContentChange = useCallback((e: ContentEditableEvent) => {
+        setNoteValue(e.target.value);
+    }, []);
 
     return (
         <foreignObject
@@ -59,7 +57,7 @@ export const Note = ({
             className="shadow-md drop-shadow-xl p-5"
         >
             <ContentEditable
-                html={value || "Text" || ""}
+                html={noteValue}
                 onChange={handleContentChange}
                 className={cn(
                     "h-full w-full flex flex-col items-center justify-center text-center outline-none",
