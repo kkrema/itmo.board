@@ -42,35 +42,11 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const [svgRect, setSvgRect] = useState<DOMRect | null>(null);
 
-    useEffect(() => {
-        if (svgRef.current) {
-            setSvgRect(svgRef.current.getBoundingClientRect());
-        }
-
-        const handleResize = () => {
-            if (svgRef.current) {
-                setSvgRect(svgRef.current.getBoundingClientRect());
-            }
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
-
     const [showSelectionTools, setShowSelectionTools] = useState(false);
-
     const [editable, setEditable] = useState(false);
-
-    useEffect(() => {
-        if (edit !== false) setEditable(true); // later will depend on user permissions
-    }, [edit]);
 
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
     const [scale, setScale] = useState(1);
-
     const [isPanning, setIsPanning] = useState(false);
     const [lastPointerPosition, setLastPointerPosition] = useState({
         x: 0,
@@ -99,6 +75,28 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         g: 0,
         b: 0,
     });
+
+    useEffect(() => {
+        if (svgRef.current) {
+            setSvgRect(svgRef.current.getBoundingClientRect());
+        }
+
+        const handleResize = () => {
+            if (svgRef.current) {
+                setSvgRect(svgRef.current.getBoundingClientRect());
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (edit !== false) setEditable(true); // later will depend on user permissions
+    }, [edit]);
 
     // Determine if any tool is active
     const isAnyToolActive = useMemo(() => {
