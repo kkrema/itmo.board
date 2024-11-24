@@ -3,6 +3,8 @@ import {
     colorToCss,
     findIntersectingLayersWithRectangle,
     getSvgPathFromStroke,
+    optimizeStroke,
+    parseColor,
     penPointsToPathLayer,
     pointerEventToCanvasPoint,
     resizeBounds,
@@ -98,7 +100,12 @@ describe('Utility Functions', () => {
             const camera: Camera = { x: 50, y: 50 };
             const scale = 2;
 
-            const result = pointerEventToCanvasPoint(event, camera, scale);
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                scale,
+                boundingRect,
+            );
             // Calculation:
             // screenX = 150 - 100 = 50
             // screenY = 200 - 100 = 100
@@ -127,7 +134,12 @@ describe('Utility Functions', () => {
             const camera: Camera = { x: 50, y: 50 };
             const scale = 2;
 
-            const result = pointerEventToCanvasPoint(event, camera, scale);
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                scale,
+                boundingRect,
+            );
             // screenX = 80 - 100 = -20
             // screenY = 90 - 100 = -10
             // x = (-20 - 50) / 2 = -35
@@ -153,7 +165,12 @@ describe('Utility Functions', () => {
 
             const event = createPointerEvent(clientX, clientY, boundingRect);
             const camera: Camera = { x: 50, y: 50 };
-            const result = pointerEventToCanvasPoint(event, camera, MIN_ZOOM);
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                MIN_ZOOM,
+                boundingRect,
+            );
 
             // Calculation:
             // screenX = 150 - 100 = 50
@@ -163,13 +180,154 @@ describe('Utility Functions', () => {
 
             expect(result).toEqual({ x: 0, y: 500 });
 
-            const result2 = pointerEventToCanvasPoint(event, camera, MAX_ZOOM);
+            const result2 = pointerEventToCanvasPoint(
+                event,
+                camera,
+                MAX_ZOOM,
+                boundingRect,
+            );
 
             // Calculation:
             // x = (50 - 50) / 20 = 0
             // y = (100 - 50) / 20 = 2.5
 
             expect(result2).toEqual({ x: 0, y: 2.5 });
+        });
+    });
+
+    describe('optimizeStroke', () => {
+        it('should return an empty array when the input stroke is empty', () => {
+            const stroke: number[][] = [];
+            const result = optimizeStroke(stroke);
+            expect(result).toEqual([]);
+        });
+
+        it('should return the same single point when the stroke has only one point', () => {
+            const stroke: number[][] = [[10.12345, 20.67891]];
+            const expected: number[][] = [[10.1235, 20.6789]]; // Rounded to 4 decimal places
+            const result = optimizeStroke(stroke);
+            expect(result).toEqual(expected);
+        });
+
+        it('should include all points when all points are beyond the threshold', () => {
+            const stroke: number[][] = [
+                [0, 0],
+                [1, 1],
+                [2, 2],
+                [3, 3],
+            ];
+            const result = optimizeStroke(stroke, 2, 0.5);
+            expect(result).toEqual([
+                [0.0, 0.0],
+                [1.0, 1.0],
+                [2.0, 2.0],
+                [3.0, 3.0],
+            ]);
+        });
+
+        it('should remove consecutive points that are within the threshold', () => {
+            const stroke: number[][] = [
+                [0, 0],
+                [0.0005, 0.0005],
+                [1, 1],
+                [1.0004, 1.0004],
+                [2, 2],
+            ];
+            const result = optimizeStroke(stroke, 4, 0.001);
+            expect(result).toEqual([
+                [0.0, 0.0],
+                [1.0, 1.0],
+                [2.0, 2.0],
+            ]);
+        });
+
+        it('should correctly handle precision by rounding points', () => {
+            const stroke: number[][] = [
+                [10.123456, 20.654321],
+                [10.123455, 20.65432],
+                [10.123457, 20.654322],
+            ];
+            const result = optimizeStroke(stroke, 5, 0.0001);
+            expect(result).toEqual([[10.12346, 20.65432]]);
+        });
+
+        it('should respect the threshold parameter correctly', () => {
+            const stroke: number[][] = [
+                [0, 0],
+                [0.5, 0.5],
+                [1, 1],
+                [1.5, 1.5],
+                [2, 2],
+            ];
+            const resultHighThreshold = optimizeStroke(stroke, 3, 1.0);
+            expect(resultHighThreshold).toEqual([
+                [0.0, 0.0],
+                [1.0, 1.0],
+                [2.0, 2.0],
+            ]);
+
+            const resultLowThreshold = optimizeStroke(stroke, 3, 0.49999);
+            expect(resultLowThreshold).toEqual([
+                [0.0, 0.0],
+                [0.5, 0.5],
+                [1.0, 1.0],
+                [1.5, 1.5],
+                [2.0, 2.0],
+            ]);
+        });
+
+        it('should handle strokes with varying distances between points', () => {
+            const stroke: number[][] = [
+                [0, 0],
+                [0.0001, 0.0001],
+                [0.002, 0.002],
+                [0.005, 0.005],
+                [0.01, 0.01],
+            ];
+            const result = optimizeStroke(stroke, 4, 0.001);
+            expect(result).toEqual([
+                [0.0, 0.0],
+                [0.002, 0.002],
+                [0.005, 0.005],
+                [0.01, 0.01],
+            ]);
+        });
+
+        it('should ensure the first point is always included', () => {
+            const stroke: number[][] = [
+                [5, 5],
+                [5.0001, 5.0001],
+                [10, 10],
+            ];
+            const result = optimizeStroke(stroke, 4, 0.001);
+            expect(result[0]).toEqual([5.0, 5.0]);
+        });
+
+        it('should work correctly with different precision settings', () => {
+            const stroke: number[][] = [
+                [1.123456, 2.654321],
+                [1.123457, 2.654322],
+                [1.123458, 2.654323],
+            ];
+            const resultPrecision3 = optimizeStroke(stroke, 3, 0.001);
+            expect(resultPrecision3).toEqual([[1.123, 2.654]]);
+
+            const resultPrecision2 = optimizeStroke(stroke, 2, 0.001);
+            expect(resultPrecision2).toEqual([[1.12, 2.65]]);
+        });
+
+        it('should handle threshold zero by including all rounded points', () => {
+            const stroke: number[][] = [
+                [0, 0],
+                [0.0001, 0.0001],
+                [1, 1],
+            ];
+            const result = optimizeStroke(stroke, 4, 0);
+            expect(result).toEqual([
+                [0.0, 0.0],
+                [0.0001, 0.0001],
+                [1.0, 1.0],
+            ]);
         });
     });
 
@@ -222,6 +380,83 @@ describe('Utility Functions', () => {
                 'M 10 20 Q 10 20 7.5 30 5 40 27.5 50 50 60 60 70 70 80 40 50 Z',
             );
         });
+
+        it('should handle strokes with negative coordinates', () => {
+            const stroke = [
+                [-10, -20],
+                [-30, -40],
+                [-50, -60],
+            ];
+            const result = getSvgPathFromStroke(stroke);
+            expect(result).toBe(
+                'M -10 -20 Q -10 -20 -20 -30 -30 -40 -40 -50 -50 -60 -30 -40 Z',
+            );
+        });
+
+        it('should handle strokes with decimal coordinates', () => {
+            const stroke = [
+                [10.5, 20.5],
+                [30.25, 40.75],
+                [50.125, 60.875],
+            ];
+            const result = getSvgPathFromStroke(stroke);
+            expect(result).toBe(
+                'M 10.5 20.5 Q 10.5 20.5 20.375 30.625 30.25 40.75 40.1875 50.8125 50.125 60.875 30.3125 40.6875 Z',
+            );
+        });
+
+        it('should handle strokes that loop back to the starting point', () => {
+            const stroke = [
+                [0, 0],
+                [100, 0],
+                [100, 100],
+                [0, 100],
+                [0, 0],
+            ];
+            const result = getSvgPathFromStroke(stroke);
+            expect(result).toBe(
+                'M 0 0 Q 0 0 50 0 100 0 100 50 100 100 50 100 0 100 0 50 0 0 0 0 Z',
+            );
+        });
+
+        it('should handle strokes with colinear points', () => {
+            const stroke = [
+                [0, 0],
+                [50, 50],
+                [100, 100],
+            ];
+            const result = getSvgPathFromStroke(stroke);
+            expect(result).toBe(
+                'M 0 0 Q 0 0 25 25 50 50 75 75 100 100 50 50 Z',
+            );
+        });
+
+        it('should handle large number of points efficiently', () => {
+            const stroke: number[][] = [];
+            for (let i = 0; i <= 1000; i++) {
+                stroke.push([i, i]);
+            }
+            const result = getSvgPathFromStroke(stroke);
+            // Since all points are in a straight line, the path should reflect that
+            expect(result.startsWith('M 0 0 Q')).toBe(true);
+            expect(result.endsWith('Z')).toBe(true);
+            // Optionally, verify the length or specific segments
+            expect(result.split(' ').length).toBe(4 + 1001 * 4 + 1);
+        });
+
+        it('should handle strokes with overlapping points', () => {
+            const stroke = [
+                [10, 10],
+                [10, 10],
+                [20, 20],
+                [20, 20],
+                [30, 30],
+            ];
+            const result = getSvgPathFromStroke(stroke);
+            expect(result).toBe(
+                'M 10 10 Q 10 10 10 10 10 10 15 15 20 20 20 20 20 20 25 25 30 30 20 20 Z',
+            );
+        });
     });
 
     describe('colorToCss', () => {
@@ -247,6 +482,77 @@ describe('Utility Functions', () => {
             const color: Color = { r: 255, g: 255, b: 255 };
             const result = colorToCss(color);
             expect(result).toBe('#ffffff');
+        });
+    });
+
+    describe('parseColor', () => {
+        it('should correctly parse black color', () => {
+            const color: string = '#000000';
+            const expected: Color = { r: 0, g: 0, b: 0 };
+            const result = parseColor(color);
+            expect(result).toEqual(expected);
+        });
+
+        it('should correctly parse white color', () => {
+            const color: string = '#ffffff';
+            const expected: Color = { r: 255, g: 255, b: 255 };
+            const result = parseColor(color);
+            expect(result).toEqual(expected);
+        });
+
+        it('should correctly parse orange color with uppercase letters', () => {
+            const color: string = '#FFA500';
+            const expected: Color = { r: 255, g: 165, b: 0 };
+            const result = parseColor(color);
+            expect(result).toEqual(expected);
+        });
+
+        it('should correctly parse mixed case colors', () => {
+            const color: string = '#AbCdEf';
+            const expected: Color = { r: 171, g: 205, b: 239 };
+            const result = parseColor(color);
+            expect(result).toEqual(expected);
+        });
+
+        it('should correctly parse arbitrary color "#123456"', () => {
+            const color: string = '#123456';
+            const expected: Color = { r: 18, g: 52, b: 86 };
+            const result = parseColor(color);
+            expect(result).toEqual(expected);
+        });
+
+        // Invalid Inputs
+
+        it('should return NaN for red component if hex is invalid', () => {
+            const color: string = '#GGGGGG';
+            const result = parseColor(color);
+            expect(result.r).toBeNaN();
+            expect(result.g).toBeNaN();
+            expect(result.b).toBeNaN();
+        });
+
+        it('should return partial NaN values for partially invalid hex', () => {
+            const color: string = '#12G455';
+            const result = parseColor(color);
+            expect(result.r).toBe(18); // '12' => 18
+            expect(result.g).toBeNaN(); // 'G4' => NaN
+            expect(result.b).toBe(85); // '55' => 85
+        });
+
+        it('should handle empty string', () => {
+            const color: string = '';
+            const result = parseColor(color);
+            expect(result.r).toBeNaN();
+            expect(result.g).toBeNaN();
+            expect(result.b).toBeNaN();
+        });
+
+        it('should handle string with only "#"', () => {
+            const color: string = '#';
+            const result = parseColor(color);
+            expect(result.r).toBeNaN();
+            expect(result.g).toBeNaN();
+            expect(result.b).toBeNaN();
         });
     });
 
@@ -534,15 +840,12 @@ describe('Utility Functions', () => {
             const corner = Side.Left | Side.Right;
             const point: Point = { x: 40, y: 60 };
 
-            // According to the implementation, both Left and Right are handled
             // Left:
             // x = min(40, 50 + 100) = 40
             // width = |50 + 100 - 40| = 110
             // Right:
             // x = min(40, 50) = 40
             // width = |50 - 40| = 10
-            // The last operation would overwrite the width to 10
-            // But this might not be intended. Possibly, the test should check implementation.
 
             const result = resizeBounds(bounds, corner, point);
             expect(result).toEqual({

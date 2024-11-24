@@ -1,4 +1,4 @@
-import { getSvgPathFromStroke } from '@/lib/utils';
+import { getSvgPathFromStroke, optimizeStroke } from '@/lib/utils';
 import { getStroke } from 'perfect-freehand';
 
 export interface PathProps {
@@ -10,6 +10,13 @@ export interface PathProps {
     stroke?: string;
 }
 
+export const getStrokeOptions = {
+    size: 4,
+    thinning: 0.5,
+    smoothing: 1,
+    streamline: 0.5,
+};
+
 export const Path = ({
     x,
     y,
@@ -19,12 +26,7 @@ export const Path = ({
     stroke,
 }: PathProps) => {
     const strokePath = getSvgPathFromStroke(
-        getStroke(points, {
-            size: 4,
-            thinning: 0.5,
-            smoothing: 0.5,
-            streamline: 0.5,
-        }),
+        optimizeStroke(getStroke(points, getStrokeOptions)),
     );
 
     return (

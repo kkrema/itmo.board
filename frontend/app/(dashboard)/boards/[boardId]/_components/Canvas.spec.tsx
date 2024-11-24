@@ -630,5 +630,22 @@ describe('Canvas Component', () => {
                 expect(layerElement).toHaveStyle('border-color: blue');
             });
         });
+
+        it('should not do anything on random key press', () => {
+            const layerIds = ['layer1', 'layer2', 'layer3'];
+            const storeOverrides = {
+                layerIds,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+
+            // Random key press
+            fireEvent.keyDown(window, { key: 'k' });
+
+            // Verify that no layer is selected
+            layerIds.forEach((id) => {
+                const layerElement = getByTestId(`layer-preview-${id}`);
+                expect(layerElement).not.toHaveStyle('border-color: blue');
+            });
+        });
     });
 });
