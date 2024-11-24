@@ -44,30 +44,32 @@ export const Note = ({
     }, []);
 
     return (
-        <foreignObject
-            x={x}
-            y={y}
-            width={width}
-            height={height}
-            onPointerDown={(e) => onPointerDown(e, id)}
-            style={{
-                outline: selectionColor ? `1px solid ${selectionColor}` : "none",
-                backgroundColor: fill ? colorToCss(fill) : "#000",
-            }}
-            className="shadow-md drop-shadow-xl p-5"
-        >
-            <ContentEditable
-                html={noteValue}
-                onChange={handleContentChange}
-                className={cn(
-                    "h-full w-full flex flex-col items-center justify-center text-center outline-none",
-                    font.className
-                )}
+        <svg>
+            <foreignObject
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                onPointerDown={(e) => onPointerDown(e, id)}
                 style={{
-                    fontSize: calculateFontSize(width, height),
-                    color: fill ? getContrastingTextColor(fill) : "#000",
+                    outline: selectionColor ? `1px solid ${selectionColor}` : "none",
+                    backgroundColor: fill ? colorToCss(fill) : "#000",
                 }}
-            />
-        </foreignObject>
+                className="shadow-md drop-shadow-xl p-5"
+            >
+                <ContentEditable
+                    html={noteValue}
+                    onChange={handleContentChange}
+                    className={cn(
+                        "h-full w-full flex flex-col items-center justify-center text-center outline-none",
+                        font.className
+                    )}
+                    style={{
+                        fontSize: calculateFontSize(width, height),
+                        color: fill ? getContrastingTextColor(fill) : "#000",
+                    }}
+                />
+            </foreignObject>
+        </svg>
     )
 }
