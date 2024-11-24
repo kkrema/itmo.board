@@ -14,7 +14,7 @@ export default async function LocaleLayout({
     params,
 }: {
     children: ReactNode;
-    params: { locale: string };
+    params: Promise<{ locale: string }>;
 }) {
     const { locale } = await params;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
