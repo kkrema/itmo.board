@@ -29,6 +29,7 @@ export type RectangleLayer = {
 };
 
 export type EllipseLayer = {
+    id: string;
     type: LayerType.Ellipse;
     x: number;
     y: number;
@@ -113,4 +114,4 @@ export const enum CanvasMode {
     Pencil,
 }
 
-export type Layer = RectangleLayer | PathLayer;
+export type Layer = RectangleLayer | EllipseLayer | PathLayer;
