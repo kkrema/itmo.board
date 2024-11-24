@@ -39,6 +39,17 @@ export type EllipseLayer = {
     value?: string;
 };
 
+export type NoteLayer = {
+    id: string;
+    type: LayerType.Note;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
+
 export type PathLayer = {
     id: string;
     type: LayerType.Path;
