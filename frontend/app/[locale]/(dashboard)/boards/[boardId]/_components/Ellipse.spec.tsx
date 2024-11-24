@@ -35,4 +35,3 @@ test('renders ellipse with correct props', () => {
     expect(ellipseElement).toHaveAttribute('fill', '#ffffff');
     expect(ellipseElement).toHaveAttribute('stroke', 'blue');
 });
-
