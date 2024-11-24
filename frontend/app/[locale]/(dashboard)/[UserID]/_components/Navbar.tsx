@@ -22,7 +22,7 @@ export const Navbar = () => {
 
     return (
         <div className="flex items-center gap-x-4 p-5">
-            <Link href="/frontend/public">
+            <Link href="/">
                 <div className="flex items-center gap-x-2">
                     <span
                         className={cn('font-semibold text-2xl', font.className)}
