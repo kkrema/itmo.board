@@ -29,6 +29,7 @@ import { ToolBar } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components
 import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';
+import { Grid } from '@/app/(dashboard)/boards/[boardId]/_components/Grid';
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -363,21 +364,32 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             e.stopPropagation();
             const point = pointerEventToCanvasPoint(e, camera, scale, svgRect);
 
-            if (canvasState.mode === CanvasMode.Pressing) {
-                startMultiSelection(point, canvasState.origin);
-            } else if (canvasState.mode === CanvasMode.SelectionNet) {
-                updateSelectionNet(point, canvasState.origin);
-            } else if (canvasState.mode === CanvasMode.Translating) {
-                translateSelectedLayers(point);
-            } else if (canvasState.mode === CanvasMode.Resizing) {
-                resizeSelectedLayers(point);
-            } else if (canvasState.mode === CanvasMode.Pencil) {
-                if (pencilDraft) continueDrawing(point);
-            } else if (isPanning) {
-                const dx = e.clientX - lastPointerPosition.x;
-                const dy = e.clientY - lastPointerPosition.y;
-                setCamera((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-                setLastPointerPosition({ x: e.clientX, y: e.clientY });
+            switch (canvasState.mode) {
+                case CanvasMode.Pressing:
+                    startMultiSelection(point, canvasState.origin);
+                    break;
+                case CanvasMode.SelectionNet:
+                    updateSelectionNet(point, canvasState.origin);
+                    break;
+                case CanvasMode.Translating:
+                    translateSelectedLayers(point);
+                    break;
+                case CanvasMode.Resizing:
+                    resizeSelectedLayers(point);
+                    break;
+                case CanvasMode.Pencil:
+                    if (pencilDraft) continueDrawing(point);
+                    break;
+                default:
+                    if (isPanning) {
+                        const dx = e.clientX - lastPointerPosition.x;
+                        const dy = e.clientY - lastPointerPosition.y;
+                        setCamera((prev) => ({
+                            x: prev.x + dx,
+                            y: prev.y + dy,
+                        }));
+                        setLastPointerPosition({ x: e.clientX, y: e.clientY });
+                    }
             }
         },
         [
@@ -555,10 +567,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
 
     return (
         <main
-            className={cn(
-                'h-full w-full relative bg-neutral-100 touch-none',
-                "bg-[url('/graph-paper.svg')] bg-opacity-20 bg-white",
-            )}
+            className={cn('h-full w-full relative bg-neutral-100 touch-none')}
         >
             {/* Container for aligning buttons in the top-right corner */}
             <div className="absolute top-2 right-2 flex items-center gap-2">
@@ -594,6 +603,15 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 onPointerUp={onPointerUp}
                 tabIndex={0}
             >
+                {/* Render the dynamic grid */}
+                {svgRect && (
+                    <Grid
+                        camera={camera}
+                        scale={scale}
+                        width={svgRect.width}
+                        height={svgRect.height}
+                    />
+                )}
                 <g
                     data-testid="svg-group"
                     transform={`translate(${camera.x}, ${camera.y}) scale(${scale})`}

@@ -39,10 +39,14 @@ export function optimizeStroke(
     const optimized: number[][] = [];
     const thresholdSquared = threshold * threshold;
 
-    const roundPoint = (point: number[]): number[] => [
-        Number(point[0].toFixed(precision)),
-        Number(point[1].toFixed(precision)),
-    ];
+    const factor = 10 ** precision;
+    const roundPoint = (point: number[]): number[] => {
+        const [x, y] = point;
+        return [
+            Math.round(x * factor) / factor,
+            Math.round(y * factor) / factor,
+        ];
+    };
 
     let [lastAddedX, lastAddedY] = roundPoint(stroke[0]);
     optimized.push([lastAddedX, lastAddedY]);
