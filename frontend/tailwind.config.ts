@@ -4,11 +4,7 @@ const config: Config = {
     content: ['./app/**/*.{js,ts,tsx}', './components/**/*.{js,ts,tsx}'],
     prefix: '',
     theme: {
-        extend: {
-            backgroundImage: {
-                'custom-grid': "url('/graph-paper.svg')",
-            },
-        },
+        extend: {},
     },
     plugins: [],
 } satisfies Config;
