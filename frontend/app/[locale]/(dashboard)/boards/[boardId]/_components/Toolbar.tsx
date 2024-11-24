@@ -11,7 +11,8 @@ import {
     Pencil,
     MousePointer2,
     Square,
-    Circle, StickyNote,
+    Circle,
+    StickyNote,
 } from 'lucide-react';
 
 export interface ToolbarProps {
@@ -136,10 +137,12 @@ export const ToolBar = ({
                 <ToolButton
                     label="Sticky Note"
                     icon={StickyNote}
-                    onClick={() => setCanvasState({
-                        mode: CanvasMode.Inserting,
-                        layerType: LayerType.Note,
-                    })}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Note,
+                        })
+                    }
                     isActive={
                         canvasState.mode === CanvasMode.Inserting &&
                         canvasState.layerType === LayerType.Note

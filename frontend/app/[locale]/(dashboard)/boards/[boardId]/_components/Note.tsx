@@ -1,12 +1,12 @@
-import { Kalam } from "next/font/google";
-import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
-import { NoteLayer } from "@/types/canvas";
-import { cn, colorToCss, getContrastingTextColor } from "@/lib/utils";
-import { useState, useCallback } from "react";
+import { Kalam } from 'next/font/google';
+import ContentEditable, { ContentEditableEvent } from 'react-contenteditable';
+import { NoteLayer } from '@/types/canvas';
+import { cn, colorToCss, getContrastingTextColor } from '@/lib/utils';
+import { useState, useCallback } from 'react';
 
 const font = Kalam({
-    subsets: ["latin"],
-    weight: ["400"],
+    subsets: ['latin'],
+    weight: ['400'],
 });
 
 const calculateFontSize = (width: number, height: number) => {
@@ -15,12 +15,8 @@ const calculateFontSize = (width: number, height: number) => {
     const fontSizeBasedOnHeight = height * scaleFactor;
     const fontSizeBasedOnWidth = width * scaleFactor;
 
-    return Math.min(
-        fontSizeBasedOnHeight,
-        fontSizeBasedOnWidth,
-        maxFontSize
-    );
-}
+    return Math.min(fontSizeBasedOnHeight, fontSizeBasedOnWidth, maxFontSize);
+};
 
 interface NoteProps {
     id: string;
@@ -30,14 +26,14 @@ interface NoteProps {
 }
 
 export const Note = ({
-                         layer,
-                         onPointerDown,
-                         id,
-                         selectionColor,
-                     }: NoteProps) => {
+    layer,
+    onPointerDown,
+    id,
+    selectionColor,
+}: NoteProps) => {
     const { x, y, width, height, fill, value } = layer;
 
-    const [noteValue, setNoteValue] = useState(value || "Text");
+    const [noteValue, setNoteValue] = useState(value || 'Text');
 
     const handleContentChange = useCallback((e: ContentEditableEvent) => {
         setNoteValue(e.target.value);
@@ -52,8 +48,10 @@ export const Note = ({
                 height={height}
                 onPointerDown={(e) => onPointerDown(e, id)}
                 style={{
-                    outline: selectionColor ? `1px solid ${selectionColor}` : "none",
-                    backgroundColor: fill ? colorToCss(fill) : "#000",
+                    outline: selectionColor
+                        ? `1px solid ${selectionColor}`
+                        : 'none',
+                    backgroundColor: fill ? colorToCss(fill) : '#000',
                 }}
                 className="shadow-md drop-shadow-xl p-5"
             >
@@ -61,15 +59,15 @@ export const Note = ({
                     html={noteValue}
                     onChange={handleContentChange}
                     className={cn(
-                        "h-full w-full flex flex-col items-center justify-center text-center outline-none",
-                        font.className
+                        'h-full w-full flex flex-col items-center justify-center text-center outline-none',
+                        font.className,
                     )}
                     style={{
                         fontSize: calculateFontSize(width, height),
-                        color: fill ? getContrastingTextColor(fill) : "#000",
+                        color: fill ? getContrastingTextColor(fill) : '#000',
                     }}
                 />
             </foreignObject>
         </svg>
-    )
-}
+    );
+};

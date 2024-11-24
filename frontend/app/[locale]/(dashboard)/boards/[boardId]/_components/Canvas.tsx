@@ -168,7 +168,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                         height: 100,
                         width: 100,
                         fill: lastUsedColor,
-                        value: "",
+                        value: '',
                     };
                     break;
                 default:

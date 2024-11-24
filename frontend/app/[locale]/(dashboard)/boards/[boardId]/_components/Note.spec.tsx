@@ -23,7 +23,7 @@ test('renders note with correct props and initial text', () => {
             layer={mockLayer}
             onPointerDown={mockOnPointerDown}
             selectionColor="blue"
-        />
+        />,
     );
 
     expect(getByText('Initial text')).toBeInTheDocument();
@@ -43,10 +43,12 @@ test('applies correct font size based on width and height', () => {
             layer={mockLayer}
             onPointerDown={mockOnPointerDown}
             selectionColor="blue"
-        />
+        />,
     );
 
-    const contentEditable = container.querySelector('div[contenteditable=true]');
+    const contentEditable = container.querySelector(
+        'div[contenteditable=true]',
+    );
 
     expect(contentEditable).toHaveStyle(`font-size: 15px`);
 });
@@ -55,12 +57,14 @@ test('applies contrasting text color based on fill color', () => {
     const { container } = render(
         <Note
             id="1"
-            layer={{ ...mockLayer, fill: { r: 255, g: 0, b: 0 } }}  // Красный фон
+            layer={{ ...mockLayer, fill: { r: 255, g: 0, b: 0 } }} // Красный фон
             onPointerDown={mockOnPointerDown}
             selectionColor="blue"
-        />
+        />,
     );
 
-    const contentEditable = container.querySelector('div[contenteditable=true]');
+    const contentEditable = container.querySelector(
+        'div[contenteditable=true]',
+    );
     expect(contentEditable).toHaveStyle('color: white');
 });

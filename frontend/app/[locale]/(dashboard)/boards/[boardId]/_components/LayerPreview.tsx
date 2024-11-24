@@ -7,7 +7,7 @@ import { Path } from './Path';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { Rectangle } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle';
 import { Ellipse } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Ellipse';
-import { Note } from "@/app/[locale]/(dashboard)/boards/[boardId]/_components/Note";
+import { Note } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Note';
 
 interface LayerPreviewProps {
     id: string;
