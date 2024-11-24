@@ -159,6 +159,18 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                         fill: lastUsedColor,
                     };
                     break;
+                case LayerType.Note:
+                    layer = {
+                        id,
+                        type: layerType,
+                        x: position.x,
+                        y: position.y,
+                        height: 100,
+                        width: 100,
+                        fill: lastUsedColor,
+                        value: "",
+                    };
+                    break;
                 default:
                     throw new Error(`Invalid layer type: ${layerType}`);
             }
