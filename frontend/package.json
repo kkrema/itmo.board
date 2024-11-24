@@ -30,6 +30,7 @@
     "date-fns": "^4.1.0",
     "lucide-react": "^0.456.0",
     "next": "^15.0.3",
+    "next-intl": "^3.25.1",
     "perfect-freehand": "^1.2.2",
     "query-string": "^9.1.1",
     "react": "^18.3.1",
