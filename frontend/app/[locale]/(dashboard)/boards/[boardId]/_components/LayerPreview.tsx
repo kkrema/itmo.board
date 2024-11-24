@@ -6,7 +6,7 @@ import { colorToCss } from '@/lib/utils';
 import { Path } from './Path';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { Rectangle } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle';
-import { Ellipse } from "@/app/[locale]/(dashboard)/boards/[boardId]/_components/Ellipse";
+import { Ellipse } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Ellipse';
 
 interface LayerPreviewProps {
     id: string;

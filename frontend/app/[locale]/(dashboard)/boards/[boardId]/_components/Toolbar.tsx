@@ -10,7 +10,8 @@ import {
     ArrowUp,
     Pencil,
     MousePointer2,
-    Square, Circle,
+    Square,
+    Circle,
 } from 'lucide-react';
 
 export interface ToolbarProps {
@@ -120,10 +121,12 @@ export const ToolBar = ({
                 <ToolButton
                     label="Ellipse"
                     icon={Circle}
-                    onClick={() => setCanvasState({
-                        mode: CanvasMode.Inserting,
-                        layerType: LayerType.Ellipse,
-                    })}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Ellipse,
+                        })
+                    }
                     isActive={
                         canvasState.mode === CanvasMode.Inserting &&
                         canvasState.layerType === LayerType.Ellipse

@@ -10,18 +10,18 @@ interface EllipseProps {
 }
 
 export const Ellipse = ({
-                            id,
-                            layer,
-                            onPointerDown,
-                            selectionColor,
-                        }: EllipseProps) => {
+    id,
+    layer,
+    onPointerDown,
+    selectionColor,
+}: EllipseProps) => {
     return (
         <svg>
             <ellipse
-                className='drop-shadow-md'
+                className="drop-shadow-md"
                 onPointerDown={(e) => onPointerDown(e, id)}
                 style={{
-                    transform:`translate(
+                    transform: `translate(
                         ${layer.x}px,
                         ${layer.y}px
                     )`,
@@ -30,9 +30,9 @@ export const Ellipse = ({
                 cy={layer.height / 2}
                 rx={layer.width / 2}
                 ry={layer.height / 2}
-                fill={layer.fill ? colorToCss(layer.fill):'#000'}
-                stroke={selectionColor || "transparent"}
-                strokeWidth='1'
+                fill={layer.fill ? colorToCss(layer.fill) : '#000'}
+                stroke={selectionColor || 'transparent'}
+                strokeWidth="1"
             />
         </svg>
     );
