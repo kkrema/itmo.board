@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { BoardCard } from '@/app/(dashboard)/[UserID]/_components/board-card/Index';
+import { BoardCard } from '@/app/[locale]/(dashboard)/[UserID]/_components/board-card/Index';
 import { clerkClient } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { act } from 'react';

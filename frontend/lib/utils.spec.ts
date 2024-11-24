@@ -22,7 +22,7 @@ import { twMerge } from 'tailwind-merge';
 import {
     MAX_ZOOM,
     MIN_ZOOM,
-} from '@/app/(dashboard)/boards/[boardId]/_components/Canvas';
+} from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Canvas';
 
 jest.mock('clsx', () => ({
     __esModule: true,

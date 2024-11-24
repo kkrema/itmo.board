@@ -25,11 +25,11 @@ import {
     pointerEventToCanvasPoint,
     resizeBounds,
 } from '@/lib/utils';
-import { ToolBar } from '@/app/(dashboard)/boards/[boardId]/_components/Toolbar';
+import { ToolBar } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Toolbar';
 import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';
-import { Grid } from '@/app/(dashboard)/boards/[boardId]/_components/Grid';
+import { Grid } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Grid';
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
