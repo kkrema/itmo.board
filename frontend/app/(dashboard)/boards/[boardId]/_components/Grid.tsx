@@ -29,8 +29,10 @@ export const Grid: React.FC<GridProps> = memo(
             }
         };
 
-        const gridLines = useMemo(() => {
-            const lines: React.JSX.Element[] = [];
+        const roundFactor = 10 ** 4;
+
+        const gridPaths = useMemo(() => {
+            const paths: React.JSX.Element[] = [];
 
             // Calculate visible area in world coordinates
             const x0 = (0 - camera.x) / scale;
@@ -53,63 +55,47 @@ export const Grid: React.FC<GridProps> = memo(
                 const xStart = Math.floor(x0 / gridSize) * gridSize;
                 const yStart = Math.floor(y0 / gridSize) * gridSize;
 
-                const verticalLines = [];
+                let pathData = '';
+
+                // Build path data for vertical lines
                 for (let x = xStart; x <= x1; x += gridSize) {
                     if (usedX.has(x)) {
                         continue;
                     }
                     usedX.add(x);
                     const xScreen = x * scale + camera.x;
-                    verticalLines.push(
-                        <line
-                            key={`v-${gridSize}-${x}`}
-                            x1={xScreen}
-                            y1={0}
-                            x2={xScreen}
-                            y2={height}
-                            stroke={stroke}
-                            strokeWidth={strokeWidth}
-                        />,
-                    );
+                    const xScreenRounded =
+                        Math.round(xScreen * roundFactor) / roundFactor;
+                    pathData += `M ${xScreenRounded} 0 L ${xScreenRounded} ${height} `;
                 }
 
-                const horizontalLines = [];
+                // Build path data for horizontal lines
                 for (let y = yStart; y <= y1; y += gridSize) {
                     if (usedY.has(y)) {
                         continue;
                     }
                     usedY.add(y);
                     const yScreen = y * scale + camera.y;
-                    horizontalLines.push(
-                        <line
-                            key={`h-${gridSize}-${y}`}
-                            x1={0}
-                            y1={yScreen}
-                            x2={width}
-                            y2={yScreen}
-                            stroke={stroke}
-                            strokeWidth={strokeWidth}
-                        />,
-                    );
+                    const yScreenRounded =
+                        Math.round(yScreen * roundFactor) / roundFactor;
+                    pathData += `M 0 ${yScreenRounded} L ${width} ${yScreenRounded} `;
                 }
 
-                // Group lines of the same style
-                lines.push(
-                    <g
+                // Add the path element to the array
+                paths.push(
+                    <path
                         key={`grid-${gridSize}`}
+                        d={pathData}
                         stroke={stroke}
                         strokeWidth={strokeWidth}
-                    >
-                        {verticalLines}
-                        {horizontalLines}
-                    </g>,
+                    />,
                 );
             });
 
-            return lines;
-        }, [camera, scale, width, height]);
+            return paths;
+        }, [camera, scale, width, height, roundFactor]);
 
-        return <g data-testid="grid">{gridLines}</g>;
+        return <g data-testid="grid">{gridPaths}</g>;
     },
 );
 

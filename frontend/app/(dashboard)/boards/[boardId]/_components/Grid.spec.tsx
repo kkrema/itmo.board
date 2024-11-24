@@ -1,6 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { Grid, GridProps, STROKE_STYLES } from './Grid';
+import {
+    Grid,
+    GRID_LEVELS,
+    GridProps,
+    MIN_GRID_SPACING,
+    STROKE_STYLES,
+} from './Grid';
 import '@testing-library/jest-dom';
 import {
     MAX_ZOOM,
@@ -31,8 +37,8 @@ describe('Grid Component', () => {
         renderGrid(props);
     });
 
-    it('renders the correct number of grid lines at default scale', () => {
-        const props = {
+    it('renders the correct number of grid paths at default scale', () => {
+        const props: GridProps = {
             camera: { x: 0, y: 0 },
             scale: 1,
             width: 10,
@@ -41,16 +47,19 @@ describe('Grid Component', () => {
 
         const { container } = renderGrid(props);
 
-        const lines = container.querySelectorAll('line');
-        // Expected levels: 1000, 500, 100, 50, 10
-        // 1 vertical and 1 horizontal line for level 1000
-        // levels 500, 100, 50 have repeated lines -> 0 lines
-        // 1 vertical and 1 horizontal lines for level 10
-        expect(lines.length).toBe(4);
+        const paths = container.querySelectorAll('path');
+        // With scale=1 and width=10, height=10:
+        // GRID_LEVELS = [1000, 500, 100, 50, 10, 5, 1]
+        // 5 grid levels will be more than 10 pixels apart
+        expect(paths.length).toBe(5);
+
+        // A single path must have that data
+        const path = container.querySelector('path');
+        expect(path).toHaveAttribute('d', 'M 0 0 L 0 10 M 0 0 L 10 0 ');
     });
 
-    it('does not render grid levels that are too dense', () => {
-        const props = {
+    it('does not render grid paths for grid levels that are too dense', () => {
+        const props: GridProps = {
             camera: { x: 0, y: 0 },
             scale: MIN_ZOOM,
             width: 10,
@@ -59,38 +68,46 @@ describe('Grid Component', () => {
 
         const { container } = renderGrid(props);
 
-        const lines = container.querySelectorAll('line');
+        const paths = container.querySelectorAll('path');
 
-        // (level) => level * scale
-        // minGridSpacing = 10
-        // 1000 => 1000 * 0.1 = 100 ---> 2 lines
-        // 500 => 500 * 0.1 = 50 ---> 2 lines (repeated)
-        // 100 => 100 * 0.1 = 10 ---> 4 lines (2 not repeated)
-        expect(lines.length).toBe(4);
+        // Calculate which grid levels pass the min spacing
+        const applicableLevels = GRID_LEVELS.filter(
+            (gridSize) => gridSize * props.scale >= MIN_GRID_SPACING,
+        );
+
+        // Expect the number of paths to equal the number of applicable grid levels
+        expect(paths.length).toBe(applicableLevels.length);
+
+        // No paths are rendered for grid levels that are too dense
+        GRID_LEVELS.forEach((gridSize) => {
+            if (gridSize * props.scale < MIN_GRID_SPACING) {
+                // These grid levels should not have corresponding paths
+                expect(
+                    container.querySelectorAll(`path[key="grid-${gridSize}"]`)
+                        .length,
+                ).toBe(0);
+            }
+        });
     });
 
-    it('renders all applicable grid levels when scale allows', () => {
-        const props = {
+    it('renders all applicable grid paths when scale allows', () => {
+        const props: GridProps = {
             camera: { x: 0, y: 0 },
-            scale: MAX_ZOOM,
-            width: 10,
-            height: 10,
+            scale: MAX_ZOOM, // High scale to allow all grid levels to pass min spacing
+            width: 20000, // Large width and height to accommodate large grid lines
+            height: 20000,
         };
 
         const { container } = renderGrid(props);
 
-        const lines = container.querySelectorAll('line');
+        const paths = container.querySelectorAll('path');
 
-        // (level) => level * scale
-        // minGridSpacing = 10
-        // 1000 => 1000 * 20 = 20000 ---> 2 lines
-        // 500 => 500 * 20 = 10000 ---> 2 lines (repeated)
-        // 100 => 100 * 20 = 2000 ---> 2 lines (repeated)
-        // 50 => 50 * 20 = 1000 ---> 2 lines (repeated)
-        // 10 => 10 * 20 = 200 ---> 2 lines (repeated)
-        // 5 => 5 * 20 = 100 ---> 2 lines (repeated)
-        // 1 => 1 * 20 = 20 ---> 2 lines (repeated)
-        expect(lines.length).toBe(2);
+        // Calculate how many grid levels pass the min spacing
+        const applicableLevels = GRID_LEVELS.filter(
+            (gridSize) => gridSize * props.scale >= MIN_GRID_SPACING,
+        );
+
+        expect(paths.length).toBe(applicableLevels.length);
     });
 
     it('grid lines have correct stroke and strokeWidth attributes', () => {
@@ -132,8 +149,8 @@ describe('Grid Component', () => {
         expect(lines.length).toBe(0);
     });
 
-    it('updates grid lines when camera position changes', () => {
-        const initialProps = {
+    it('updates grid paths when camera position changes', () => {
+        const initialProps: GridProps = {
             camera: { x: 0, y: 0 },
             scale: 1,
             width: 100,
@@ -141,9 +158,14 @@ describe('Grid Component', () => {
         };
 
         const { container, rerender } = renderGrid(initialProps);
-        const linesBefore = container.querySelectorAll('line');
+        const pathsBefore = container.querySelectorAll('path');
 
-        const updatedProps = {
+        // Capture the 'd' attributes before the update
+        const dAttributesBefore = Array.from(pathsBefore).map((path) =>
+            path.getAttribute('d'),
+        );
+
+        const updatedProps: GridProps = {
             ...initialProps,
             camera: { x: 50, y: 50 },
         };
@@ -154,11 +176,18 @@ describe('Grid Component', () => {
             </svg>,
         );
 
-        const linesAfter = container.querySelectorAll('line');
+        const pathsAfter = container.querySelectorAll('path');
 
-        expect(linesBefore[0].getAttribute('x1')).not.toBe(
-            linesAfter[0].getAttribute('x1'),
+        // Capture the 'd' attributes after the update
+        const dAttributesAfter = Array.from(pathsAfter).map((path) =>
+            path.getAttribute('d'),
         );
+
+        // Expect the 'd' attributes to have changed
+        expect(dAttributesBefore).not.toEqual(dAttributesAfter);
+
+        // Additionally, ensure that the number of paths remains consistent
+        expect(pathsBefore.length).toBe(pathsAfter.length);
     });
 
     it('applies correct stroke styles based on grid spacing', () => {
