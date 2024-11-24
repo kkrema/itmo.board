@@ -2,7 +2,7 @@ import { Kalam } from "next/font/google";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 
 import { NoteLayer } from "@/types/canvas";
-import { cn, colorToCss } from "@/lib/utils";
+import { cn, colorToCss, getContrastingTextColor} from "@/lib/utils";
 
 const font = Kalam({
     subsets: ["latin"],
@@ -67,7 +67,7 @@ export const Note = ({
                 )}
                 style={{
                     fontSize: calculateFontSize(width, height),
-                    color: "#000",
+                    color: fill ? getContrastingTextColor(fill) : "#000",
                 }}
             />
         </foreignObject>
