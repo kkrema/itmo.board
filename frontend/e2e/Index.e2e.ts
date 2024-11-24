@@ -1,4 +1,7 @@
 import { test, expect } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 test('should log in and access page', async ({ page }) => {
     const username = process.env.TEST_USERNAME;
@@ -10,12 +13,19 @@ test('should log in and access page', async ({ page }) => {
         );
     }
 
-    await page.goto('http://localhost:3000/');
+    await page.goto('/');
 
     await page.fill('input[name="identifier"]', username);
     await page.fill('input[name="password"]', password);
 
-    await page.click('button[data-localization-key="formButtonPrimary"]');
+    await Promise.all([
+        page.click('button[data-localization-key="formButtonPrimary"]'),
+        page.waitForURL((url) => {
+            const path = new URL(url).pathname;
+            return !path.includes('/sign-in');
+        }),
+    ]);
 
-    await expect(page.locator('h2')).toContainText('Welcome to itmo.board');
+    await expect(page.getByText('itmo.board')).toBeVisible();
+    await expect(page.getByText('Test Board 1')).toBeVisible();
 });

@@ -10,7 +10,7 @@ export default authMiddleware({
         return intlMiddleware(req);
     },
 
-    publicRoutes: ['/', '/:locale/sign-in', '/:locale/sign-up'],
+    publicRoutes: ['/:locale', '/:locale/sign-in', '/:locale/sign-up'],
 });
 
 export const config = {
