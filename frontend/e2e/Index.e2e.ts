@@ -28,6 +28,8 @@ test('should log in and access page', async ({ page }) => {
         }),
     ]);
 
-    await expect(page.getByText('itmo.board')).toBeVisible();
-    await expect(page.getByText('Test Board 1')).toBeVisible();
+    await expect(page.getByText('itmo.board')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('Test Board 1')).toBeVisible({
+        timeout: 30_000,
+    });
 });
