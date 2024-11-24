@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { EmptySearch } from './EmptySearch';
 import { NewBoardButton } from './NewBoardButton';
 import { useParams, useSearchParams } from 'next/navigation';
-import { BoardCard } from './board-card';
+import { BoardCard } from './board-card/Index';
 
 interface BoardListProps {
     orgId: string;
