@@ -11,7 +11,7 @@ import { InviteButton } from './InviteButton';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Poppins } from 'next/font/google';
-import {LanguageSwitchButton} from "@/app/[locale]/(dashboard)/[UserID]/_components/LanguageSwitchButton";
+import { LanguageSwitchButton } from '@/app/[locale]/(dashboard)/[UserID]/_components/LanguageSwitchButton';
 
 const font = Poppins({
     subsets: ['latin'],

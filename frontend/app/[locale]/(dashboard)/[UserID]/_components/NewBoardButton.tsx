@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 interface NewBoardButtonProps {
     orgId: string;
@@ -17,7 +17,7 @@ export const NewBoardButton = ({ disabled }: NewBoardButtonProps) => {
         }
     };
 
-    const t = useTranslations('utils')
+    const t = useTranslations('utils');
 
     return (
         <button
@@ -29,9 +29,7 @@ export const NewBoardButton = ({ disabled }: NewBoardButtonProps) => {
             )}
         >
             <Plus className="h-12 w-12 text-white stroke-2" />
-            <p className="text-sm text-white font-medium">
-                {t("newBoard")}
-            </p>
+            <p className="text-sm text-white font-medium">{t('newBoard')}</p>
         </button>
     );
 };

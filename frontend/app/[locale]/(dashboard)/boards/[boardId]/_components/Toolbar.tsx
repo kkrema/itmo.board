@@ -11,7 +11,7 @@ import {
     Pencil,
     MousePointer2,
 } from 'lucide-react';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 export interface ToolbarProps {
     canvasState: CanvasState;
@@ -38,7 +38,7 @@ export const ToolBar = ({
 
     const handleToggleExtraTools = () => setShowExtraTools((prev) => !prev);
 
-    const t = useTranslations('tools')
+    const t = useTranslations('tools');
 
     const extraTools = [
         { label: t('bringToFront'), icon: BringToFront, action: moveToFront },
@@ -53,7 +53,7 @@ export const ToolBar = ({
             <div className="relative flex flex-col items-center">
                 <div className="p-2 bg-white rounded-md shadow-md">
                     <ToolButton
-                        label={t("more")}
+                        label={t('more')}
                         icon={MoreVertical}
                         onClick={handleToggleExtraTools}
                     />
@@ -81,7 +81,7 @@ export const ToolBar = ({
             {/* Main toolbar */}
             <div className="flex gap-x-2 p-2 bg-white rounded-md shadow-md">
                 <ToolButton
-                    label={t("select")}
+                    label={t('select')}
                     icon={MousePointer2}
                     onClick={() => setCanvasState({ mode: CanvasMode.None })}
                     isActive={
@@ -94,7 +94,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label={t("pen")}
+                    label={t('pen')}
                     icon={Pencil}
                     onClick={() =>
                         setCanvasState({
@@ -112,7 +112,7 @@ export const ToolBar = ({
             {/* Separate Trash button */}
             <div className="p-2 bg-white rounded-md shadow-md">
                 <ToolButton
-                    label={t("delete")}
+                    label={t('delete')}
                     icon={Trash2}
                     onClick={deleteSelected}
                     isDisabled={!editable}

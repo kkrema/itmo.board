@@ -9,7 +9,7 @@ import { Overlay } from './Overlay';
 import { Footer } from './Footer';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 interface BoardCardProps {
     id: string;
@@ -25,7 +25,7 @@ export const BoardCard = ({
     authorId,
     createdAt,
 }: BoardCardProps) => {
-    const t = useTranslations('utils')
+    const t = useTranslations('utils');
 
     const router = useRouter();
     const params = useParams();
@@ -34,12 +34,13 @@ export const BoardCard = ({
     );
     const [loading, setLoading] = useState(false);
 
-
     useEffect(() => {
         const getFirstName = async (userID: string) => {
             const user = await clerkClient.users?.getUser(userID);
             setAuthorLabel(
-                userID === authorId ? t('you') : user?.firstName || t('teammate'),
+                userID === authorId
+                    ? t('you')
+                    : user?.firstName || t('teammate'),
             );
         };
         getFirstName(params.UserID as string);
