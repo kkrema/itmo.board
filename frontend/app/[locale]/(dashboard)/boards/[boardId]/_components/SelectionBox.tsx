@@ -27,16 +27,35 @@ export const SelectionBox = memo(({
     }
 
     return (
-        <rect
-            className="fill-transparent stroke-blue-500 stroke-1 pointer-events-none"
-            style={{
-                transform: `translate(${bounds.x}px, ${bounds.y}px)`
-            }}
-            x={0}
-            y={0}
-            width={bounds.width}
-            height={bounds.height}
-        />
+        <>
+            <rect
+                className="fill-transparent stroke-blue-500 stroke-1 pointer-events-none"
+                style={{
+                    transform: `translate(${bounds.x}px, ${bounds.y}px)`
+                }}
+                x={0}
+                y={0}
+                width={bounds.width}
+                height={bounds.height}
+            />
+            {isShowingHandles && (
+                <>
+                    <rect
+                        className="fill-white stroke-1 stroke-blue-500"
+                        style={{
+                            cursor: "nwse-resize",
+                            width: `${HANDLE_WIDTH}px`,
+                            height: `${HANDLE_WIDTH}px`,
+                            transform: `translate(${bounds.x - HANDLE_WIDTH / 2}px, ${bounds.y - HANDLE_WIDTH / 2}px)`
+                        }}
+                        onPointerDown={(e) => {
+                            e.stopPropagation();
+                            onResizeHandlePointerDown(Side.Top + Side.Left, bounds);
+                        }}
+                    />
+                </>
+            )}
+        </>
     );
 });
 
