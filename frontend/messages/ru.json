@@ -1,5 +1,29 @@
 {
   "test": {
     "test": "тест"
+  },
+  "search": {
+    "searchBoards": "поиск",
+    "notFound": "ничего не найдено :(",
+    "tryAnother": "попробуй найти что-нибудь другое"
+  },
+  "utils": {
+    "welcome": "добро пожаловать в itmo.board",
+    "newBoard": "новая доска",
+    "createOrganization": "создай команду, чтобы начать",
+    "inviteMembers": "пригласить участников",
+    "you": "Вы",
+    "teammate": "не Вы",
+    "styles": "стили"
+  },
+  "tools": {
+    "bringToFront": "bring to front",
+    "bringToBack": "bring to back",
+    "moveForward": "move forward",
+    "moveBackward": "move backward",
+    "delete": "удалить",
+    "pen": "карандаш",
+    "select": "выбор",
+    "more": "больше"
   }
 }
