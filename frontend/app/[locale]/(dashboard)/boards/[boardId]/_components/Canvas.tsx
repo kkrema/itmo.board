@@ -601,7 +601,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         console.log('Move backward');
     };
 
-    const layersMap = new Map(Array.from(layers));
+    const layersMap = new Map(Array.from(layers || new Map()));
 
     return (
         <main
