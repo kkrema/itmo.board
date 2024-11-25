@@ -3,7 +3,13 @@ import { useSelectionBounds } from './useSelectionBounds';
 import { Layer, LayerType, XYWH } from '@/types/canvas';
 
 describe('useSelectionBounds', () => {
-    const createMockLayer = (id: string, x: number, y: number, width: number, height: number): Layer => ({
+    const createMockLayer = (
+        id: string,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+    ): Layer => ({
         id,
         type: LayerType.Rectangle,
         x,
@@ -23,7 +29,9 @@ describe('useSelectionBounds', () => {
     });
 
     test('should return null if no layers are selected', () => {
-        const { result } = renderHook(() => useSelectionBounds({ selection: [], layers }));
+        const { result } = renderHook(() =>
+            useSelectionBounds({ selection: [], layers }),
+        );
 
         expect(result.current).toBeNull();
     });
@@ -33,7 +41,7 @@ describe('useSelectionBounds', () => {
             ({ selection }) => useSelectionBounds({ selection, layers }),
             {
                 initialProps: { selection: ['1'], layers },
-            }
+            },
         );
 
         const expectedBoundsBeforeChange: XYWH = {
@@ -58,7 +66,9 @@ describe('useSelectionBounds', () => {
     });
 
     test('should return null when a selected layer does not exist', () => {
-        const { result } = renderHook(() => useSelectionBounds({ selection: ['nonexistent'], layers }));
+        const { result } = renderHook(() =>
+            useSelectionBounds({ selection: ['nonexistent'], layers }),
+        );
 
         expect(result.current).toBeNull();
     });
@@ -69,7 +79,7 @@ describe('useSelectionBounds', () => {
             ({ selection }) => useSelectionBounds({ selection, layers }),
             {
                 initialProps: { selection: ['1', '4'], layers },
-            }
+            },
         );
 
         const expectedBounds: XYWH = { x: 5, y: 15, width: 105, height: 60 };

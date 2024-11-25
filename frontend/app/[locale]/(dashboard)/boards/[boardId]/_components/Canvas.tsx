@@ -15,7 +15,9 @@ import {
     Layer,
     LayerType,
     PathLayer,
-    Point, XYWH, Side,
+    Point,
+    XYWH,
+    Side,
 } from '@/types/canvas';
 import {
     cn,
@@ -30,7 +32,7 @@ import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';
 import { Grid } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Grid';
-import {SelectionBox} from "@/app/[locale]/(dashboard)/boards/[boardId]/_components/SelectionBox";
+import { SelectionBox } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/SelectionBox';
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -248,7 +250,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
 
             if (
                 Math.abs(current.x - origin.x) +
-                Math.abs(current.y - origin.y) >
+                    Math.abs(current.y - origin.y) >
                 5
             ) {
                 setCanvasState({
@@ -333,7 +335,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                 corner,
             });
         },
-        [editable]
+        [editable],
     );
 
     // Event handlers
@@ -698,11 +700,11 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                                 )}
                                 width={Math.abs(
                                     canvasState.origin.x -
-                                    canvasState.current.x,
+                                        canvasState.current.x,
                                 )}
                                 height={Math.abs(
                                     canvasState.origin.y -
-                                    canvasState.current.y,
+                                        canvasState.current.y,
                                 )}
                             />
                         )}

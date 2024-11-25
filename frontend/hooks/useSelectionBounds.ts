@@ -46,7 +46,10 @@ interface SelectionBoundsProps {
     layers: Map<string, Layer>;
 }
 
-export const useSelectionBounds = ({ selection, layers }: SelectionBoundsProps): XYWH | null => {
+export const useSelectionBounds = ({
+    selection,
+    layers,
+}: SelectionBoundsProps): XYWH | null => {
     const [bounds, setBounds] = useState<XYWH | null>(null);
 
     useEffect(() => {
