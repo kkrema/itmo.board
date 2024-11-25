@@ -42,6 +42,8 @@ export const SelectionBox = memo(({
                 <>
                     <rect
                         className="fill-white stroke-1 stroke-blue-500"
+                        x={0}
+                        y={0}
                         style={{
                             cursor: "nwse-resize",
                             width: `${HANDLE_WIDTH}px`,
