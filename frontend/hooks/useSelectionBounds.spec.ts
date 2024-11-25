@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useSelectionBounds } from './useSelectionBounds';
 import { Layer, LayerType, XYWH } from '@/types/canvas';
 
@@ -27,7 +27,7 @@ describe('useSelectionBounds', () => {
 
         expect(result.current).toBeNull();
     });
-    
+
     test('should update bounding box when selection changes', () => {
         const { result, rerender } = renderHook(
             ({ selection }) => useSelectionBounds({ selection, layers }),
