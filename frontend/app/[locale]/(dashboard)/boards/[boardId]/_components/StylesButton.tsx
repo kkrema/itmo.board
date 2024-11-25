@@ -1,5 +1,6 @@
 import React, { FC, useRef } from 'react';
 import { colorToCss } from '@/lib/utils';
+import {useTranslations} from "next-intl";
 
 interface StylesButtonProps {
     id: string;
@@ -15,6 +16,7 @@ export const StylesButton: FC<StylesButtonProps> = ({
     className,
 }) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null);
+    const t = useTranslations('searchInput')
 
     return (
         <button
@@ -30,7 +32,7 @@ export const StylesButton: FC<StylesButtonProps> = ({
                     borderColor: colorToCss(activeColor),
                 }}
             />
-            Styles
+            {t('styles')}
         </button>
     );
 };
