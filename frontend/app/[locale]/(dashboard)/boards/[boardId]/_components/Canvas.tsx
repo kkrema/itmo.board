@@ -15,7 +15,7 @@ import {
     Layer,
     LayerType,
     PathLayer,
-    Point,
+    Point, XYWH, Side,
 } from '@/types/canvas';
 import {
     cn,
@@ -30,6 +30,7 @@ import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';
 import { Grid } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Grid';
+import {SelectionBox} from "@/app/[locale]/(dashboard)/boards/[boardId]/_components/SelectionBox";
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -62,6 +63,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     const [pencilDraft, setPencilDraft] = useState<number[][] | null>(null);
 
     const {
+        layers,
         layerIds,
         addLayer,
         updateLayer,
@@ -246,7 +248,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
 
             if (
                 Math.abs(current.x - origin.x) +
-                    Math.abs(current.y - origin.y) >
+                Math.abs(current.y - origin.y) >
                 5
             ) {
                 setCanvasState({
@@ -320,6 +322,18 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             }
         },
         [canvasState, selection, updateLayer],
+    );
+
+    const onResizeHandlePointerDown = useCallback(
+        (corner: Side, initialBounds: XYWH) => {
+            if (!editable) return;
+            setCanvasState({
+                mode: CanvasMode.Resizing,
+                initialBounds,
+                corner,
+            });
+        },
+        [editable]
     );
 
     // Event handlers
@@ -587,6 +601,8 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         console.log('Move backward');
     };
 
+    const layersMap = new Map(Array.from(layers.entries()));
+
     return (
         <main
             className={cn('h-full w-full relative bg-neutral-100 touch-none')}
@@ -660,6 +676,13 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                         />
                     )}
 
+                    <SelectionBox
+                        onResizeHandlePointerDown={onResizeHandlePointerDown}
+                        isShowingHandles={isAnyToolActive}
+                        selection={selection}
+                        layersMap={layersMap}
+                    />
+
                     {canvasState.mode === CanvasMode.SelectionNet &&
                         canvasState.current != null &&
                         canvasState.origin != null && (
@@ -675,11 +698,11 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                                 )}
                                 width={Math.abs(
                                     canvasState.origin.x -
-                                        canvasState.current.x,
+                                    canvasState.current.x,
                                 )}
                                 height={Math.abs(
                                     canvasState.origin.y -
-                                        canvasState.current.y,
+                                    canvasState.current.y,
                                 )}
                             />
                         )}
