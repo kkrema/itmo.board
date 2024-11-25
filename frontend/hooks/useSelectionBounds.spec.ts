@@ -62,4 +62,17 @@ describe('useSelectionBounds', () => {
 
         expect(result.current).toBeNull();
     });
+
+    test('should adjust left and top when a layer has smaller x and y', () => {
+        layers.set('4', createMockLayer('4', 5, 15, 80, 60));
+        const { result } = renderHook(
+            ({ selection }) => useSelectionBounds({ selection, layers }),
+            {
+                initialProps: { selection: ['1', '4'], layers },
+            }
+        );
+
+        const expectedBounds: XYWH = { x: 5, y: 15, width: 105, height: 60 };
+        expect(result.current).toEqual(expectedBounds);
+    });
 });
