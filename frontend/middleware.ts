@@ -6,11 +6,11 @@ import { routing } from '@/i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 export default authMiddleware({
-    beforeAuth: (req) => {
-        intlMiddleware(req);
+    afterAuth: (auth, req) => {
+        return intlMiddleware(req);
     },
 
-    publicRoutes: ['/:locale', '/:locale/sign-in', '/:locale/sign-up'],
+    publicRoutes: ['/', '/sign-in', '/sign-up'],
 });
 
 export const config = {
