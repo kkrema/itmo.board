@@ -7,7 +7,7 @@ const intlMiddleware = createMiddleware(routing);
 
 export default authMiddleware({
     beforeAuth: (req) => {
-        return intlMiddleware(req);
+        intlMiddleware(req);
     },
 
     publicRoutes: ['/:locale', '/:locale/sign-in', '/:locale/sign-up'],
