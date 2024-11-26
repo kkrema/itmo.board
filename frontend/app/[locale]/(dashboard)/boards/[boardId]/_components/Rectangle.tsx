@@ -15,6 +15,8 @@ export const Rectangle = ({
     selectionColor,
 }: RectangleProps) => {
     const { x, y, width, height, fill } = layer;
+    const fillColor = fill ? colorToCss(fill) : '#000';
+    const strokeColor = selectionColor || 'transparent';
 
     return (
         <svg>
@@ -29,8 +31,8 @@ export const Rectangle = ({
                 width={width}
                 height={height}
                 strokeWidth={1}
-                fill={fill ? colorToCss(fill) : '#000'}
-                stroke={selectionColor || 'transparent'}
+                fill={fillColor}
+                stroke={strokeColor}
             />
         </svg>
     );
