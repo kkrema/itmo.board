@@ -39,6 +39,11 @@ export const Note = ({
         setNoteValue(e.target.value);
     }, []);
 
+    const fontSize = calculateFontSize(width, height);
+    const textColor = fill ? getContrastingTextColor(fill) : '#000';
+    const backgroundColor = fill ? colorToCss(fill) : '#000';
+    const outlineStyle = selectionColor ? `1px solid ${selectionColor}` : 'none';
+
     return (
         <svg>
             <foreignObject
@@ -48,10 +53,8 @@ export const Note = ({
                 height={height}
                 onPointerDown={(e) => onPointerDown(e, id)}
                 style={{
-                    outline: selectionColor
-                        ? `1px solid ${selectionColor}`
-                        : 'none',
-                    backgroundColor: fill ? colorToCss(fill) : '#000',
+                    outline: outlineStyle,
+                    backgroundColor: backgroundColor,
                 }}
                 className="shadow-md drop-shadow-xl p-5"
             >
@@ -63,8 +66,8 @@ export const Note = ({
                         font.className,
                     )}
                     style={{
-                        fontSize: calculateFontSize(width, height),
-                        color: fill ? getContrastingTextColor(fill) : '#000',
+                        fontSize: `${fontSize}px`,
+                        color: textColor,
                     }}
                 />
             </foreignObject>

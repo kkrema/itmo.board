@@ -29,7 +29,7 @@ test('renders note with correct props and initial text', () => {
     expect(getByText('Initial text')).toBeInTheDocument();
 
     const foreignObjectElement = container.querySelector('foreignObject');
-
+    expect(foreignObjectElement).toBeInTheDocument();
     expect(foreignObjectElement).toHaveAttribute('x', '10');
     expect(foreignObjectElement).toHaveAttribute('y', '20');
     expect(foreignObjectElement).toHaveAttribute('width', '200');
