@@ -31,7 +31,7 @@ describe('useSelectionBounds', () => {
     describe('when no layers are selected', () => {
         test('should return null', () => {
             const { result } = renderHook(() =>
-                useSelectionBounds({ selection: [], layers })
+                useSelectionBounds({ selection: [], layers }),
             );
             expect(result.current).toBeNull();
         });
@@ -43,7 +43,7 @@ describe('useSelectionBounds', () => {
                 ({ selection }) => useSelectionBounds({ selection, layers }),
                 {
                     initialProps: { selection: ['1'], layers },
-                }
+                },
             );
 
             const expectedBoundsBeforeChange: XYWH = {
@@ -69,7 +69,7 @@ describe('useSelectionBounds', () => {
     describe('when selected layer does not exist', () => {
         test('should return null', () => {
             const { result } = renderHook(() =>
-                useSelectionBounds({ selection: ['nonexistent'], layers })
+                useSelectionBounds({ selection: ['nonexistent'], layers }),
             );
             expect(result.current).toBeNull();
         });
@@ -82,10 +82,15 @@ describe('useSelectionBounds', () => {
                 ({ selection }) => useSelectionBounds({ selection, layers }),
                 {
                     initialProps: { selection: ['1', '4'], layers },
-                }
+                },
             );
 
-            const expectedBounds: XYWH = { x: 5, y: 15, width: 105, height: 60 };
+            const expectedBounds: XYWH = {
+                x: 5,
+                y: 15,
+                width: 105,
+                height: 60,
+            };
             expect(result.current).toEqual(expectedBounds);
         });
 
@@ -95,10 +100,15 @@ describe('useSelectionBounds', () => {
                 ({ selection }) => useSelectionBounds({ selection, layers }),
                 {
                     initialProps: { selection: ['1', '5'], layers },
-                }
+                },
             );
 
-            const expectedBounds: XYWH = { x: 10, y: 20, width: 240, height: 230 };
+            const expectedBounds: XYWH = {
+                x: 10,
+                y: 20,
+                width: 240,
+                height: 230,
+            };
             expect(result.current).toEqual(expectedBounds);
         });
     });
