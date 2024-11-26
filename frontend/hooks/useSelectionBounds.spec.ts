@@ -28,61 +28,78 @@ describe('useSelectionBounds', () => {
         layers.set('3', createMockLayer('3', 50, 60, 90, 100));
     });
 
-    test('should return null if no layers are selected', () => {
-        const { result } = renderHook(() =>
-            useSelectionBounds({ selection: [], layers }),
-        );
-
-        expect(result.current).toBeNull();
+    describe('when no layers are selected', () => {
+        test('should return null', () => {
+            const { result } = renderHook(() =>
+                useSelectionBounds({ selection: [], layers })
+            );
+            expect(result.current).toBeNull();
+        });
     });
 
-    test('should update bounding box when selection changes', () => {
-        const { result, rerender } = renderHook(
-            ({ selection }) => useSelectionBounds({ selection, layers }),
-            {
-                initialProps: { selection: ['1'], layers },
-            },
-        );
+    describe('when selection changes', () => {
+        test('should update bounding box correctly', () => {
+            const { result, rerender } = renderHook(
+                ({ selection }) => useSelectionBounds({ selection, layers }),
+                {
+                    initialProps: { selection: ['1'], layers },
+                }
+            );
 
-        const expectedBoundsBeforeChange: XYWH = {
-            x: 10,
-            y: 20,
-            width: 100,
-            height: 50,
-        };
+            const expectedBoundsBeforeChange: XYWH = {
+                x: 10,
+                y: 20,
+                width: 100,
+                height: 50,
+            };
+            expect(result.current).toEqual(expectedBoundsBeforeChange);
 
-        expect(result.current).toEqual(expectedBoundsBeforeChange);
+            rerender({ selection: ['2', '3'], layers });
 
-        rerender({ selection: ['2', '3'], layers });
-
-        const expectedBoundsAfterChange: XYWH = {
-            x: 30,
-            y: 40,
-            width: 110,
-            height: 120,
-        };
-
-        expect(result.current).toEqual(expectedBoundsAfterChange);
+            const expectedBoundsAfterChange: XYWH = {
+                x: 30,
+                y: 40,
+                width: 110,
+                height: 120,
+            };
+            expect(result.current).toEqual(expectedBoundsAfterChange);
+        });
     });
 
-    test('should return null when a selected layer does not exist', () => {
-        const { result } = renderHook(() =>
-            useSelectionBounds({ selection: ['nonexistent'], layers }),
-        );
-
-        expect(result.current).toBeNull();
+    describe('when selected layer does not exist', () => {
+        test('should return null', () => {
+            const { result } = renderHook(() =>
+                useSelectionBounds({ selection: ['nonexistent'], layers })
+            );
+            expect(result.current).toBeNull();
+        });
     });
 
-    test('should adjust left and top when a layer has smaller x and y', () => {
-        layers.set('4', createMockLayer('4', 5, 15, 80, 60));
-        const { result } = renderHook(
-            ({ selection }) => useSelectionBounds({ selection, layers }),
-            {
-                initialProps: { selection: ['1', '4'], layers },
-            },
-        );
+    describe('when layers have different positions', () => {
+        test('should adjust left and top correctly', () => {
+            layers.set('4', createMockLayer('4', 5, 15, 80, 60));
+            const { result } = renderHook(
+                ({ selection }) => useSelectionBounds({ selection, layers }),
+                {
+                    initialProps: { selection: ['1', '4'], layers },
+                }
+            );
 
-        const expectedBounds: XYWH = { x: 5, y: 15, width: 105, height: 60 };
-        expect(result.current).toEqual(expectedBounds);
+            const expectedBounds: XYWH = { x: 5, y: 15, width: 105, height: 60 };
+            expect(result.current).toEqual(expectedBounds);
+        });
+
+        test('should return bounding box when layers do not overlap', () => {
+            layers.set('5', createMockLayer('5', 200, 200, 50, 50));
+            const { result } = renderHook(
+                ({ selection }) => useSelectionBounds({ selection, layers }),
+                {
+                    initialProps: { selection: ['1', '5'], layers },
+                }
+            );
+
+            const expectedBounds: XYWH = { x: 10, y: 20, width: 240, height: 230 };
+            expect(result.current).toEqual(expectedBounds);
+        });
     });
 });

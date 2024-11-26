@@ -55,7 +55,7 @@ export const useSelectionBounds = ({
     useEffect(() => {
         const selectedLayers = selection
             .map((layerId) => layers.get(layerId))
-            .filter(Boolean) as Layer[];
+            .filter((layer): layer is Layer => Boolean(layer));
 
         setBounds(boundingBox(selectedLayers));
     }, [selection, layers]);
