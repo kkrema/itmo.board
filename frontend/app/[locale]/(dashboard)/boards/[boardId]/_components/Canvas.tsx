@@ -147,7 +147,17 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                         width: 100,
                         fill: lastUsedColor,
                     };
-                    // more will be added
+                    break;
+                case LayerType.Ellipse:
+                    layer = {
+                        id,
+                        type: LayerType.Ellipse,
+                        x: position.x,
+                        y: position.y,
+                        height: 100,
+                        width: 100,
+                        fill: lastUsedColor,
+                    };
                     break;
                 default:
                     throw new Error(`Invalid layer type: ${layerType}`);
