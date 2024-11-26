@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CanvasMode, CanvasState } from '@/types/canvas';
+import { CanvasMode, CanvasState, LayerType } from '@/types/canvas';
 import { ToolButton } from './ToolButton';
 import {
     Trash2,
@@ -10,6 +10,7 @@ import {
     ArrowUp,
     Pencil,
     MousePointer2,
+    Square,
 } from 'lucide-react';
 
 export interface ToolbarProps {
@@ -99,6 +100,21 @@ export const ToolBar = ({
                         })
                     }
                     isActive={canvasState.mode === CanvasMode.Pencil}
+                    isDisabled={!editable}
+                />
+                <ToolButton
+                    label="Rectangle"
+                    icon={Square}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Rectangle,
+                        })
+                    }
+                    isActive={
+                        canvasState.mode === CanvasMode.Inserting &&
+                        canvasState.layerType === LayerType.Rectangle
+                    }
                     isDisabled={!editable}
                 />
             </div>

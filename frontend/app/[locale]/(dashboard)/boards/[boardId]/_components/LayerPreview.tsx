@@ -5,6 +5,7 @@ import { LayerType } from '@/types/canvas';
 import { colorToCss } from '@/lib/utils';
 import { Path } from './Path';
 import { useCanvasStore } from '@/store/useCanvasStore';
+import { Rectangle } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle';
 
 interface LayerPreviewProps {
     id: string;
@@ -31,6 +32,15 @@ export const LayerPreview = memo(
                         y={layer.y}
                         fill={layer.fill ? colorToCss(layer.fill) : '#000'}
                         stroke={selectionColor}
+                    />
+                );
+            case LayerType.Rectangle:
+                return (
+                    <Rectangle
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
                     />
                 );
 
