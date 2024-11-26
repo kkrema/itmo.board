@@ -329,13 +329,14 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     const onResizeHandlePointerDown = useCallback(
         (corner: Side, initialBounds: XYWH) => {
             if (!editable) return;
+            setSelection([selection[0]]); // Select only the layer being resized
             setCanvasState({
                 mode: CanvasMode.Resizing,
                 initialBounds,
                 corner,
             });
         },
-        [editable],
+        [editable, selection],
     );
 
     // Event handlers
