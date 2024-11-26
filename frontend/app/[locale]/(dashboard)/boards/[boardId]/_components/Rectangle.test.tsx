@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { Rectangle } from './Rectangle';
 import { LayerType, RectangleLayer } from '@/types/canvas';
 import '@testing-library/jest-dom';
-import {colorToCss} from "@/lib/utils";
+import { colorToCss } from '@/lib/utils';
 
 const mockLayer: RectangleLayer = {
     id: '1',
