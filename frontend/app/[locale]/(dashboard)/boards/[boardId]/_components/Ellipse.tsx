@@ -15,6 +15,13 @@ export const Ellipse = ({
     onPointerDown,
     selectionColor,
 }: EllipseProps) => {
+    const fillColor = layer.fill ? colorToCss(layer.fill) : '#000';
+    const strokeColor = selectionColor || 'transparent';
+    const cx = layer.width / 2;
+    const cy = layer.height / 2;
+    const rx = layer.width / 2;
+    const ry = layer.height / 2;
+
     return (
         <svg>
             <ellipse
@@ -26,12 +33,12 @@ export const Ellipse = ({
                         ${layer.y}px
                     )`,
                 }}
-                cx={layer.width / 2}
-                cy={layer.height / 2}
-                rx={layer.width / 2}
-                ry={layer.height / 2}
-                fill={layer.fill ? colorToCss(layer.fill) : '#000'}
-                stroke={selectionColor || 'transparent'}
+                cx={cx}
+                cy={cy}
+                rx={rx}
+                ry={ry}
+                fill={fillColor}
+                stroke={strokeColor}
                 strokeWidth="1"
             />
         </svg>
