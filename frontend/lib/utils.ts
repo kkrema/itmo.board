@@ -124,7 +124,6 @@ export function boundsFromPoints(points: number[][]): XYWH {
         width: right - left,
         height: bottom - top,
     };
-
 }
 
 export function colorToCss(color: Color) {
@@ -197,7 +196,11 @@ export function penPointsToPathLayer(points: number[][]): Partial<PathLayer> {
         y: bounds.y,
         width: bounds.width,
         height: bounds.height,
-        points: points.map(([x, y, pressure]) => [x - bounds.x, y - bounds.y, pressure]),
+        points: points.map(([x, y, pressure]) => [
+            x - bounds.x,
+            y - bounds.y,
+            pressure,
+        ]),
     };
 }
 

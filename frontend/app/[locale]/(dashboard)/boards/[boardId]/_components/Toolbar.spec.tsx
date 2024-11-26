@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { ToolBar } from './Toolbar';
-import { CanvasMode } from '@/types/canvas';
+import { CanvasMode, LayerType } from '@/types/canvas';
 import '@testing-library/jest-dom';
 import type { ToolbarProps } from './Toolbar';
 
@@ -131,6 +131,42 @@ describe('ToolBar Component', () => {
 
         expect(mockSetCanvasState).toHaveBeenCalledWith({
             mode: CanvasMode.Pencil,
+        });
+    });
+
+    it('sets mode to inserting and layerType to rectangle when Rectangle button is clicked', () => {
+        setup();
+
+        const rectangleButton = screen.getByTestId('tool-button-Rectangle');
+        fireEvent.click(rectangleButton);
+
+        expect(mockSetCanvasState).toHaveBeenCalledWith({
+            mode: CanvasMode.Inserting,
+            layerType: LayerType.Rectangle,
+        });
+    });
+
+    it('sets mode to inserting and layerType to ellipse when Ellipse button is clicked', () => {
+        setup();
+
+        const ellipseButton = screen.getByTestId('tool-button-Ellipse');
+        fireEvent.click(ellipseButton);
+
+        expect(mockSetCanvasState).toHaveBeenCalledWith({
+            mode: CanvasMode.Inserting,
+            layerType: LayerType.Ellipse,
+        });
+    });
+
+    it('sets mode to inserting and layerType to note when Sticky Note button is clicked', () => {
+        setup();
+
+        const noteButton = screen.getByTestId('tool-button-Sticky Note');
+        fireEvent.click(noteButton);
+
+        expect(mockSetCanvasState).toHaveBeenCalledWith({
+            mode: CanvasMode.Inserting,
+            layerType: LayerType.Note,
         });
     });
 

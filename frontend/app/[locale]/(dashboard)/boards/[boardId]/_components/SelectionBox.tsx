@@ -89,6 +89,7 @@ export const SelectionBox = memo(
             <>
                 {/* Контур выделения */}
                 <rect
+                    data-testid="selection-rectangle"
                     className="fill-transparent stroke-blue-500 stroke-1 pointer-events-none"
                     style={{
                         transform: `translate(${bounds.x}px, ${bounds.y}px)`,
@@ -103,6 +104,7 @@ export const SelectionBox = memo(
                         ({ corner, cursor, translateX, translateY }, index) => (
                             <rect
                                 key={index}
+                                data-testid={`handle-${index}`}
                                 className="fill-white stroke-1 stroke-blue-500"
                                 x={0}
                                 y={0}
