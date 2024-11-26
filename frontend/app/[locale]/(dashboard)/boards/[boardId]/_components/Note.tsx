@@ -42,7 +42,9 @@ export const Note = ({
     const fontSize = calculateFontSize(width, height);
     const textColor = fill ? getContrastingTextColor(fill) : '#000';
     const backgroundColor = fill ? colorToCss(fill) : '#000';
-    const outlineStyle = selectionColor ? `1px solid ${selectionColor}` : 'none';
+    const outlineStyle = selectionColor
+        ? `1px solid ${selectionColor}`
+        : 'none';
 
     return (
         <svg>
