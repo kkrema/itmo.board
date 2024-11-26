@@ -3,6 +3,7 @@ import { render } from '@testing-library/react';
 import { Ellipse } from './Ellipse';
 import { EllipseLayer, LayerType } from '@/types/canvas';
 import '@testing-library/jest-dom';
+import { colorToCss } from '@/lib/utils';
 
 const mockLayer: EllipseLayer = {
     id: '1',
@@ -32,6 +33,6 @@ test('renders ellipse with correct props', () => {
     expect(ellipseElement).toHaveAttribute('cy', '25');
     expect(ellipseElement).toHaveAttribute('rx', '50');
     expect(ellipseElement).toHaveAttribute('ry', '25');
-    expect(ellipseElement).toHaveAttribute('fill', '#ffffff');
+    expect(ellipseElement).toHaveAttribute('fill', colorToCss(mockLayer.fill));
     expect(ellipseElement).toHaveAttribute('stroke', 'blue');
 });
