@@ -7,6 +7,7 @@ import { Path } from './Path';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { Rectangle } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle';
 import { Ellipse } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Ellipse';
+import { Note } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Note';
 
 interface LayerPreviewProps {
     id: string;
@@ -53,7 +54,15 @@ export const LayerPreview = memo(
                         selectionColor={selectionColor}
                     />
                 );
-
+            case LayerType.Note:
+                return (
+                    <Note
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
             default:
                 console.warn('Unknown layer type');
                 return null;
