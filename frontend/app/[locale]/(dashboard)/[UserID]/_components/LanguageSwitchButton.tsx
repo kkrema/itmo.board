@@ -27,12 +27,12 @@ export const LanguageSwitchButton = () => {
         <Button
             disabled={isPending}
             onClick={onClick}
-            variant='default'
-            size='icon'
+            variant="default"
+            size="icon"
         >
             <Image
                 src={`/language-${locale === 'en' ? 'uk' : 'russia'}-fill-colored.svg`}
-                alt='Language Switch'
+                alt="Language Switch"
                 width={28}
                 height={28}
             />
