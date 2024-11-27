@@ -5,6 +5,7 @@ import { SearchInput } from './SearchInput';
 import { useDebounce } from '@uidotdev/usehooks';
 import { usePathname, useRouter } from 'next/navigation';
 import qs from 'query-string';
+import { useTranslations } from 'next-intl';
 
 jest.mock('@uidotdev/usehooks', () => ({
     useDebounce: jest.fn(),
@@ -45,12 +46,17 @@ jest.mock('@/components/ui/Input', () => ({
     ),
 }));
 
+jest.mock('next-intl', () => ({
+    useTranslations: jest.fn(),
+}));
+
 describe('SearchInput Component', () => {
     const mockReplace = jest.fn();
     const mockUsePathname = usePathname as jest.Mock;
     const mockUseRouter = useRouter as jest.Mock;
     const mockUseDebounce = useDebounce as jest.Mock;
     const mockStringifyUrl = qs.stringifyUrl as jest.Mock;
+    const mockUseTranslations = useTranslations as jest.Mock;
 
     beforeEach(() => {
         // Reset all mocks before each test
@@ -60,6 +66,9 @@ describe('SearchInput Component', () => {
         mockUsePathname.mockReturnValue('/boards');
         mockUseRouter.mockReturnValue({ replace: mockReplace });
         mockUseDebounce.mockImplementation((value: string) => value);
+
+        mockUseTranslations.mockImplementation(() => () => 'Search boards');
+
         mockStringifyUrl.mockImplementation(
             ({
                 url,

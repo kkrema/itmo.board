@@ -14,6 +14,7 @@ import {
     Circle,
     StickyNote,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface ToolbarProps {
     canvasState: CanvasState;
@@ -40,11 +41,13 @@ export const ToolBar = ({
 
     const handleToggleExtraTools = () => setShowExtraTools((prev) => !prev);
 
+    const t = useTranslations('tools');
+
     const extraTools = [
-        { label: 'Bring to Front', icon: BringToFront, action: moveToFront },
-        { label: 'Send to Back', icon: SendToBack, action: moveToBack },
-        { label: 'Move Forward', icon: ArrowUp, action: moveForward },
-        { label: 'Move Backward', icon: ArrowDown, action: moveBackward },
+        { label: t('bringToFront'), icon: BringToFront, action: moveToFront },
+        { label: t('bringToBack'), icon: SendToBack, action: moveToBack },
+        { label: t('moveForward'), icon: ArrowUp, action: moveForward },
+        { label: t('moveBackward'), icon: ArrowDown, action: moveBackward },
     ];
 
     return (
@@ -53,7 +56,7 @@ export const ToolBar = ({
             <div className="relative flex flex-col items-center">
                 <div className="p-2 bg-white rounded-md shadow-md">
                     <ToolButton
-                        label="More"
+                        label={t('more')}
                         icon={MoreVertical}
                         onClick={handleToggleExtraTools}
                     />
@@ -81,7 +84,7 @@ export const ToolBar = ({
             {/* Main toolbar */}
             <div className="flex gap-x-2 p-2 bg-white rounded-md shadow-md">
                 <ToolButton
-                    label="Select"
+                    label={t('select')}
                     icon={MousePointer2}
                     onClick={() => setCanvasState({ mode: CanvasMode.None })}
                     isActive={
@@ -94,7 +97,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Pen"
+                    label={t('pen')}
                     icon={Pencil}
                     onClick={() =>
                         setCanvasState({
@@ -105,7 +108,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Rectangle"
+                    label={t('rectangle')}
                     icon={Square}
                     onClick={() =>
                         setCanvasState({
@@ -120,7 +123,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Ellipse"
+                    label={t('ellipse')}
                     icon={Circle}
                     onClick={() =>
                         setCanvasState({
@@ -135,7 +138,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Sticky Note"
+                    label={t('stickyNote')}
                     icon={StickyNote}
                     onClick={() =>
                         setCanvasState({
@@ -157,7 +160,7 @@ export const ToolBar = ({
             {/* Separate Trash button */}
             <div className="p-2 bg-white rounded-md shadow-md">
                 <ToolButton
-                    label="Delete"
+                    label={t('delete')}
                     icon={Trash2}
                     onClick={deleteSelected}
                     isDisabled={!editable}

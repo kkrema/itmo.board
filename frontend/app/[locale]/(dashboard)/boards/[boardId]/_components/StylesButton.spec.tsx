@@ -2,6 +2,11 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { StylesButton } from './StylesButton';
 import '@testing-library/jest-dom';
+import { useTranslations } from 'next-intl';
+
+jest.mock('next-intl', () => ({
+    useTranslations: jest.fn(),
+}));
 
 describe('StylesButton Component', () => {
     const mockOnClick = jest.fn();
@@ -11,6 +16,9 @@ describe('StylesButton Component', () => {
         onClick: mockOnClick,
         className: '',
     };
+
+    const mockUseTranslations = useTranslations as jest.Mock;
+    mockUseTranslations.mockImplementation(() => () => 'styles');
 
     afterEach(() => {
         jest.clearAllMocks();

@@ -9,6 +9,7 @@ import Canvas from './Canvas';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import '@testing-library/jest-dom';
 import { CanvasMode, CanvasState, LayerType } from '@/types/canvas';
+import { useTranslations } from 'next-intl';
 
 jest.mock('@/store/useCanvasStore', () => ({
     useCanvasStore: jest.fn(),
@@ -104,6 +105,10 @@ jest.mock(
     }),
 );
 
+jest.mock('next-intl', () => ({
+    useTranslations: jest.fn(),
+}));
+
 jest.mock(
     '@/app/[locale]/(dashboard)/boards/[boardId]/_components/SelectionBox',
     () => ({
@@ -140,6 +145,9 @@ describe('Canvas Component', () => {
             { id: 'layer2', x: 50, y: 50 },
         ]),
     };
+
+    const mockUseTranslations = useTranslations as jest.Mock;
+    mockUseTranslations.mockImplementation(() => () => 'a');
 
     const mockUseCanvasStoreHook = (overrides = {}) => {
         const store = { ...defaultStore, ...overrides };

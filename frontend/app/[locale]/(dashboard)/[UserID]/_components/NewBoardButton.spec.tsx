@@ -1,11 +1,19 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { NewBoardButton } from '@/app/[locale]/(dashboard)/[UserID]/_components/NewBoardButton';
 import '@testing-library/jest-dom';
+import { useTranslations } from 'next-intl';
+
+jest.mock('next-intl', () => ({
+    useTranslations: jest.fn(),
+}));
 
 describe('NewBoardButton Component', () => {
     const defaultProps = {
         orgId: 'org123',
     };
+
+    const mockUseTranslations = useTranslations as jest.Mock;
+    mockUseTranslations.mockImplementation(() => () => 'a');
 
     beforeEach(() => {
         jest.clearAllMocks();

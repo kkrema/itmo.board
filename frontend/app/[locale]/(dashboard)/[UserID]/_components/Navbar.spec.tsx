@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { Navbar } from '@/app/[locale]/(dashboard)/[UserID]/_components/Navbar';
 import { useOrganization } from '@clerk/nextjs';
 import '@testing-library/jest-dom';
+import { useLocale, useTranslations } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
 
 jest.mock('@clerk/nextjs', () => ({
     UserButton: () => <div data-testid="user-button">UserButton</div>,
@@ -19,17 +21,59 @@ jest.mock('./InviteButton', () => ({
     InviteButton: () => <div data-testid="invite-button">InviteButton</div>,
 }));
 
+jest.mock('next-intl', () => {
+    const actual = jest.requireActual('next-intl');
+    return {
+        ...actual,
+        useTranslations: jest.fn(),
+        useLocale: jest.fn(),
+        NextIntlClientProvider: ({
+            children,
+            messages,
+        }: {
+            children: React.ReactNode;
+            messages: Record<string, string>;
+        }) => (
+            <actual.NextIntlClientProvider messages={messages} locale="en">
+                {children}
+            </actual.NextIntlClientProvider>
+        ),
+    };
+});
+
+jest.mock(
+    '@/app/[locale]/(dashboard)/[UserID]/_components/LanguageSwitchButton',
+    () => ({
+        LanguageSwitchButton: () => (
+            <div data-testid="language-switch-button">LanguageSwitchButton</div>
+        ),
+    }),
+);
+
 describe('Navbar Component', () => {
+    const mockUseTranslations = useTranslations as jest.Mock;
+    const mockUseLocale = useLocale as jest.Mock;
+    mockUseTranslations.mockImplementation(() => (key: string) => key);
+    mockUseLocale.mockReturnValue('en');
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
+
+    const renderWithIntl = (component: React.ReactNode) => {
+        return render(
+            <NextIntlClientProvider messages={{ itmoBoard: 'itmo.board' }}>
+                {component}
+            </NextIntlClientProvider>,
+        );
+    };
 
     test('renders Navbar with organization active', () => {
         (useOrganization as jest.Mock).mockReturnValue({
             organization: { id: 'org1' },
         });
 
-        render(<Navbar />);
+        renderWithIntl(<Navbar />);
 
         expect(screen.getByText('itmo.board')).toBeInTheDocument();
         expect(screen.getByTestId('org-switcher')).toBeInTheDocument();
@@ -41,7 +85,7 @@ describe('Navbar Component', () => {
     test('does not render InviteButton if no organization is active', () => {
         (useOrganization as jest.Mock).mockReturnValue({ organization: null });
 
-        render(<Navbar />);
+        renderWithIntl(<Navbar />);
 
         expect(screen.queryByTestId('invite-button')).not.toBeInTheDocument();
 
@@ -50,13 +94,13 @@ describe('Navbar Component', () => {
     });
 
     test('renders SearchInput only on large screens', () => {
-        render(<Navbar />);
+        renderWithIntl(<Navbar />);
 
         expect(screen.getByTestId('search-input')).toBeInTheDocument();
     });
 
     test('renders UserButton', () => {
-        render(<Navbar />);
+        renderWithIntl(<Navbar />);
 
         expect(screen.getByTestId('user-button')).toBeInTheDocument();
     });
