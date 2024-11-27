@@ -17,10 +17,10 @@
     "styles": "стили"
   },
   "tools": {
-    "bringToFront": "bring to front",
-    "bringToBack": "bring to back",
-    "moveForward": "move forward",
-    "moveBackward": "move backward",
+    "bringToFront": "переместить наверх",
+    "bringToBack": "переместить вниз",
+    "moveForward": "поставить ближе",
+    "moveBackward": "поставить дальше",
     "delete": "удалить",
     "pen": "карандаш",
     "select": "выбор",
