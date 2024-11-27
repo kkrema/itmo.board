@@ -16,6 +16,8 @@ import {
     LayerType,
     PathLayer,
     Point,
+    XYWH,
+    Side,
 } from '@/types/canvas';
 import {
     cn,
@@ -30,6 +32,7 @@ import { nanoid } from 'nanoid';
 import { SelectionTools } from './SelectionTools';
 import { StylesButton } from './StylesButton';
 import { Grid } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Grid';
+import { SelectionBox } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/SelectionBox';
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 20;
@@ -62,6 +65,7 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
     const [pencilDraft, setPencilDraft] = useState<number[][] | null>(null);
 
     const {
+        layers,
         layerIds,
         addLayer,
         updateLayer,
@@ -147,7 +151,29 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                         width: 100,
                         fill: lastUsedColor,
                     };
-                    // more will be added
+                    break;
+                case LayerType.Ellipse:
+                    layer = {
+                        id,
+                        type: LayerType.Ellipse,
+                        x: position.x,
+                        y: position.y,
+                        height: 100,
+                        width: 100,
+                        fill: lastUsedColor,
+                    };
+                    break;
+                case LayerType.Note:
+                    layer = {
+                        id,
+                        type: layerType,
+                        x: position.x,
+                        y: position.y,
+                        height: 100,
+                        width: 100,
+                        fill: lastUsedColor,
+                        value: '',
+                    };
                     break;
                 default:
                     throw new Error(`Invalid layer type: ${layerType}`);
@@ -298,6 +324,19 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
             }
         },
         [canvasState, selection, updateLayer],
+    );
+
+    const onResizeHandlePointerDown = useCallback(
+        (corner: Side, initialBounds: XYWH) => {
+            if (!editable) return;
+            setSelection([selection[0]]); // Select only the layer being resized
+            setCanvasState({
+                mode: CanvasMode.Resizing,
+                initialBounds,
+                corner,
+            });
+        },
+        [editable, selection],
     );
 
     // Event handlers
@@ -565,6 +604,8 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         console.log('Move backward');
     };
 
+    const layersMap = new Map(Array.from(layers || new Map()));
+
     return (
         <main
             className={cn('h-full w-full relative bg-neutral-100 touch-none')}
@@ -637,6 +678,13 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
                             strokeDasharray="4 2" // Dashed line for distinction
                         />
                     )}
+
+                    <SelectionBox
+                        onResizeHandlePointerDown={onResizeHandlePointerDown}
+                        isShowingHandles={isAnyToolActive}
+                        selection={selection}
+                        layersMap={layersMap}
+                    />
 
                     {canvasState.mode === CanvasMode.SelectionNet &&
                         canvasState.current != null &&

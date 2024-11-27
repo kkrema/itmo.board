@@ -1,4 +1,5 @@
 import {
+    boundsFromPoints,
     cn,
     colorToCss,
     findIntersectingLayersWithRectangle,
@@ -41,7 +42,7 @@ jest.mock('nanoid', () => ({
 const createPointerEvent = (
     clientX: number,
     clientY: number,
-    boundingRect: DOMRect,
+    boundingRect: DOMRect | null,
 ) => {
     return {
         clientX,
@@ -192,6 +193,25 @@ describe('Utility Functions', () => {
             // y = (100 - 50) / 20 = 2.5
 
             expect(result2).toEqual({ x: 0, y: 2.5 });
+        });
+
+        it('should return 0,0 if svgRect is null', () => {
+            const clientX = 150;
+            const clientY = 200;
+            const boundingRect = null;
+
+            const event = createPointerEvent(clientX, clientY, boundingRect);
+            const camera: Camera = { x: 50, y: 50 };
+            const scale = 2;
+
+            const result = pointerEventToCanvasPoint(
+                event,
+                camera,
+                scale,
+                boundingRect,
+            );
+
+            expect(result).toEqual({ x: 0, y: 0 });
         });
     });
 
@@ -456,6 +476,66 @@ describe('Utility Functions', () => {
             expect(result).toBe(
                 'M 10 10 Q 10 10 10 10 10 10 15 15 20 20 20 20 20 20 25 25 30 30 20 20 Z',
             );
+        });
+    });
+
+    describe('boundsFromPoints', () => {
+        it('should return the correct bounds for a single point', () => {
+            const points: number[][] = [[10, 20]];
+            const expected: XYWH = { x: 10, y: 20, width: 0, height: 0 };
+            const result = boundsFromPoints(points);
+            expect(result).toEqual(expected);
+        });
+
+        it('should return the correct bounds for multiple points', () => {
+            const points: number[][] = [
+                [10, 20],
+                [30, 40],
+                [50, 60],
+            ];
+            const expected: XYWH = { x: 10, y: 20, width: 40, height: 40 };
+            const result = boundsFromPoints(points);
+            expect(result).toEqual(expected);
+        });
+
+        it('should handle points with negative coordinates', () => {
+            const points: number[][] = [
+                [-10, -20],
+                [-30, -40],
+                [-50, -60],
+            ];
+            const expected: XYWH = { x: -50, y: -60, width: 40, height: 40 };
+            const result = boundsFromPoints(points);
+            expect(result).toEqual(expected);
+        });
+
+        it('should handle points with decimal coordinates', () => {
+            const points: number[][] = [
+                [10.5, 20.5],
+                [30.25, 40.75],
+                [50.125, 60.875],
+            ];
+            const expected: XYWH = {
+                x: 10.5,
+                y: 20.5,
+                width: 39.625,
+                height: 40.375,
+            };
+            const result = boundsFromPoints(points);
+            expect(result).toEqual(expected);
+        });
+
+        it('should handle points with overlapping coordinates', () => {
+            const points: number[][] = [
+                [10, 10],
+                [10, 10],
+                [20, 20],
+                [20, 20],
+                [30, 30],
+            ];
+            const expected: XYWH = { x: 10, y: 10, width: 20, height: 20 };
+            const result = boundsFromPoints(points);
+            expect(result).toEqual(expected);
         });
     });
 

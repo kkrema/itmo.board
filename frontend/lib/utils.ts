@@ -103,6 +103,29 @@ export function getSvgPathFromStroke(stroke: number[][]): string {
     return pathData.join(' ');
 }
 
+export function boundsFromPoints(points: number[][]): XYWH {
+    let left = points[0][0];
+    let top = points[0][1];
+    let right = points[0][0];
+    let bottom = points[0][1];
+
+    for (let i = 1; i < points.length; i++) {
+        const [x, y] = points[i];
+
+        if (x < left) left = x;
+        if (y < top) top = y;
+        if (x > right) right = x;
+        if (y > bottom) bottom = y;
+    }
+
+    return {
+        x: left,
+        y: top,
+        width: right - left,
+        height: bottom - top,
+    };
+}
+
 export function colorToCss(color: Color) {
     const toHex = (value: number) => value.toString(16).padStart(2, '0');
     const red = toHex(color.r);
@@ -165,28 +188,19 @@ export function penPointsToPathLayer(points: number[][]): Partial<PathLayer> {
         );
     }
 
-    let left = Number.POSITIVE_INFINITY;
-    let top = Number.POSITIVE_INFINITY;
-    let right = Number.NEGATIVE_INFINITY;
-    let bottom = Number.NEGATIVE_INFINITY;
-
-    for (const point of points) {
-        const [x, y] = point;
-
-        // limit the range
-        if (x < left) left = x;
-        if (y < top) top = y;
-        if (x > right) right = x;
-        if (y > bottom) bottom = y;
-    }
+    const bounds = boundsFromPoints(points);
 
     return {
         type: LayerType.Path,
-        x: left,
-        y: top,
-        width: right - left,
-        height: bottom - top,
-        points: points.map(([x, y, pressure]) => [x - left, y - top, pressure]),
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+        points: points.map(([x, y, pressure]) => [
+            x - bounds.x,
+            y - bounds.y,
+            pressure,
+        ]),
     };
 }
 
@@ -219,4 +233,10 @@ export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
     }
 
     return result;
+}
+
+export function getContrastingTextColor(color: Color) {
+    const luminance = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+
+    return luminance > 182 ? 'black' : 'white';
 }

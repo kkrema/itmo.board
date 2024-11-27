@@ -76,6 +76,30 @@ jest.mock(
                 >
                     Pencil Tool
                 </button>
+
+                <button
+                    data-testid="insert-ellipse-button"
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Ellipse,
+                        })
+                    }
+                >
+                    Insert Ellipse
+                </button>
+
+                <button
+                    data-testid="insert-note-button"
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Note,
+                        })
+                    }
+                >
+                    Insert Note
+                </button>
             </div>
         ),
     }),
@@ -84,6 +108,30 @@ jest.mock(
 jest.mock('next-intl', () => ({
     useTranslations: jest.fn(),
 }));
+
+jest.mock(
+    '@/app/[locale]/(dashboard)/boards/[boardId]/_components/SelectionBox',
+    () => ({
+        SelectionBox: ({ onResizeHandlePointerDown, isShowingHandles }) => {
+            if (!isShowingHandles) return null;
+            return (
+                <div data-testid="selection-box">
+                    <div
+                        data-testid="resize-handle-corner"
+                        onPointerDown={() =>
+                            onResizeHandlePointerDown('bottom-right', {
+                                x: 50,
+                                y: 50,
+                                width: 100,
+                                height: 100,
+                            })
+                        }
+                    />
+                </div>
+            );
+        },
+    }),
+);
 
 describe('Canvas Component', () => {
     const defaultStore = {
@@ -197,8 +245,7 @@ describe('Canvas Component', () => {
         fireEvent.pointerUp(svgElement);
         expect(store.getLayers).not.toHaveBeenCalledWith(['layer1', 'layer2']);
 
-        // Attempt to resize a layer
-        // Note: Resizing typically involves specific handles; assuming pointer events simulate this
+        // Attempt to resize a selected layer
         fireEvent.pointerDown(layer2, {
             button: 0,
             clientX: 250,
@@ -399,8 +446,8 @@ describe('Canvas Component', () => {
                 addLayer: addLayerMock,
             };
             const { getByTestId } = renderCanvas({}, storeOverrides);
-            const insertButton = getByTestId('insert-rectangle-button');
-            fireEvent.click(insertButton);
+            const insertRectangle = getByTestId('insert-rectangle-button');
+            fireEvent.click(insertRectangle);
 
             const svgElement = getByTestId('svg-element');
 
@@ -421,6 +468,62 @@ describe('Canvas Component', () => {
                 expect.objectContaining({
                     id: 'nanoid',
                     type: LayerType.Rectangle,
+                    x: 100,
+                    y: 100,
+                    width: 100,
+                    height: 100,
+                    fill: { r: 0, g: 0, b: 0 },
+                }),
+            );
+
+            const insertEllipse = getByTestId('insert-ellipse-button');
+            fireEvent.click(insertEllipse);
+
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 100,
+                clientY: 100,
+            });
+
+            expect(addLayerMock).toBeCalledTimes(1); // Only rectangle was added
+
+            fireEvent.pointerUp(svgElement, {
+                clientX: 100,
+                clientY: 100,
+            });
+
+            expect(addLayerMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'nanoid',
+                    type: LayerType.Ellipse,
+                    x: 100,
+                    y: 100,
+                    width: 100,
+                    height: 100,
+                    fill: { r: 0, g: 0, b: 0 },
+                }),
+            );
+
+            const insertNote = getByTestId('insert-note-button');
+            fireEvent.click(insertNote);
+
+            fireEvent.pointerDown(svgElement, {
+                button: 0,
+                clientX: 100,
+                clientY: 100,
+            });
+
+            expect(addLayerMock).toBeCalledTimes(2); // Only rectangle and ellipse were added
+
+            fireEvent.pointerUp(svgElement, {
+                clientX: 100,
+                clientY: 100,
+            });
+
+            expect(addLayerMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'nanoid',
+                    type: LayerType.Note,
                     x: 100,
                     y: 100,
                     width: 100,
@@ -495,6 +598,50 @@ describe('Canvas Component', () => {
             // Ensure layer3 is not selected
             const layerElement = getByTestId('layer-preview-layer3');
             expect(layerElement).not.toHaveStyle('border-color: blue');
+        });
+    });
+
+    describe('Resizing Layers', () => {
+        it('should resize selected layer when dragging resize handle', () => {
+            const layerId = 'layer1';
+            const initialLayer = {
+                id: layerId,
+                x: 50,
+                y: 50,
+                width: 100,
+                height: 100,
+            };
+            const updateLayerMock = jest.fn();
+            const getLayerMock = jest.fn(() => initialLayer);
+            const storeOverrides = {
+                layerIds: [layerId],
+                getLayer: getLayerMock,
+                updateLayer: updateLayerMock,
+            };
+            const { getByTestId } = renderCanvas({}, storeOverrides);
+
+            selectLayer(layerId, getByTestId);
+
+            // Simulate pointer down on the resize handle
+            const resizeHandle = getByTestId('resize-handle-corner');
+            fireEvent.pointerDown(resizeHandle);
+
+            // Simulate pointer move to resize
+            const svgElement = getByTestId('svg-element');
+            fireEvent.pointerMove(svgElement, {
+                clientX: 200,
+                clientY: 200,
+            });
+
+            fireEvent.pointerUp(svgElement);
+
+            // Verify that updateLayer was called with new x, y, width, height
+            expect(updateLayerMock).toHaveBeenCalledWith(layerId, {
+                x: 50,
+                y: 50,
+                width: 150,
+                height: 150,
+            });
         });
     });
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CanvasMode, CanvasState } from '@/types/canvas';
+import { CanvasMode, CanvasState, LayerType } from '@/types/canvas';
 import { ToolButton } from './ToolButton';
 import {
     Trash2,
@@ -10,6 +10,9 @@ import {
     ArrowUp,
     Pencil,
     MousePointer2,
+    Square,
+    Circle,
+    StickyNote,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -102,6 +105,51 @@ export const ToolBar = ({
                         })
                     }
                     isActive={canvasState.mode === CanvasMode.Pencil}
+                    isDisabled={!editable}
+                />
+                <ToolButton
+                    label="Rectangle"
+                    icon={Square}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Rectangle,
+                        })
+                    }
+                    isActive={
+                        canvasState.mode === CanvasMode.Inserting &&
+                        canvasState.layerType === LayerType.Rectangle
+                    }
+                    isDisabled={!editable}
+                />
+                <ToolButton
+                    label="Ellipse"
+                    icon={Circle}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Ellipse,
+                        })
+                    }
+                    isActive={
+                        canvasState.mode === CanvasMode.Inserting &&
+                        canvasState.layerType === LayerType.Ellipse
+                    }
+                    isDisabled={!editable}
+                />
+                <ToolButton
+                    label="Sticky Note"
+                    icon={StickyNote}
+                    onClick={() =>
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Note,
+                        })
+                    }
+                    isActive={
+                        canvasState.mode === CanvasMode.Inserting &&
+                        canvasState.layerType === LayerType.Note
+                    }
                     isDisabled={!editable}
                 />
             </div>

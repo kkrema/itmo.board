@@ -5,6 +5,9 @@ import { LayerType } from '@/types/canvas';
 import { colorToCss } from '@/lib/utils';
 import { Path } from './Path';
 import { useCanvasStore } from '@/store/useCanvasStore';
+import { Rectangle } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Rectangle';
+import { Ellipse } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Ellipse';
+import { Note } from '@/app/[locale]/(dashboard)/boards/[boardId]/_components/Note';
 
 interface LayerPreviewProps {
     id: string;
@@ -29,11 +32,39 @@ export const LayerPreview = memo(
                         onPointerDown={(e) => onLayerPointerDown(e, id)}
                         x={layer.x}
                         y={layer.y}
+                        width={layer.width}
+                        height={layer.height}
                         fill={layer.fill ? colorToCss(layer.fill) : '#000'}
                         stroke={selectionColor}
                     />
                 );
-
+            case LayerType.Ellipse:
+                return (
+                    <Ellipse
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
+            case LayerType.Rectangle:
+                return (
+                    <Rectangle
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
+            case LayerType.Note:
+                return (
+                    <Note
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
             default:
                 console.warn('Unknown layer type');
                 return null;
