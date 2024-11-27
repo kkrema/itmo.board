@@ -108,7 +108,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Rectangle"
+                    label={t('rectangle')}
                     icon={Square}
                     onClick={() =>
                         setCanvasState({
@@ -123,7 +123,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Ellipse"
+                    label={t('ellipse')}
                     icon={Circle}
                     onClick={() =>
                         setCanvasState({
@@ -138,7 +138,7 @@ export const ToolBar = ({
                     isDisabled={!editable}
                 />
                 <ToolButton
-                    label="Sticky Note"
+                    label={t('stickyNote')}
                     icon={StickyNote}
                     onClick={() =>
                         setCanvasState({

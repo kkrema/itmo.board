@@ -25,6 +25,9 @@
     "delete": "delete",
     "pen": "pen",
     "select": "select",
-    "more": "more"
+    "more": "more",
+    "rectangle": "rectangle",
+    "ellipse": "ellipse",
+    "stickyNote": "sticky note"
   }
 }
