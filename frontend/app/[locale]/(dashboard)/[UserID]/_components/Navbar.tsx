@@ -8,10 +8,10 @@ import {
 
 import { SearchInput } from './SearchInput';
 import { InviteButton } from './InviteButton';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Poppins } from 'next/font/google';
 import { LanguageSwitchButton } from '@/app/[locale]/(dashboard)/[UserID]/_components/LanguageSwitchButton';
+import {Link} from "@/i18n/routing";
 
 const font = Poppins({
     subsets: ['latin'],
