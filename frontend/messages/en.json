@@ -1,5 +1,33 @@
 {
   "test": {
     "test": "test"
+  },
+  "search": {
+    "searchBoards": "search boards",
+    "notFound": "no results found :(",
+    "tryAnother": "try searching for something else"
+  },
+  "utils": {
+    "welcome": "welcome to itmo.board",
+    "newBoard": "new board",
+    "createOrganization": "create an organization to get started",
+    "createOrganizationButton": "create an organization",
+    "inviteMembers": "invite members",
+    "you": "you",
+    "teammate": "teammate",
+    "styles": "styles"
+  },
+  "tools": {
+    "bringToFront": "bring to front",
+    "bringToBack": "bring to back",
+    "moveForward": "move forward",
+    "moveBackward": "move backward",
+    "delete": "delete",
+    "pen": "pen",
+    "select": "select",
+    "more": "more",
+    "rectangle": "rectangle",
+    "ellipse": "ellipse",
+    "stickyNote": "sticky note"
   }
 }
