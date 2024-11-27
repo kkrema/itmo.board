@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BoardList, Board, getAllBoards } from './BoardList';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import {useTranslations} from "next-intl";
 
 jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
@@ -18,6 +19,10 @@ jest.mock('./BoardList', () => {
         getAllBoards: jest.fn(),
     };
 });
+
+jest.mock('next-intl', () => ({
+    useTranslations: jest.fn(),
+}));
 
 describe('BoardList Component', () => {
     const mockBoards: Board[] = [
@@ -38,6 +43,9 @@ describe('BoardList Component', () => {
             imageUrl: '/images/board2.png',
         },
     ];
+
+    const mockUseTranslations = useTranslations as jest.Mock;
+    mockUseTranslations.mockImplementation(() => () => 'a');
 
     beforeEach(() => {
         jest.clearAllMocks();
