@@ -44,8 +44,13 @@ describe('BoardList Component', () => {
         },
     ];
 
+    const messages: {[key: string]: string} = {
+        searchBoards: "search boards",
+        notFound: "no results found",
+        tryAnother: "try searching for something else"
+    }
     const mockUseTranslations = useTranslations as jest.Mock;
-    mockUseTranslations.mockImplementation(() => () => 'a');
+    mockUseTranslations.mockImplementation(() => (key: string) => messages[key]);
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -119,7 +124,7 @@ describe('BoardList Component', () => {
         render(<BoardList orgId="org1" query={{}} />);
 
         await waitFor(() => {
-            expect(screen.getByText('No results found!')).toBeInTheDocument();
+            expect(screen.getByText('no results found')).toBeInTheDocument();
         });
     });
 });
