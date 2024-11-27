@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BoardList, Board, getAllBoards } from './BoardList';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 jest.mock('next/navigation', () => ({
     useParams: jest.fn(),

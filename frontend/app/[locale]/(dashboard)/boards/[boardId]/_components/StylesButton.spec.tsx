@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { StylesButton } from './StylesButton';
 import '@testing-library/jest-dom';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 jest.mock('next-intl', () => ({
     useTranslations: jest.fn(),

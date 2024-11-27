@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { Navbar } from '@/app/[locale]/(dashboard)/[UserID]/_components/Navbar';
 import { useOrganization } from '@clerk/nextjs';
 import '@testing-library/jest-dom';
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 
 jest.mock('@clerk/nextjs', () => ({
@@ -27,7 +27,13 @@ jest.mock('next-intl', () => {
         ...actual,
         useTranslations: jest.fn(),
         useLocale: jest.fn(),
-        NextIntlClientProvider: ({ children, messages }: { children: React.ReactNode, messages: Record<string, string> }) => (
+        NextIntlClientProvider: ({
+            children,
+            messages,
+        }: {
+            children: React.ReactNode;
+            messages: Record<string, string>;
+        }) => (
             <actual.NextIntlClientProvider messages={messages} locale="en">
                 {children}
             </actual.NextIntlClientProvider>
@@ -35,10 +41,14 @@ jest.mock('next-intl', () => {
     };
 });
 
-
-jest.mock('@/app/[locale]/(dashboard)/[UserID]/_components/LanguageSwitchButton', () => ({
-    LanguageSwitchButton: () => <div data-testid="language-switch-button">LanguageSwitchButton</div>,
-}));
+jest.mock(
+    '@/app/[locale]/(dashboard)/[UserID]/_components/LanguageSwitchButton',
+    () => ({
+        LanguageSwitchButton: () => (
+            <div data-testid="language-switch-button">LanguageSwitchButton</div>
+        ),
+    }),
+);
 
 describe('Navbar Component', () => {
     const mockUseTranslations = useTranslations as jest.Mock;
@@ -54,7 +64,7 @@ describe('Navbar Component', () => {
         return render(
             <NextIntlClientProvider messages={{ itmoBoard: 'itmo.board' }}>
                 {component}
-            </NextIntlClientProvider>
+            </NextIntlClientProvider>,
         );
     };
 

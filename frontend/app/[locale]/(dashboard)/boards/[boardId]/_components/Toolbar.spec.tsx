@@ -4,8 +4,7 @@ import { ToolBar } from './Toolbar';
 import { CanvasMode } from '@/types/canvas';
 import '@testing-library/jest-dom';
 import type { ToolbarProps } from './Toolbar';
-import {useTranslations} from "next-intl";
-
+import { useTranslations } from 'next-intl';
 
 jest.mock('./ToolButton', () => ({
     ToolButton: ({ label, onClick, isDisabled }: never) => (
@@ -31,18 +30,20 @@ describe('ToolBar Component', () => {
     const mockMoveBackward = jest.fn();
     const mockSetCanvasState = jest.fn();
 
-    const messages: {[key: string]: string} = {
-        bringToFront: "bring to front",
-        bringToBack: "bring to back",
-        moveForward: "move forward",
-        moveBackward: "move backward",
-        delete: "delete",
-        pen: "pen",
-        select: "select",
-        more: "more"
-    }
+    const messages: { [key: string]: string } = {
+        bringToFront: 'bring to front',
+        bringToBack: 'bring to back',
+        moveForward: 'move forward',
+        moveBackward: 'move backward',
+        delete: 'delete',
+        pen: 'pen',
+        select: 'select',
+        more: 'more',
+    };
     const mockUseTranslations = useTranslations as jest.Mock;
-    mockUseTranslations.mockImplementation(() => (key: string) => messages[key]);
+    mockUseTranslations.mockImplementation(
+        () => (key: string) => messages[key],
+    );
     type SetupProps = Partial<Parameters<typeof ToolBar>[0]>;
 
     const setup = (props: SetupProps = {}) => {
@@ -100,7 +101,9 @@ describe('ToolBar Component', () => {
         setup();
 
         fireEvent.click(screen.getByTestId('tool-button-more'));
-        const bringToBackButton = screen.getByTestId('tool-button-bring to back');
+        const bringToBackButton = screen.getByTestId(
+            'tool-button-bring to back',
+        );
         fireEvent.click(bringToBackButton);
 
         expect(mockMoveToBack).toHaveBeenCalledTimes(1);

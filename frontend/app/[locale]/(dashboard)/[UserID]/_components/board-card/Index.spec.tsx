@@ -4,7 +4,7 @@ import { BoardCard } from '@/app/[locale]/(dashboard)/[UserID]/_components/board
 import { clerkClient } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { act } from 'react';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 jest.mock('@clerk/nextjs', () => ({
     clerkClient: {

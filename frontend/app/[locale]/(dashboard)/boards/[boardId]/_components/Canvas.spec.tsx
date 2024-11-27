@@ -9,7 +9,7 @@ import Canvas from './Canvas';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import '@testing-library/jest-dom';
 import { CanvasMode, CanvasState, LayerType } from '@/types/canvas';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 jest.mock('@/store/useCanvasStore', () => ({
     useCanvasStore: jest.fn(),

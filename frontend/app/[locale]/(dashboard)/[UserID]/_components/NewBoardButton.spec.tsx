@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { NewBoardButton } from '@/app/[locale]/(dashboard)/[UserID]/_components/NewBoardButton';
 import '@testing-library/jest-dom';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 jest.mock('next-intl', () => ({
     useTranslations: jest.fn(),

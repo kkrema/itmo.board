@@ -5,7 +5,7 @@ import { SearchInput } from './SearchInput';
 import { useDebounce } from '@uidotdev/usehooks';
 import { usePathname, useRouter } from 'next/navigation';
 import qs from 'query-string';
-import {useTranslations} from "next-intl";
+import { useTranslations } from 'next-intl';
 
 jest.mock('@uidotdev/usehooks', () => ({
     useDebounce: jest.fn(),
