@@ -31,7 +31,9 @@ export const LanguageSwitchButton = () => {
             size="icon"
         >
             <Image
-                src={`/language-${locale === 'en' ? 'uk' : 'russia'}-fill-colored.svg`}
+                src={`/language-${
+                    locale === 'en' ? 'uk' : 'russia'
+                }-fill-colored.svg`}
                 alt="Language Switch"
                 width={28}
                 height={28}
