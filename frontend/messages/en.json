@@ -11,6 +11,7 @@
     "welcome": "welcome to itmo.board",
     "newBoard": "new board",
     "createOrganization": "create an organization to get started",
+    "createOrganizationButton": "create an organization",
     "inviteMembers": "invite members",
     "you": "you",
     "teammate": "teammate",
