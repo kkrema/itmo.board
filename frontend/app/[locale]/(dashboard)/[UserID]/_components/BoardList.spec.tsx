@@ -44,13 +44,15 @@ describe('BoardList Component', () => {
         },
     ];
 
-    const messages: {[key: string]: string} = {
-        searchBoards: "search boards",
-        notFound: "no results found",
-        tryAnother: "try searching for something else"
-    }
+    const messages: { [key: string]: string } = {
+        searchBoards: 'search boards',
+        notFound: 'no results found',
+        tryAnother: 'try searching for something else',
+    };
     const mockUseTranslations = useTranslations as jest.Mock;
-    mockUseTranslations.mockImplementation(() => (key: string) => messages[key]);
+    mockUseTranslations.mockImplementation(
+        () => (key: string) => messages[key],
+    );
 
     beforeEach(() => {
         jest.clearAllMocks();

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 
 jest.mock('@clerk/nextjs', () => ({
     OrganizationProfile: () => (
-        <div data-testid="organization-profile">Organization Profile</div>
+        <div data-testid='organization-profile'>Organization Profile</div>
     ),
 }));
 
