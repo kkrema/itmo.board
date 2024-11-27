@@ -39,9 +39,9 @@ describe('ToolBar Component', () => {
         pen: 'pen',
         select: 'select',
         more: 'more',
-        rectangle: "rectangle",
-        ellipse: "ellipse",
-        stickyNote: "sticky note"
+        rectangle: 'rectangle',
+        ellipse: 'ellipse',
+        stickyNote: 'sticky note'
     };
     const mockUseTranslations = useTranslations as jest.Mock;
     mockUseTranslations.mockImplementation(
