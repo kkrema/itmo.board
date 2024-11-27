@@ -599,7 +599,6 @@ describe('Canvas Component', () => {
             const layerElement = getByTestId('layer-preview-layer3');
             expect(layerElement).not.toHaveStyle('border-color: blue');
         });
-
     });
 
     describe('Resizing Layers', () => {
