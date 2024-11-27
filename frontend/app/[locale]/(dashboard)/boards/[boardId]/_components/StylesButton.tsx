@@ -16,7 +16,7 @@ export const StylesButton: FC<StylesButtonProps> = ({
     className,
 }) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null);
-    const t = useTranslations('searchInput');
+    const t = useTranslations('utils');
 
     return (
         <button
