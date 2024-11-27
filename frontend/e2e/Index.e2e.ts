@@ -28,5 +28,5 @@ test('should log in and access page', async ({ page }) => {
         }),
     ]);
 
-    await expect(page.locator('span')).toContainText('itmo.board');
+    await expect(page.locator('span').nth(0)).toContainText('itmo.board');
 });
