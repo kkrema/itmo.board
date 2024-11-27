@@ -39,6 +39,9 @@ describe('ToolBar Component', () => {
         pen: 'pen',
         select: 'select',
         more: 'more',
+        rectangle: "rectangle",
+        ellipse: "ellipse",
+        stickyNote: "sticky note"
     };
     const mockUseTranslations = useTranslations as jest.Mock;
     mockUseTranslations.mockImplementation(
@@ -158,7 +161,7 @@ describe('ToolBar Component', () => {
     it('sets mode to inserting and layerType to rectangle when Rectangle button is clicked', () => {
         setup();
 
-        const rectangleButton = screen.getByTestId('tool-button-Rectangle');
+        const rectangleButton = screen.getByTestId('tool-button-rectangle');
         fireEvent.click(rectangleButton);
 
         expect(mockSetCanvasState).toHaveBeenCalledWith({
@@ -170,7 +173,7 @@ describe('ToolBar Component', () => {
     it('sets mode to inserting and layerType to ellipse when Ellipse button is clicked', () => {
         setup();
 
-        const ellipseButton = screen.getByTestId('tool-button-Ellipse');
+        const ellipseButton = screen.getByTestId('tool-button-ellipse');
         fireEvent.click(ellipseButton);
 
         expect(mockSetCanvasState).toHaveBeenCalledWith({
@@ -182,7 +185,7 @@ describe('ToolBar Component', () => {
     it('sets mode to inserting and layerType to note when Sticky Note button is clicked', () => {
         setup();
 
-        const noteButton = screen.getByTestId('tool-button-Sticky Note');
+        const noteButton = screen.getByTestId('tool-button-sticky note');
         fireEvent.click(noteButton);
 
         expect(mockSetCanvasState).toHaveBeenCalledWith({
