@@ -32,6 +32,8 @@ export const LayerPreview = memo(
                         onPointerDown={(e) => onLayerPointerDown(e, id)}
                         x={layer.x}
                         y={layer.y}
+                        width={layer.width}
+                        height={layer.height}
                         fill={layer.fill ? colorToCss(layer.fill) : '#000'}
                         stroke={selectionColor}
                     />

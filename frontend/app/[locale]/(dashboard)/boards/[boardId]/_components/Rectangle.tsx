@@ -19,21 +19,19 @@ export const Rectangle = ({
     const strokeColor = selectionColor || 'transparent';
 
     return (
-        <svg>
-            <rect
-                className="drop-shadow-md"
-                onPointerDown={(e) => onPointerDown(e, id)}
-                style={{
-                    transform: `translate(${x}px, ${y}px) `,
-                }}
-                x={0}
-                y={0}
-                width={width}
-                height={height}
-                strokeWidth={1}
-                fill={fillColor}
-                stroke={strokeColor}
-            />
-        </svg>
+        <rect
+            className="drop-shadow-md"
+            onPointerDown={(e) => onPointerDown(e, id)}
+            style={{
+                transform: `translate(${x}px, ${y}px) `,
+            }}
+            x={0}
+            y={0}
+            width={width}
+            height={height}
+            strokeWidth={1}
+            fill={fillColor}
+            stroke={strokeColor}
+        />
     );
 };

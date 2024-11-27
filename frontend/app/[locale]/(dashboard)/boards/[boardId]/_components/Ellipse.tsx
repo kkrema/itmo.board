@@ -23,24 +23,22 @@ export const Ellipse = ({
     const ry = layer.height / 2;
 
     return (
-        <svg>
-            <ellipse
-                className="drop-shadow-md"
-                onPointerDown={(e) => onPointerDown(e, id)}
-                style={{
-                    transform: `translate(
-                        ${layer.x}px,
-                        ${layer.y}px
-                    )`,
-                }}
-                cx={cx}
-                cy={cy}
-                rx={rx}
-                ry={ry}
-                fill={fillColor}
-                stroke={strokeColor}
-                strokeWidth="1"
-            />
-        </svg>
+        <ellipse
+            className="drop-shadow-md"
+            onPointerDown={(e) => onPointerDown(e, id)}
+            style={{
+                transform: `translate(
+                    ${layer.x}px,
+                    ${layer.y}px
+                )`,
+            }}
+            cx={cx}
+            cy={cy}
+            rx={rx}
+            ry={ry}
+            fill={fillColor}
+            stroke={strokeColor}
+            strokeWidth="1"
+        />
     );
 };

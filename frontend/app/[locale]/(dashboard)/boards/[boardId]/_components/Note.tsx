@@ -47,32 +47,30 @@ export const Note = ({
         : 'none';
 
     return (
-        <svg>
-            <foreignObject
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                onPointerDown={(e) => onPointerDown(e, id)}
+        <foreignObject
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            onPointerDown={(e) => onPointerDown(e, id)}
+            style={{
+                outline: outlineStyle,
+                backgroundColor: backgroundColor,
+            }}
+            className="shadow-md drop-shadow-xl p-5"
+        >
+            <ContentEditable
+                html={noteValue}
+                onChange={handleContentChange}
+                className={cn(
+                    'h-full w-full flex flex-col items-center justify-center text-center outline-none',
+                    font.className,
+                )}
                 style={{
-                    outline: outlineStyle,
-                    backgroundColor: backgroundColor,
+                    fontSize: `${fontSize}px`,
+                    color: textColor,
                 }}
-                className="shadow-md drop-shadow-xl p-5"
-            >
-                <ContentEditable
-                    html={noteValue}
-                    onChange={handleContentChange}
-                    className={cn(
-                        'h-full w-full flex flex-col items-center justify-center text-center outline-none',
-                        font.className,
-                    )}
-                    style={{
-                        fontSize: `${fontSize}px`,
-                        color: textColor,
-                    }}
-                />
-            </foreignObject>
-        </svg>
+            />
+        </foreignObject>
     );
 };
