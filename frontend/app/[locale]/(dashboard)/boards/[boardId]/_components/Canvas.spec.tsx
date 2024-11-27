@@ -600,7 +600,6 @@ describe('Canvas Component', () => {
             expect(layerElement).not.toHaveStyle('border-color: blue');
         });
 
-        it('should move', () => {});
     });
 
     describe('Resizing Layers', () => {
