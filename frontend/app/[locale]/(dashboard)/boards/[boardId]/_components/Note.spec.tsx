@@ -12,7 +12,13 @@ jest.mock('@/lib/utils', () => ({
 
 jest.mock('react-contenteditable', () => ({
     __esModule: true,
-    default: ({ html, onChange }: { html: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+    default: ({
+        html,
+        onChange,
+    }: {
+        html: string;
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    }) => (
         <div contentEditable={true} onInput={onChange}>
             {html}
         </div>
@@ -36,8 +42,14 @@ describe('Note component', () => {
     beforeEach(() => {
         onPointerDown = jest.fn();
 
-        jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(200);
-        jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(100);
+        jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(
+            200,
+        );
+        jest.spyOn(
+            HTMLElement.prototype,
+            'offsetHeight',
+            'get',
+        ).mockReturnValue(100);
     });
 
     it('should render the note with initial value', () => {
@@ -46,7 +58,7 @@ describe('Note component', () => {
                 id={mockLayer.id}
                 layer={mockLayer}
                 onPointerDown={onPointerDown}
-            />
+            />,
         );
 
         expect(screen.getByText('Initial note text')).toBeInTheDocument();
@@ -58,12 +70,16 @@ describe('Note component', () => {
                 id={mockLayer.id}
                 layer={mockLayer}
                 onPointerDown={onPointerDown}
-            />
+            />,
         );
 
-        const foreignObjectElement = screen.getByText('Initial note text').closest('foreignObject');
+        const foreignObjectElement = screen
+            .getByText('Initial note text')
+            .closest('foreignObject');
 
-        expect(foreignObjectElement).toHaveStyle('background-color: rgb(255, 0, 0)');
+        expect(foreignObjectElement).toHaveStyle(
+            'background-color: rgb(255, 0, 0)',
+        );
     });
 
     it('should apply correct text color based on fill', () => {
@@ -72,7 +88,7 @@ describe('Note component', () => {
                 id={mockLayer.id}
                 layer={mockLayer}
                 onPointerDown={onPointerDown}
-            />
+            />,
         );
 
         const contentEditable = screen.getByText('Initial note text');
@@ -85,7 +101,7 @@ describe('Note component', () => {
                 id={mockLayer.id}
                 layer={mockLayer}
                 onPointerDown={onPointerDown}
-            />
+            />,
         );
 
         const noteElement = screen.getByText('Initial note text').parentElement;
@@ -93,6 +109,9 @@ describe('Note component', () => {
             fireEvent.pointerDown(noteElement);
         }
 
-        expect(onPointerDown).toHaveBeenCalledWith(expect.any(Object), mockLayer.id);
+        expect(onPointerDown).toHaveBeenCalledWith(
+            expect.any(Object),
+            mockLayer.id,
+        );
     });
 });

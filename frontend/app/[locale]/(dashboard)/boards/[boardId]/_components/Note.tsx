@@ -4,13 +4,16 @@ import { NoteLayer } from '@/types/canvas';
 import { cn, colorToCss, getContrastingTextColor } from '@/lib/utils';
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-
 const font = Kalam({
     subsets: ['latin'],
     weight: ['400'],
 });
 
-export const calculateFontSize = (width: number, height: number, text: string) => {
+export const calculateFontSize = (
+    width: number,
+    height: number,
+    text: string,
+) => {
     const maxFontSize = 72;
     const minFontSize = 10;
     const scaleFactor = 0.15;
@@ -18,7 +21,11 @@ export const calculateFontSize = (width: number, height: number, text: string) =
     const fontSizeBasedOnHeight = height * scaleFactor;
     const fontSizeBasedOnWidth = width * scaleFactor;
 
-    let fontSize = Math.min(fontSizeBasedOnHeight, fontSizeBasedOnWidth, maxFontSize);
+    let fontSize = Math.min(
+        fontSizeBasedOnHeight,
+        fontSizeBasedOnWidth,
+        maxFontSize,
+    );
 
     const testElement = document.createElement('span');
     testElement.style.fontFamily = 'Kalam';
@@ -44,11 +51,11 @@ interface NoteProps {
 }
 
 export const Note = ({
-                         layer,
-                         onPointerDown,
-                         id,
-                         selectionColor,
-                     }: NoteProps) => {
+    layer,
+    onPointerDown,
+    id,
+    selectionColor,
+}: NoteProps) => {
     const { x, y, width, height, fill, value } = layer;
 
     const [noteValue, setNoteValue] = useState(value || 'Text');
@@ -70,7 +77,11 @@ export const Note = ({
             const contentWidth = containerRef.current.offsetWidth;
             const contentHeight = containerRef.current.offsetHeight;
 
-            const newFontSize = calculateFontSize(contentWidth, contentHeight, noteValue);
+            const newFontSize = calculateFontSize(
+                contentWidth,
+                contentHeight,
+                noteValue,
+            );
 
             if (newFontSize !== fontSize) {
                 setFontSize(newFontSize);
@@ -92,7 +103,10 @@ export const Note = ({
                 }}
                 className="shadow-md drop-shadow-xl p-5"
             >
-                <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center text-center">
+                <div
+                    ref={containerRef}
+                    className="h-full w-full flex flex-col items-center justify-center text-center"
+                >
                     {/* Controlled contentEditable element */}
                     <div
                         contentEditable
@@ -106,8 +120,10 @@ export const Note = ({
                             whiteSpace: 'normal',
                             wordBreak: 'break-word',
                         }}
-                        onInput={(e) => handleContentChange(e as ContentEditableEvent)}
-                        dangerouslySetInnerHTML={{__html: noteValue}}
+                        onInput={(e) =>
+                            handleContentChange(e as ContentEditableEvent)
+                        }
+                        dangerouslySetInnerHTML={{ __html: noteValue }}
                     />
                 </div>
             </foreignObject>
