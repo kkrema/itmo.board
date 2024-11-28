@@ -9,7 +9,7 @@ import { Footer } from './Footer';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useClerk } from '@clerk/nextjs'; // Импортируем useClerk для работы с клиентом
+import { useClerk } from '@clerk/nextjs';
 
 interface BoardCardProps {
     id: string;
@@ -28,7 +28,7 @@ export const BoardCard = ({
     const t = useTranslations('utils');
     const router = useRouter();
     const params = useParams();
-    const { user } = useClerk(); // Получаем текущего пользователя через useClerk
+    const { user } = useClerk();
     const [authorLabel, setAuthorLabel] = useState(
         params.UserID === authorId ? t('you') : t('teammate'),
     );
@@ -46,7 +46,7 @@ export const BoardCard = ({
         };
 
         getFirstName(params.UserID as string);
-    }, [params.UserID, authorId, t, user]); // Добавили зависимости
+    }, [params.UserID, authorId, t, user]);
 
     const createdAtLabel = formatDistanceToNow(new Date(createdAt), {
         addSuffix: true,

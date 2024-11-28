@@ -3,6 +3,8 @@ import '@testing-library/jest-dom';
 import { BoardList, Board, getAllBoards } from './BoardList';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import React from "react";
+import {ClerkProvider} from "@clerk/nextjs";
 
 jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
@@ -54,6 +56,14 @@ describe('BoardList Component', () => {
         () => (key: string) => messages[key],
     );
 
+    const renderWithClerk = (component: React.ReactNode) => {
+        return render(
+            <ClerkProvider>
+                {component}
+            </ClerkProvider>,
+        );
+    };
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -71,7 +81,7 @@ describe('BoardList Component', () => {
         });
         (getAllBoards as jest.Mock).mockResolvedValue(mockBoards);
 
-        render(<BoardList orgId="org1" query={{}} />);
+        renderWithClerk(<BoardList orgId="org1" query={{}} />);
 
         await waitFor(() => {
             expect(screen.getByText('Test Board 1')).toBeInTheDocument();
@@ -97,7 +107,7 @@ describe('BoardList Component', () => {
         });
         (getAllBoards as jest.Mock).mockResolvedValue(mockBoards);
 
-        render(<BoardList orgId="org1" query={{}} />);
+        renderWithClerk(<BoardList orgId="org1" query={{}} />);
 
         await waitFor(() => {
             expect(screen.getByText('Test Board 1')).toBeInTheDocument();
