@@ -1,6 +1,5 @@
 'use client';
 
-import { clerkClient } from '@clerk/nextjs';
 import { formatDistanceToNow } from 'date-fns';
 
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -10,6 +9,7 @@ import { Footer } from './Footer';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useClerk } from '@clerk/nextjs'; // Импортируем useClerk для работы с клиентом
 
 interface BoardCardProps {
     id: string;
@@ -26,9 +26,9 @@ export const BoardCard = ({
     createdAt,
 }: BoardCardProps) => {
     const t = useTranslations('utils');
-
     const router = useRouter();
     const params = useParams();
+    const { user } = useClerk(); // Получаем текущего пользователя через useClerk
     const [authorLabel, setAuthorLabel] = useState(
         params.UserID === authorId ? t('you') : t('teammate'),
     );
@@ -36,15 +36,17 @@ export const BoardCard = ({
 
     useEffect(() => {
         const getFirstName = async (userID: string) => {
-            const user = await clerkClient.users?.getUser(userID);
-            setAuthorLabel(
-                userID === authorId
-                    ? t('you')
-                    : user?.firstName || t('teammate'),
-            );
+            if (userID === authorId) {
+                setAuthorLabel(t('you'));
+            } else if (user) {
+                setAuthorLabel(user.firstName || t('teammate'));
+            } else {
+                setAuthorLabel(t('teammate'));
+            }
         };
+
         getFirstName(params.UserID as string);
-    });
+    }, [params.UserID, authorId, t, user]); // Добавили зависимости
 
     const createdAtLabel = formatDistanceToNow(new Date(createdAt), {
         addSuffix: true,
