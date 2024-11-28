@@ -64,23 +64,24 @@ describe('Note component', () => {
         expect(screen.getByText('Initial note text')).toBeInTheDocument();
     });
 
-    it('should apply the correct background color based on fill', () => {
+    it('should apply the correct background color based on fill', async () => {
         render(
             <Note
                 id={mockLayer.id}
                 layer={mockLayer}
                 onPointerDown={onPointerDown}
-            />,
+            />
         );
 
-        const foreignObjectElement = screen
-            .getByText('Initial note text')
-            .closest('foreignObject');
+        // Wait for the foreignObject to appear in the DOM
+        const foreignObjectElement = await screen.findByTestId('note-foreign-object');
 
-        expect(foreignObjectElement).toHaveStyle(
-            'background-color: rgb(255, 0, 0)',
-        );
+        // Check the background color
+        expect(foreignObjectElement).toHaveStyle('background-color: rgb(255, 0, 0)');
     });
+
+
+
 
     it('should apply correct text color based on fill', () => {
         render(

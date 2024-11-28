@@ -51,13 +51,12 @@ interface NoteProps {
 }
 
 export const Note = ({
-    layer,
-    onPointerDown,
-    id,
-    selectionColor,
-}: NoteProps) => {
+                         layer,
+                         onPointerDown,
+                         id,
+                         selectionColor,
+                     }: NoteProps) => {
     const { x, y, width, height, fill, value } = layer;
-
     const [noteValue, setNoteValue] = useState(value || 'Text');
     const [fontSize, setFontSize] = useState(72);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -90,43 +89,41 @@ export const Note = ({
     }, [noteValue, fontSize, width, height]);
 
     return (
-        <svg width="200" height="100">
-            <foreignObject
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                onPointerDown={(e) => onPointerDown(e, id)}
-                style={{
-                    outline: outlineStyle,
-                    backgroundColor: backgroundColor,
-                }}
-                className="shadow-md drop-shadow-xl p-5"
+        <foreignObject
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            onPointerDown={(e) => onPointerDown(e, id)}
+            style={{
+                outline: outlineStyle,
+                backgroundColor: backgroundColor,
+            }}
+            className="shadow-md drop-shadow-xl p-5"
+            data-testid="note-foreign-object"
+        >
+            <div
+                ref={containerRef}
+                className="h-full w-full flex flex-col items-center justify-center text-center"
             >
                 <div
-                    ref={containerRef}
-                    className="h-full w-full flex flex-col items-center justify-center text-center"
-                >
-                    {/* Controlled contentEditable element */}
-                    <div
-                        contentEditable
-                        className={cn(
-                            'h-full w-full flex flex-col items-center justify-center text-center outline-none',
-                            font.className,
-                        )}
-                        style={{
-                            fontSize: `${fontSize}px`,
-                            color: textColor,
-                            whiteSpace: 'normal',
-                            wordBreak: 'break-word',
-                        }}
-                        onInput={(e) =>
-                            handleContentChange(e as ContentEditableEvent)
-                        }
-                        dangerouslySetInnerHTML={{ __html: noteValue }}
-                    />
-                </div>
-            </foreignObject>
-        </svg>
+                    contentEditable
+                    className={cn(
+                        'h-full w-full flex flex-col items-center justify-center text-center outline-none',
+                        font.className,
+                    )}
+                    style={{
+                        fontSize: `${fontSize}px`,
+                        color: textColor,
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                    }}
+                    onInput={(e) =>
+                        handleContentChange(e as ContentEditableEvent)
+                    }
+                    dangerouslySetInnerHTML={{ __html: noteValue }}
+                />
+            </div>
+        </foreignObject>
     );
 };
