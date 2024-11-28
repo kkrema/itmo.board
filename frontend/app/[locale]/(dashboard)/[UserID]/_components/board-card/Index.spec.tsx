@@ -6,7 +6,6 @@ import { act } from 'react';
 import { useTranslations } from 'next-intl';
 import { useClerk } from '@clerk/nextjs';
 
-
 jest.mock('@clerk/nextjs', () => ({
     clerkClient: {
         users: {
