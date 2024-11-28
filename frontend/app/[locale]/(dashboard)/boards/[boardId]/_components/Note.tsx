@@ -51,11 +51,11 @@ interface NoteProps {
 }
 
 export const Note = ({
-                         layer,
-                         onPointerDown,
-                         id,
-                         selectionColor,
-                     }: NoteProps) => {
+    layer,
+    onPointerDown,
+    id,
+    selectionColor,
+}: NoteProps) => {
     const { x, y, width, height, fill, value } = layer;
     const [noteValue, setNoteValue] = useState(value || 'Text');
     const [fontSize, setFontSize] = useState(72);

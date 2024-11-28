@@ -70,18 +70,19 @@ describe('Note component', () => {
                 id={mockLayer.id}
                 layer={mockLayer}
                 onPointerDown={onPointerDown}
-            />
+            />,
         );
 
         // Wait for the foreignObject to appear in the DOM
-        const foreignObjectElement = await screen.findByTestId('note-foreign-object');
+        const foreignObjectElement = await screen.findByTestId(
+            'note-foreign-object',
+        );
 
         // Check the background color
-        expect(foreignObjectElement).toHaveStyle('background-color: rgb(255, 0, 0)');
+        expect(foreignObjectElement).toHaveStyle(
+            'background-color: rgb(255, 0, 0)',
+        );
     });
-
-
-
 
     it('should apply correct text color based on fill', () => {
         render(
