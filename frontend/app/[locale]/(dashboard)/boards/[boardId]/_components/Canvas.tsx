@@ -72,6 +72,10 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         removeLayers,
         getLayer,
         getLayers,
+        moveLayersToFront,
+        moveLayersToBack,
+        moveLayersForward,
+        moveLayersBackward,
     } = useCanvasStore();
 
     const [lastUsedColor, setLastUsedColor] = useState<Color>({
@@ -588,21 +592,21 @@ const Canvas: React.FC<CanvasProps> = ({ edit }) => {
         };
     }, [copyLayers, pasteLayers, deleteLayers, selectAllLayers, editable]);
 
-    const handleMoveToFront = () => {
-        console.log('Move to front');
-    };
+    const handleMoveToFront = useCallback(() => {
+        moveLayersToFront(selection);
+    }, [moveLayersToFront, selection]);
 
-    const handleMoveToBack = () => {
-        console.log('Move to back');
-    };
+    const handleMoveToBack = useCallback(() => {
+        moveLayersToBack(selection);
+    }, [moveLayersToBack, selection]);
 
-    const handleMoveForward = () => {
-        console.log('Move forward');
-    };
+    const handleMoveForward = useCallback(() => {
+        moveLayersForward(selection);
+    }, [moveLayersForward, selection]);
 
-    const handleMoveBackward = () => {
-        console.log('Move backward');
-    };
+    const handleMoveBackward = useCallback(() => {
+        moveLayersBackward(selection);
+    }, [moveLayersBackward, selection]);
 
     const layersMap = new Map(Array.from(layers || new Map()));
 
