@@ -1,17 +1,20 @@
-import { authMiddleware } from '@clerk/nextjs';
-
+import { NextFetchEvent, NextRequest } from 'next/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import createMiddleware from 'next-intl/middleware';
 import { routing } from '@/i18n/routing';
 
 const intlMiddleware = createMiddleware(routing);
 
-export default authMiddleware({
-    afterAuth: (auth, req) => {
-        return intlMiddleware(req);
-    },
+export default async function combinedMiddleware(
+    req: NextRequest,
+    event: NextFetchEvent,
+) {
+    const clerkHandler = clerkMiddleware();
 
-    publicRoutes: ['/', '/sign-in', '/sign-up'],
-});
+    await clerkHandler(req, event);
+
+    return intlMiddleware(req);
+}
 
 export const config = {
     matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],

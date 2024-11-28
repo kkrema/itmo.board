@@ -3,6 +3,8 @@ import '@testing-library/jest-dom';
 import { BoardList, Board, getAllBoards } from './BoardList';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import React from 'react';
+import { ClerkProvider, useClerk } from '@clerk/nextjs';
 
 jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
@@ -22,6 +24,11 @@ jest.mock('./BoardList', () => {
 
 jest.mock('next-intl', () => ({
     useTranslations: jest.fn(),
+}));
+
+jest.mock('@clerk/nextjs', () => ({
+    useClerk: jest.fn(),
+    ClerkProvider: jest.fn(),
 }));
 
 describe('BoardList Component', () => {
@@ -54,6 +61,16 @@ describe('BoardList Component', () => {
         () => (key: string) => messages[key],
     );
 
+    const mockClerkProvider = ClerkProvider as jest.Mock;
+    mockClerkProvider.mockImplementation(({ children }) => <>{children}</>);
+
+    const mockUseClerk = useClerk as jest.Mock;
+    mockUseClerk.mockReturnValue({ user: { firstName: 'you' } });
+
+    const renderWithClerk = (component: React.ReactNode) => {
+        return render(<ClerkProvider>{component}</ClerkProvider>);
+    };
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -71,7 +88,7 @@ describe('BoardList Component', () => {
         });
         (getAllBoards as jest.Mock).mockResolvedValue(mockBoards);
 
-        render(<BoardList orgId="org1" query={{}} />);
+        renderWithClerk(<BoardList orgId="org1" query={{}} />);
 
         await waitFor(() => {
             expect(screen.getByText('Test Board 1')).toBeInTheDocument();
@@ -97,7 +114,7 @@ describe('BoardList Component', () => {
         });
         (getAllBoards as jest.Mock).mockResolvedValue(mockBoards);
 
-        render(<BoardList orgId="org1" query={{}} />);
+        renderWithClerk(<BoardList orgId="org1" query={{}} />);
 
         await waitFor(() => {
             expect(screen.getByText('Test Board 1')).toBeInTheDocument();

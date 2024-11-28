@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BoardCard } from '@/app/[locale]/(dashboard)/[UserID]/_components/board-card/Index';
-import { clerkClient } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { act } from 'react';
 import { useTranslations } from 'next-intl';
+import { useClerk } from '@clerk/nextjs';
 
 jest.mock('@clerk/nextjs', () => ({
     clerkClient: {
@@ -24,6 +24,10 @@ jest.mock('next-intl', () => ({
     useTranslations: jest.fn(),
 }));
 
+jest.mock('@clerk/nextjs', () => ({
+    useClerk: jest.fn(),
+}));
+
 describe('BoardCard Component', () => {
     const mockPush = jest.fn();
     const defaultProps = {
@@ -36,6 +40,9 @@ describe('BoardCard Component', () => {
 
     const mockUseTranslations = useTranslations as jest.Mock;
     mockUseTranslations.mockImplementation(() => () => 'you');
+
+    const mockUseClerk = useClerk as jest.Mock;
+    mockUseClerk.mockReturnValue({ user: { firstName: 'you' } });
 
     beforeEach(() => {
         (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
@@ -59,10 +66,6 @@ describe('BoardCard Component', () => {
     });
 
     test('displays "You" if the authorId matches UserID in params', async () => {
-        (clerkClient.users.getUser as jest.Mock).mockResolvedValue({
-            firstName: 'you',
-        });
-
         render(<BoardCard {...defaultProps} authorId="123" />);
 
         await waitFor(() => {
