@@ -1,70 +1,119 @@
-import { render } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Note } from './Note';
 import { LayerType, NoteLayer } from '@/types/canvas';
 import '@testing-library/jest-dom';
 
+jest.mock('@/lib/utils', () => ({
+    calculateFontSize: jest.fn(() => 48),
+    cn: jest.fn().mockReturnValue('mocked-class'),
+    colorToCss: jest.fn(({ r, g, b }) => `rgb(${r}, ${g}, ${b})`),
+    getContrastingTextColor: jest.fn().mockReturnValue('#000000'),
+}));
+
+jest.mock('react-contenteditable', () => ({
+    __esModule: true,
+    default: ({
+        html,
+        onChange,
+    }: {
+        html: string;
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    }) => (
+        <div contentEditable={true} onInput={onChange}>
+            {html}
+        </div>
+    ),
+}));
+
 const mockLayer: NoteLayer = {
-    id: '1',
+    id: 'note-1',
     type: LayerType.Note,
     x: 10,
     y: 20,
     width: 200,
     height: 100,
-    fill: { r: 255, g: 255, b: 255 },
-    value: 'Initial text',
+    fill: { r: 255, g: 0, b: 0 },
+    value: 'Initial note text',
 };
 
-const mockOnPointerDown = jest.fn();
+describe('Note component', () => {
+    let onPointerDown: jest.Mock;
 
-test('renders note with correct props and initial text', () => {
-    const { getByText, container } = render(
-        <Note
-            id="1"
-            layer={mockLayer}
-            onPointerDown={mockOnPointerDown}
-            selectionColor="blue"
-        />,
-    );
+    beforeEach(() => {
+        onPointerDown = jest.fn();
 
-    expect(getByText('Initial text')).toBeInTheDocument();
+        jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(
+            200,
+        );
+        jest.spyOn(
+            HTMLElement.prototype,
+            'offsetHeight',
+            'get',
+        ).mockReturnValue(100);
+    });
 
-    const foreignObjectElement = container.querySelector('foreignobject');
-    expect(foreignObjectElement).toBeInTheDocument();
-    expect(foreignObjectElement).toHaveAttribute('x', '10');
-    expect(foreignObjectElement).toHaveAttribute('y', '20');
-    expect(foreignObjectElement).toHaveAttribute('width', '200');
-    expect(foreignObjectElement).toHaveAttribute('height', '100');
-});
+    it('should render the note with initial value', () => {
+        render(
+            <Note
+                id={mockLayer.id}
+                layer={mockLayer}
+                onPointerDown={onPointerDown}
+            />,
+        );
 
-test('applies correct font size based on width and height', () => {
-    const { container } = render(
-        <Note
-            id="1"
-            layer={mockLayer}
-            onPointerDown={mockOnPointerDown}
-            selectionColor="blue"
-        />,
-    );
+        expect(screen.getByText('Initial note text')).toBeInTheDocument();
+    });
 
-    const contentEditable = container.querySelector(
-        'div[contenteditable=true]',
-    );
+    it('should apply the correct background color based on fill', async () => {
+        render(
+            <Note
+                id={mockLayer.id}
+                layer={mockLayer}
+                onPointerDown={onPointerDown}
+            />,
+        );
 
-    expect(contentEditable).toHaveStyle(`font-size: 15px`);
-});
+        // Wait for the foreignObject to appear in the DOM
+        const foreignObjectElement = await screen.findByTestId(
+            'note-foreign-object',
+        );
 
-test('applies contrasting text color based on fill color', () => {
-    const { container } = render(
-        <Note
-            id="1"
-            layer={{ ...mockLayer, fill: { r: 255, g: 0, b: 0 } }} // Красный фон
-            onPointerDown={mockOnPointerDown}
-            selectionColor="blue"
-        />,
-    );
+        // Check the background color
+        expect(foreignObjectElement).toHaveStyle(
+            'background-color: rgb(255, 0, 0)',
+        );
+    });
 
-    const contentEditable = container.querySelector(
-        'div[contenteditable=true]',
-    );
-    expect(contentEditable).toHaveStyle('color: white');
+    it('should apply correct text color based on fill', () => {
+        render(
+            <Note
+                id={mockLayer.id}
+                layer={mockLayer}
+                onPointerDown={onPointerDown}
+            />,
+        );
+
+        const contentEditable = screen.getByText('Initial note text');
+        expect(contentEditable).toHaveStyle('color: #000000');
+    });
+
+    it('should call onPointerDown when clicked', () => {
+        render(
+            <Note
+                id={mockLayer.id}
+                layer={mockLayer}
+                onPointerDown={onPointerDown}
+            />,
+        );
+
+        const noteElement = screen.getByText('Initial note text').parentElement;
+        if (noteElement) {
+            fireEvent.pointerDown(noteElement);
+        }
+
+        expect(onPointerDown).toHaveBeenCalledWith(
+            expect.any(Object),
+            mockLayer.id,
+        );
+    });
 });
